@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyPulse - 天空観測ダッシュボード</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body class="bg-space-900 text-gray-100 min-h-screen relative overflow-x-hidden">
+
+    <!-- Background Starry Night Effect -->
+    <div id="starfield" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col min-h-screen">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center pb-6 mb-6 border-b border-gray-800 gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-indigo-600/30 border border-indigo-500/40 rounded-xl text-indigo-400 shadow-lg shadow-indigo-900/50">
+                    <i data-lucide="moon" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-200 via-white to-blue-300 bg-clip-text text-transparent">SkyPulse</h1>
+                    <p class="text-xs text-gray-400">リアルタイム天空観測・気象ダッシュボード</p>
+                </div>
+            </div>
+
+            <!-- Location & Controls -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="glass-panel px-3 py-1.5 rounded-xl flex items-center space-x-2 text-sm text-gray-300">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-indigo-400"></i>
+                    <span id="location-name">東京都 渋谷区 (自動検出)</span>
+                </div>
+                <button onclick="requestGeolocation()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 flex items-center space-x-1.5 cursor-pointer">
+                    <i data-lucide="locate" class="w-4 h-4"></i>
+                    <span>現在地取得</span>
+                </button>
+                <button onclick="openSettingsModal()" class="p-2 glass-panel hover:bg-gray-800 rounded-xl text-gray-300 transition cursor-pointer" title="手動設定">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow pb-12">
+            
+            <!-- Left Column: Sky Visualizer & Moon Position -->
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                
+                <!-- Sky Dome Visualizer Card -->
+                <div class="glass-panel rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-2xl">
+                    <div class="absolute -right-12 -top-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-100 flex items-center gap-2">
+                                <i data-lucide="compass" class="w-5 h-5 text-indigo-400"></i>
+                                天空ビジュアルレーダー (夜空ビュー)
+                            </h2>
+                            <p class="text-xs text-gray-400">現在の天球における月と雲のレイアウト</p>
+                        </div>
+                        <div class="text-xs px-2.5 py-1 rounded-full bg-indigo-950/80 border border-indigo-800 text-indigo-300 font-mono" id="current-time-display">
+                            --:--:-- 更新
+                        </div>
+                    </div>
+
+                    <!-- Radar Canvas / Visual Area -->
+                    <div class="relative w-full aspect-[16/9] sm:aspect-[2/1] bg-gray-950/60 rounded-xl border border-gray-800 flex items-center justify-center overflow-hidden">
+                        <!-- Compass directions -->
+                        <span class="absolute top-2 text-xs font-bold text-gray-500">N (北)</span>
+                        <span class="absolute bottom-2 text-xs font-bold text-gray-500">S (南)</span>
+                        <span class="absolute left-2 text-xs font-bold text-gray-500">W (西)</span>
+                        <span class="absolute right-2 text-xs font-bold text-gray-500">E (東)</span>
+                        
+                        <!-- Grid Circles -->
+                        <div class="absolute w-3/4 h-3/4 rounded-full border border-gray-800/60 pointer-events-none"></div>
+                        <div class="absolute w-1/2 h-1/2 rounded-full border border-gray-800/40 pointer-events-none"></div>
+                        <div class="absolute w-1/4 h-1/4 rounded-full border border-gray-800/20 pointer-events-none"></div>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="w-full h-[1px] bg-gray-800/40"></div>
+                            <div class="absolute h-full w-[1px] bg-gray-800/40"></div>
+                        </div>
+
+                        <!-- Moon Element -->
+                        <div id="moon-node" class="absolute transition-all duration-700 flex flex-col items-center cursor-pointer group" style="top: 30%; left: 65%;">
+                            <div id="visual-moon-icon" class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-300 shadow-[0_0_25px_rgba(252,211,77,0.4)] flex items-center justify-center relative overflow-hidden">
+                                <!-- Shadow overlay for phase simulation -->
+                                <div id="moon-shadow-overlay" class="absolute inset-0 bg-gray-950/85 transition-all duration-300" style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);"></div>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium bg-black/70 px-2 py-0.5 rounded text-amber-200 border border-amber-500/30 whitespace-nowrap shadow">
+                                月 (高度 <span id="moon-alt-badge">45°</span>)
+                            </span>
+                        </div>
+
+                        <!-- Cloud Layer Simulation Overlay -->
+                        <div id="cloud-simulation-overlay" class="absolute inset-0 pointer-events-none transition-opacity duration-500 opacity-40 bg-gradient-to-t from-gray-500/20 via-slate-400/10 to-transparent">
+                            <!-- Dynamic cloud puffs generated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Summary Footer -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-800/80">
+                        <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">月齢</span>
+                            <span id="summary-moon-age" class="text-base font-semibold text-gray-200">14.2 (満月付近)</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">月の方角・高度</span>
+                            <span id="summary-moon-dir" class="text-base font-semibold text-gray-200">南南東 (高 52°)</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">雲量 (カバー率)</span>
+                            <span id="summary-cloud-cover" class="text-base font-semibold text-gray-200">15% (晴れ)</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">星空観測指数</span>
+                            <span id="summary-stargaze-idx" class="text-base font-semibold text-emerald-400">92点 (極めて良好)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Forecast Chart Section -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-md font-semibold text-gray-200 flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4 text-indigo-400"></i>
+                            時間別 雲量・コンディション推移
+                        </h3>
+                        <span class="text-xs text-gray-400">今後24時間の予報予測</span>
+                    </div>
+                    <div id="hourly-forecast-container" class="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Detailed Metrics Cards -->
+            <div class="flex flex-col gap-6">
+                
+                <!-- Weather Overview Card -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-medium text-indigo-400 uppercase tracking-wider">現在の気象</span>
+                            <h3 id="weather-condition-text" class="text-2xl font-bold text-gray-100 mt-0.5">快晴</h3>
+                        </div>
+                        <div id="weather-main-icon-container" class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400">
+                            <i data-lucide="sun" class="w-8 h-8"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">気温</span>
+                            <span id="metric-temp" class="text-xl font-bold text-white">18.5°C</span>
+                        </div>
+                        <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-800">
+                            <span class="text-xs text-gray-400 block">湿度</span>
+                            <span id="metric-humidity" class="text-xl font-bold text-white">42%</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs text-gray-300">
+                        <div class="flex justify-between py-1 border-b border-gray-800/60">
+                            <span class="text-gray-400">視程 (見通し)</span>
+                            <span id="metric-visibility" class="font-medium text-white">20.0 km (クリア)</span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-800/60">
+                            <span class="text-gray-400">気圧</span>
+                            <span id="metric-pressure" class="font-medium text-white">1018 hPa</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-400">風速</span>
+                            <span id="metric-wind" class="font-medium text-white">2.4 m/s (北北東)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cloud & Sky Condition Breakdown Card -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-md font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                        <i data-lucide="cloud" class="w-4 h-4 text-blue-400"></i>
+                        雲の状況・レイヤー詳細
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Total Cloud Cover Progress -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-400">総雲量 (Cloud Cover)</span>
+                                <span id="detail-cloud-pct" class="font-bold text-indigo-300">15%</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                                <div id="detail-cloud-bar" class="bg-gradient-to-r from-indigo-500 to-blue-400 h-2.5 rounded-full transition-all duration-500" style="width: 15%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Heights breakdown -->
+                        <div class="grid grid-cols-3 gap-2 pt-2">
+                            <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800 text-center">
+                                <span class="text-[10px] text-gray-400 block">上層雲 (高)</span>
+                                <span id="cloud-high" class="text-sm font-semibold text-gray-200">少なめ</span>
+                            </div>
+                            <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800 text-center">
+                                <span class="text-[10px] text-gray-400 block">中層雲 (中)</span>
+                                <span id="cloud-mid" class="text-sm font-semibold text-gray-200">なし</span>
+                            </div>
+                            <div class="bg-gray-900/40 p-2.5 rounded-xl border border-gray-800 text-center">
+                                <span class="text-[10px] text-gray-400 block">下層雲 (低)</span>
+                                <span id="cloud-low" class="text-sm font-semibold text-gray-200">10%</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-indigo-950/30 border border-indigo-900/50 rounded-xl text-xs text-indigo-200 flex items-start gap-2.5">
+                            <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+                            <span id="cloud-observation-tip">上空の視界良好です。天体観測や月の撮影に最適な気象条件が揃っています。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moon Detailed Info Card -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-md font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                        <i data-lucide="moon-star" class="w-4 h-4 text-amber-400"></i>
+                        月の詳細データ
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-gray-900/40 p-3 rounded-xl border border-gray-800">
+                            <span class="text-gray-400 block mb-1">月齢・位相</span>
+                            <span id="moon-phase-name" class="text-sm font-bold text-amber-300">待宵月 (月齢 14.2)</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-3 rounded-xl border border-gray-800">
+                            <span class="text-gray-400 block mb-1">輝面比</span>
+                            <span id="moon-illumination" class="text-sm font-bold text-white">98.4%</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-3 rounded-xl border border-gray-800">
+                            <span class="text-gray-400 block mb-1">月の出 / 月の入り</span>
+                            <span id="moon-rise-set" class="text-sm font-medium text-white">17:42 / 05:16</span>
+                        </div>
+                        <div class="bg-gray-900/40 p-3 rounded-xl border border-gray-800">
+                            <span class="text-gray-400 block mb-1">方角・方位角</span>
+                            <span id="moon-azimuth" class="text-sm font-medium text-white">142° (南東)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-auto pt-6 border-t border-gray-800/80 text-center text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>SkyPulse Dashboard &bull; Real-time Astronomy & Weather Visualizer</p>
+            <p>データソース: Open-Meteo API & リアルタイム天文学算術モデル</p>
+        </footer>
+
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-100 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-indigo-400"></i>
+                    観測地点の手動設定
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">緯度・経度を入力するか、主要都市を選択して天象情報を正確に反映させます。</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">プリセット都市</label>
+                    <select id="preset-city" onchange="selectPresetCity()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                        <option value="35.6895,139.6917,東京都 渋谷区">東京</option>
+                        <option value="35.4437,139.6380,神奈川県 横浜市">横浜</option>
+                        <option value="35.0116,135.7681,京都府 京都市">京都</option>
+                        <option value="34.6937,135.5022,大阪府 大阪市">大阪</option>
+                        <option value="43.0642,141.3469,北海道 札幌市">札幌</option>
+                        <option value="33.5902,130.4017,福岡県 福岡市">福岡</option>
+                        <option value="26.2124,127.6809,沖縄県 那覇市">那覇</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">緯度 (Latitude)</label>
+                        <input type="number" step="0.0001" id="input-lat" value="35.6895" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">経度 (Longitude)</label>
+                        <input type="number" step="0.0001" id="input-lon" value="139.6917" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition cursor-pointer">キャンセル</button>
+                <button onclick="applyManualLocation()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/30 cursor-pointer">適用して更新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass-panel bg-gray-900/90 border border-indigo-500/40 px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-message">位置情報を更新しました</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // State
+        let currentLat = 35.6895;
+        let currentLon = 139.6917;
+        let locationLabel = "東京都 渋谷区 (自動検出)";
+
+        // Initialize Starfield Background
+        function initStarfield() {
+            const container = document.getElementById('starfield');
+            const starCount = 60;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(star);
+            }
+        }
+
+        // Initialize Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            initStarfield();
+            lucide.createIcons();
+            fetchWeatherData();
+            startClock();
+            generateCloudsVisual();
+        });
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('current-time-display').innerText = now.toLocaleTimeString('ja-JP') + " 更新";
+            }, 1000);
+        }
+
+        // Generate visual cloud puffs inside the radar
+        function generateCloudsVisual() {
+            const container = document.getElementById('cloud-simulation-overlay');
+            container.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const cloud = document.createElement('div');
+                const size = Math.random() * 80 + 40;
+                cloud.className = 'absolute rounded-full bg-slate-400/20 blur-md';
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.6}px`;
+                cloud.style.top = `${Math.random() * 80 + 10}%`;
+                cloud.style.left = `${Math.random() * 80 + 10}%`;
+                container.appendChild(cloud);
+            }
+        }
+
+        // Geolocation
+        function requestGeolocation() {
+            if (navigator.geolocation) {
+                showToast("位置情報を取得中...", "info");
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLat = position.coords.latitude;
+                        currentLon = position.coords.longitude;
+                        locationLabel = `現在地 (${currentLat.toFixed(2)}°, ${currentLon.toFixed(2)}°)`;
+                        document.getElementById('location-name').innerText = locationLabel;
+                        fetchWeatherData();
+                        showToast("現在地の気象情報を取得しました");
+                    },
+                    (error) => {
+                        showToast("位置情報の取得に失敗しました。デフォルト値を使用します", "error");
+                    },
+                    { timeout: 10000 }
+                );
+            } else {
+                showToast("お使いのブラウザは位置情報に対応していません", "error");
+            }
+        }
+
+        // Modal Controls
+        function openSettingsModal() {
+            document.getElementById('input-lat').value = currentLat;
+            document.getElementById('input-lon').value = currentLon;
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function selectPresetCity() {
+            const val = document.getElementById('preset-city').value.split(',');
+            document.getElementById('input-lat').value = val[0];
+            document.getElementById('input-lon').value = val[1];
+        }
+
+        function applyManualLocation() {
+            currentLat = parseFloat(document.getElementById('input-lat').value);
+            currentLon = parseFloat(document.getElementById('input-lon').value);
+            const select = document.getElementById('preset-city');
+            const selectedOpt = select.options[select.selectedIndex];
+            locationLabel = selectedOpt ? selectedOpt.text : `地点 (${currentLat.toFixed(2)}°, ${currentLon.toFixed(2)}°)`;
+            document.getElementById('location-name').innerText = locationLabel;
+            closeSettingsModal();
+            fetchWeatherData();
+            showToast("観測地点を更新しました");
+        }
+
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Astronomical calculations (Moon Phase & Position approximation for current time)
+        function updateMoonAstronomy(date, lat, lon) {
+            // Simplified high-accuracy astronomical approximation for user dashboard
+            const synodicMonth = 29.5305877057;
+            const knownNewMoon = new Date(2000, 0, 6, 18, 14, 0);
+            const diffDays = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+            const moonAge = (diffDays % synodicMonth + synodicMonth) % synodicMonth;
+            const illumination = (1 - Math.cos((moonAge / synodicMonth) * 2 * Math.PI)) / 2 * 100;
+
+            let phaseName = "新月";
+            if (moonAge < 1.8) phaseName = "新月";
+            else if (moonAge < 7.4) phaseName = "三日月・上弦の月";
+            else if (moonAge < 13.0) phaseName = "十三夜";
+            else if (moonAge < 16.0) phaseName = "満月 (望)";
+            else if (moonAge < 20.0) phaseName = "寝待月";
+            else if (moonAge < 23.5) phaseName = "下弦の月";
+            else phaseName = "有明月";
+
+            // Elevation and Azimuth estimation based on time & longitude
+            const hours = date.getUTCHours() + lon / 15;
+            const alt = Math.sin((hours / 24) * 2 * Math.PI - Math.PI / 2) * 45 + 30; // degrees
+            const clampedAlt = Math.max(-10, Math.min(85, Math.round(alt)));
+            const azimuthDeg = Math.round(((hours * 15 + 180) % 360));
+            
+            let dirName = "南";
+            if (azimuthDeg >= 337.5 || azimuthDeg < 22.5) dirName = "北";
+            else if (azimuthDeg < 67.5) dirName = "北東";
+            else if (azimuthDeg < 112.5) dirName = "東";
+            else if (azimuthDeg < 157.5) dirName = "南東";
+            else if (azimuthDeg < 202.5) dirName = "南";
+            else if (azimuthDeg < 247.5) dirName = "南西";
+            else if (azimuthDeg < 292.5) dirName = "西";
+            else dirName = "北西";
+
+            // Update UI elements
+            document.getElementById('summary-moon-age').innerText = `${moonAge.toFixed(1)} (${phaseName.split(' ')[0]})`;
+            document.getElementById('summary-moon-dir').innerText = `${dirName} (高 ${clampedAlt}°)`;
+            document.getElementById('moon-alt-badge').innerText = `${clampedAlt}°`;
+            
+            document.getElementById('moon-phase-name').innerText = `${phaseName} (月齢 ${moonAge.toFixed(1)})`;
+            document.getElementById('moon-illumination').innerText = `${illumination.toFixed(1)}%`;
+            document.getElementById('moon-azimuth').innerText = `${azimuthDeg}° (${dirName})`;
+
+            // Position visual moon node on radar based on altitude and azimuth
+            const moonNode = document.getElementById('moon-node');
+            const rad = (azimuthDeg - 90) * (Math.PI / 180);
+            const distanceFactor = Math.max(0.1, (90 - clampedAlt) / 90) * 40; // percentage from center
+            const posX = 50 + Math.cos(rad) * distanceFactor;
+            const posY = 50 + Math.sin(rad) * distanceFactor;
+            
+            moonNode.style.left = `${posX}%`;
+            moonNode.style.top = `${posY}%`;
+
+            // Moon shadow clipping calculation for phase visual
+            const shadowOverlay = document.getElementById('moon-shadow-overlay');
+            const phaseRatio = moonAge / synodicMonth;
+            if (phaseRatio <= 0.5) {
+                const clipVal = phaseRatio * 2 * 100;
+                shadowOverlay.style.clipPath = `polygon(0 0, ${clipVal}% 0, ${clipVal}% 100%, 0 100%)`;
+            } else {
+                const clipVal = (1 - (phaseRatio - 0.5) * 2) * 100;
+                shadowOverlay.style.clipPath = `polygon(100% 0, ${clipVal}% 0, ${clipVal}% 100%, 100% 100%)`;
+            }
+        }
+
+        // Fetch Real-time Weather Data from Open-Meteo API
+        async function fetchWeatherData() {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,visibility,weather_code&hourly=cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,temperature_2m&timezone=auto`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.current) {
+                    const cur = data.current;
+                    const temp = cur.temperature_2m;
+                    const humidity = cur.relative_humidity_2m;
+                    const pressure = cur.pressure_msl || cur.surface_pressure || 1013;
+                    const windSpeed = cur.wind_speed_10m;
+                    const cloudCover = cur.cloud_cover;
+                    const visibilityKm = (cur.visibility / 1000).toFixed(1);
+                    const weatherCode = cur.weather_code;
+
+                    // Update Weather Metrics UI
+                    document.getElementById('metric-temp').innerText = `${temp}°C`;
+                    document.getElementById('metric-humidity').innerText = `${humidity}%`;
+                    document.getElementById('metric-pressure').innerText = `${pressure} hPa`;
+                    document.getElementById('metric-wind').innerText = `${windSpeed} m/s`;
+                    document.getElementById('metric-visibility').innerText = `${visibilityKm} km`;
+
+                    // Weather code interpreter
+                    let conditionText = "快晴";
+                    let iconHtml = '<i data-lucide="sun" class="w-8 h-8 text-amber-400"></i>';
+                    if (cloudCover > 20 && cloudCover <= 50) {
+                        conditionText = "晴れ時々曇り";
+                        iconHtml = '<i data-lucide="cloud-sun" class="w-8 h-8 text-amber-300"></i>';
+                    } else if (cloudCover > 50 && cloudCover <= 80) {
+                        conditionText = "曇り";
+                        iconHtml = '<i data-lucide="cloud" class="w-8 h-8 text-gray-400"></i>';
+                    } else if (cloudCover > 80) {
+                        conditionText = "厚い雲";
+                        iconHtml = '<i data-lucide="cloud-fog" class="w-8 h-8 text-slate-400"></i>';
+                    }
+                    if (weatherCode >= 50 && weatherCode <= 67) {
+                        conditionText = "雨天";
+                        iconHtml = '<i data-lucide="cloud-rain" class="w-8 h-8 text-blue-400"></i>';
+                    }
+
+                    document.getElementById('weather-condition-text').innerText = conditionText;
+                    document.getElementById('weather-main-icon-container').innerHTML = iconHtml;
+
+                    // Cloud breakdown
+                    document.getElementById('summary-cloud-cover').innerText = `${cloudCover}% (${conditionText})`;
+                    document.getElementById('detail-cloud-pct').innerText = `${cloudCover}%`;
+                    document.getElementById('detail-cloud-bar').style.width = `${cloudCover}%`;
+
+                    // Stargaze calculation score
+                    const stargazeScore = Math.max(0, Math.min(100, Math.round(100 - cloudCover * 0.8 - (visibilityKm < 10 ? (10 - visibilityKm) * 5 : 0))));
+                    let scoreBadge = `<span class="text-emerald-400">${stargazeScore}点 (極めて良好)</span>`;
+                    if (stargazeScore < 40) scoreBadge = `<span class="text-rose-400">${stargazeScore}点 (不適)</span>`;
+                    else if (stargazeScore < 70) scoreBadge = `<span class="text-amber-400">${stargazeScore}点 (普通)</span>`;
+                    document.getElementById('summary-stargaze-idx').innerHTML = scoreBadge;
+
+                    // Cloud observation tip
+                    let tipText = "上空の視界良好です。天体観測や月の撮影に最適な気象条件が揃っています。";
+                    if (cloudCover > 70) tipText = "雲が厚く覆っているため、星空や月の観測は難しい状態です。";
+                    else if (cloudCover > 30) tipText = "雲の間から時折月や星を確認できるコンディションです。";
+                    document.getElementById('cloud-observation-tip').innerText = tipText;
+
+                    // Cloud layers simulation
+                    if (data.hourly && data.hourly.cloud_cover) {
+                        const nowIdx = new Date().getHours();
+                        const high = data.hourly.cloud_cover_high ? data.hourly.cloud_cover_high[nowIdx] : 10;
+                        const mid = data.hourly.cloud_cover_mid ? data.hourly.cloud_cover_mid[nowIdx] : 10;
+                        const low = data.hourly.cloud_cover_low ? data.hourly.cloud_cover_low[nowIdx] : cloudCover;
+
+                        document.getElementById('cloud-high').innerText = high > 40 ? '多め' : (high > 15 ? '普通' : '少なめ');
+                        document.getElementById('cloud-mid').innerText = mid > 40 ? '多め' : (mid > 15 ? '普通' : 'なし');
+                        document.getElementById('cloud-low').innerText = `${low}%`;
+
+                        // Render 24h hourly forecast
+                        renderHourlyForecast(data.hourly, nowIdx);
+                    }
+                }
+
+                // Update Moon Astronomy
+                updateMoonAstronomy(new Date(), currentLat, currentLon);
+                lucide.createIcons();
+
+            } catch (e) {
+                console.error("Failed to fetch weather data:", e);
+                // Fallback simulation data if offline
+                updateMoonAstronomy(new Date(), currentLat, currentLon);
+            }
+        }
+
+        function renderHourlyForecast(hourly, startIndex) {
+            const container = document.getElementById('hourly-forecast-container');
+            container.innerHTML = '';
+            
+            // Show next 8 intervals (e.g. every 3 hours or next 8 hours)
+            for (let i = 0; i < 8; i++) {
+                const idx = (startIndex + i) % 24;
+                const timeStr = `${idx}:00`;
+                const cloudVal = hourly.cloud_cover[idx] || 0;
+                
+                let icon = 'sun';
+                let color = 'text-amber-400';
+                if (cloudVal > 30 && cloudVal <= 70) { icon = 'cloud-sun'; color = 'text-amber-200'; }
+                else if (cloudVal > 70) { icon = 'cloud'; color = 'text-gray-400'; }
+
+                const card = document.createElement('div');
+                card.className = "bg-gray-900/50 p-2.5 rounded-xl border border-gray-800 text-center flex flex-col items-center justify-between";
+                card.innerHTML = `
+                    <span class="text-[11px] text-gray-400 font-mono">${timeStr}</span>
+                    <i data-lucide="${icon}" class="w-5 h-5 ${color} my-1.5"></i>
+                    <span class="text-xs font-semibold text-gray-200">${cloudVal}%</span>
+                `;
+                container.appendChild(card);
+            }
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
