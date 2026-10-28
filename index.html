@@ -33,8 +33,8 @@
                 <h1 class="text-xl font-bold tracking-tight">SkyPulse</h1>
             </div>
             <div class="flex items-center space-x-2">
-                <span class="text-xs bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700/50 font-medium">
-                    📍 岐阜市
+                <span class="text-xs bg-indigo-900/60 text-indigo-300 px-3 py-1.5 rounded-full border border-indigo-700/50 font-semibold">
+                    📍 岐阜市固定
                 </span>
                 <span id="update-time" class="text-xs text-gray-400">--:-- 更新</span>
             </div>
@@ -168,10 +168,8 @@
             const daysSinceNew = (jd - newMoonRef) % synodicMonth;
             const moonAge = (daysSinceNew + synodicMonth) % synodicMonth;
 
-            // 月の明るさ係数 (新月=0, 満月=1)
-            // 満月(約14.8日)付近ほど値が1に近づき、月明かりの影響が最大になる
             const moonPhaseRad = (moonAge / synodicMonth) * 2 * Math.PI;
-            const illumination = (1 - Math.cos(moonPhaseRad)) / 2; // 0.0 (新月) ～ 1.0 (満月)
+            const illumination = (1 - Math.cos(moonPhaseRad)) / 2;
 
             const baseRiseHour = 17 + (moonAge * 0.45) % 4 - (lon - 135) / 15;
             const baseSetHour = 7 + (moonAge * 0.45) % 4 - (lon - 135) / 15;
@@ -240,10 +238,8 @@
             document.getElementById('cloud-mid').textContent = `${midCloud}%`;
             document.getElementById('cloud-low').textContent = `${lowCloud}%`;
 
-            // 【月明かりのペナルティを考慮した総合星空スコア計算】
-            // 雲が少なくても月が明るい（illuminationが高い）とスコアが下がる
             let baseScore = 100 - (currentCloud * 0.7);
-            let moonPenalty = moonInfo.illumination * 40; // 満月付近なら最大40点マイナス
+            let moonPenalty = moonInfo.illumination * 40;
             let score = Math.max(0, Math.min(100, Math.round(baseScore - moonPenalty)));
             
             let scoreText = "極めて良好";
@@ -251,7 +247,6 @@
             else if (score < 70) scoreText = "良好（月光あり）";
             document.getElementById('stargaze-score').textContent = `${score}点 (${scoreText})`;
 
-            // 18時〜0時のタイムライン生成（月明かり影響を各時間帯の評価に反映）
             const timelineContainer = document.getElementById('night-timeline');
             timelineContainer.innerHTML = '';
 
@@ -267,7 +262,6 @@
                 });
 
                 let cloud = idx !== -1 ? hourly.cloudcover[idx] : 15;
-                // 時間帯ごとの個別スコア（雲＋月光）
                 let hScore = Math.round((100 - cloud * 0.7) - (moonInfo.illumination * 40));
                 if (hScore < 0) hScore = 0;
 
