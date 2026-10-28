@@ -25,6 +25,7 @@
 </head>
 <body class="bg-space-900 text-gray-100 min-h-screen pb-12">
 
+    <!-- ヘッダー -->
     <header class="bg-space-800 border-b border-space-700 sticky top-0 z-50 px-4 py-3 shadow-md">
         <div class="max-w-md mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -32,53 +33,42 @@
                 <h1 class="text-xl font-bold tracking-tight">SkyPulse</h1>
             </div>
             <div class="flex items-center space-x-2">
-                <button id="btn-location" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-full transition">
-                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-                    <span>現在地取得</span>
-                </button>
-                <button id="btn-settings" class="p-1.5 bg-space-700 hover:bg-space-600 rounded-full transition">
-                    <i data-lucide="settings" class="w-4 h-4 text-gray-300"></i>
-                </button>
+                <span class="text-xs bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700/50 font-medium">
+                    📍 岐阜市
+                </span>
+                <span id="update-time" class="text-xs text-gray-400">--:-- 更新</span>
             </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
 
-        <div class="flex items-center justify-between bg-space-800/80 border border-space-700 px-3 py-2 rounded-xl text-xs">
-            <div class="flex items-center space-x-1.5">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span id="location-name" class="font-semibold text-gray-200">岐阜県 岐阜市</span>
-            </div>
-            <span id="update-time" class="text-gray-400">--:-- 更新</span>
-        </div>
-
-        <!-- 18:00〜0:00 夜間撮影タイムライン -->
+        <!-- 1. 最上部：夜間撮影タイムライン (18:00 - 00:00) -->
         <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
                     <h2 class="text-sm font-bold text-gray-200">夜間撮影タイムライン (18:00 - 00:00)</h2>
                 </div>
-                <span class="text-[10px] bg-indigo-900/60 text-indigo-300 px-2 py-0.5 rounded border border-indigo-700/50">月明かり×雲量</span>
+                <span class="text-[10px] bg-indigo-900/60 text-indigo-300 px-2 py-0.5 rounded border border-indigo-700/50">月明かり×雲量評価</span>
             </div>
             <div id="night-timeline" class="grid grid-cols-7 gap-1.5 text-center"></div>
             <div id="timeline-advice" class="mt-3 text-xs bg-space-900/70 p-2.5 rounded-lg border border-space-700 text-gray-300 flex items-start space-x-2">
                 <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
-                <span id="advice-text">高精度天体計算をロード中...</span>
+                <span id="advice-text">月明かりと雲のコンディションを解析中...</span>
             </div>
         </section>
 
-        <!-- 天空ビジュアルレーダー -->
+        <!-- 2. 中段：天空ビジュアルレーダー & 月・指数詳細 -->
         <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-sm font-bold text-gray-200 flex items-center space-x-1.5">
                     <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i>
-                    <span>天空ビジュアルレーダー</span>
+                    <span>天空ビジュアルレーダー (夜空ビュー)</span>
                 </h2>
-                <span id="sky-status-badge" class="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700">高精度計算</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700">高精度計算</span>
             </div>
-            <div class="relative w-full aspect-square max-w-[280px] mx-auto bg-space-900 rounded-full border border-space-700 flex items-center justify-center overflow-hidden my-2 shadow-inner">
+            <div class="relative w-full aspect-square max-w-[260px] mx-auto bg-space-900 rounded-full border border-space-700 flex items-center justify-center overflow-hidden my-2 shadow-inner">
                 <div class="absolute inset-4 border border-space-700/60 rounded-full"></div>
                 <div class="absolute inset-16 border border-space-700/40 rounded-full"></div>
                 <div class="absolute w-full h-[1px] bg-space-700/60"></div>
@@ -88,7 +78,7 @@
                 <span class="absolute left-3 text-[10px] text-gray-500 font-bold">W(西)</span>
                 <span class="absolute right-3 text-[10px] text-gray-500 font-bold">E(東)</span>
                 <div id="moon-node" class="absolute transition-all duration-500 flex flex-col items-center">
-                    <div class="w-7 h-7 bg-amber-200 rounded-full shadow-[0_0_12px_rgba(253,230,138,0.6)] flex items-center justify-center text-space-900 text-xs font-bold">月</div>
+                    <div class="w-6 h-6 bg-amber-200 rounded-full shadow-[0_0_10px_rgba(253,230,138,0.6)] flex items-center justify-center text-space-900 text-[10px] font-bold">月</div>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs mt-3">
@@ -101,64 +91,68 @@
                     <span id="moon-rise-set" class="font-semibold text-gray-200">--</span>
                 </div>
                 <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
-                    <span class="text-gray-400 block text-[10px]">雲量 (カバー率)</span>
+                    <span class="text-gray-400 block text-[10px]">現在の雲量</span>
                     <span id="cloud-cover-text" class="font-semibold text-gray-200">--</span>
                 </div>
                 <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
-                    <span class="text-gray-400 block text-[10px]">星空観測指数</span>
+                    <span class="text-gray-400 block text-[10px]">星空撮影指数 (月光加味)</span>
                     <span id="stargaze-score" class="font-semibold text-indigo-300">--</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 下段：現在の気象詳細・雲レイヤー -->
+        <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-gray-200">現在の気象詳細</h2>
+                <span id="weather-desc" class="text-xs px-2.5 py-1 rounded-lg bg-space-700 text-indigo-300 font-semibold">--</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
+                    <span class="text-gray-400 block text-[10px]">気温</span>
+                    <span id="temp-text" class="text-sm font-bold text-gray-100">-- °C</span>
+                </div>
+                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
+                    <span class="text-gray-400 block text-[10px]">湿度</span>
+                    <span id="humidity-text" class="text-sm font-bold text-gray-100">-- %</span>
+                </div>
+                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
+                    <span class="text-gray-400 block text-[10px]">視程 (見通し)</span>
+                    <span id="visibility-text" class="text-sm font-semibold text-gray-100">-- km</span>
+                </div>
+                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
+                    <span class="text-gray-400 block text-[10px]">風速</span>
+                    <span id="wind-text" class="text-sm font-semibold text-gray-100">-- m/s</span>
+                </div>
+            </div>
+
+            <!-- 雲のレイヤー詳細 -->
+            <div class="pt-2 border-t border-space-700/60">
+                <span class="text-[11px] font-bold text-gray-400 block mb-2">☁️ 雲層内訳 (高/中/低)</span>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div class="bg-space-900/60 p-2 rounded-xl border border-space-700">
+                        <span class="text-gray-400 block text-[9px]">上層雲</span>
+                        <span id="cloud-high" class="font-semibold text-gray-200 text-xs">--</span>
+                    </div>
+                    <div class="bg-space-900/60 p-2 rounded-xl border border-space-700">
+                        <span class="text-gray-400 block text-[9px]">中層雲</span>
+                        <span id="cloud-mid" class="font-semibold text-gray-200 text-xs">--</span>
+                    </div>
+                    <div class="bg-space-900/60 p-2 rounded-xl border border-space-700">
+                        <span class="text-gray-400 block text-[9px]">下層雲</span>
+                        <span id="cloud-low" class="font-semibold text-gray-200 text-xs">--</span>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- 設定モーダル -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-space-800 border border-space-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-base flex items-center space-x-2">
-                    <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>
-                    <span>観測地点の手動設定</span>
-                </h3>
-                <button id="close-modal" class="text-gray-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">プリセット都市</label>
-                <select id="preset-city" class="w-full bg-space-900 border border-space-700 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-indigo-500">
-                    <option value="gifu" selected>岐阜</option>
-                    <option value="tokyo">東京</option>
-                    <option value="yokohama">横浜</option>
-                    <option value="kyoto">京都</option>
-                    <option value="osaka">大阪</option>
-                    <option value="sapporo">札幌</option>
-                    <option value="fukuoka">福岡</option>
-                </select>
-            </div>
-            <div class="pt-2">
-                <button id="apply-preset" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2.5 rounded-xl transition">適用して更新</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         lucide.createIcons();
 
-        const CITIES = {
-            gifu: { name: "岐阜県 岐阜市", lat: 35.4233, lon: 136.7607 },
-            tokyo: { name: "東京都 渋谷区", lat: 35.6762, lon: 139.6503 },
-            yokohama: { name: "神奈川県 横浜市", lat: 35.4437, lon: 139.6380 },
-            kyoto: { name: "京都府 京都市", lat: 35.0116, lon: 135.7681 },
-            osaka: { name: "大阪府 大阪市", lat: 34.6937, lon: 135.5022 },
-            sapporo: { name: "北海道 札幌市", lat: 43.0618, lon: 141.3545 },
-            fukuoka: { name: "福岡県 福岡市", lat: 33.5902, lon: 130.4017 }
-        };
-
-        let currentLat = CITIES.gifu.lat;
-        let currentLon = CITIES.gifu.lon;
-        let currentLocName = CITIES.gifu.name;
+        const GIFU_LAT = 35.4233;
+        const GIFU_LON = 136.7607;
 
         function getJulianDate(date) {
             return (date.getTime() / 86400000) + 2440587.5;
@@ -167,16 +161,17 @@
         function calculateMoonData(date, lat, lon) {
             const jd = getJulianDate(date);
             let L0 = 218.3164477 + 13.17639647 * (jd - 2451545.0);
-            let M = 134.9633964 + 13.06499295 * (jd - 2451545.0);
-            let F = 93.2720950 + 13.22935038 * (jd - 2451545.0);
             L0 = (L0 % 360 + 360) % 360;
-            M = (M % 360 + 360) % 360;
-            F = (F % 360 + 360) % 360;
 
             const synodicMonth = 29.53058867;
             const newMoonRef = 2451549.5;
             const daysSinceNew = (jd - newMoonRef) % synodicMonth;
             const moonAge = (daysSinceNew + synodicMonth) % synodicMonth;
+
+            // 月の明るさ係数 (新月=0, 満月=1)
+            // 満月(約14.8日)付近ほど値が1に近づき、月明かりの影響が最大になる
+            const moonPhaseRad = (moonAge / synodicMonth) * 2 * Math.PI;
+            const illumination = (1 - Math.cos(moonPhaseRad)) / 2; // 0.0 (新月) ～ 1.0 (満月)
 
             const baseRiseHour = 17 + (moonAge * 0.45) % 4 - (lon - 135) / 15;
             const baseSetHour = 7 + (moonAge * 0.45) % 4 - (lon - 135) / 15;
@@ -190,123 +185,124 @@
 
             return {
                 age: moonAge.toFixed(1),
-                phaseName: moonAge < 1 ? "新月" : moonAge < 7 ? "上弦の月" : moonAge < 15 ? "満月" : moonAge < 22 ? "下弦の月" : "虧月(寝待月等)",
+                phaseName: moonAge < 1 ? "新月" : moonAge < 7 ? "上弦の月" : moonAge < 15 ? "満月" : moonAge < 22 ? "下弦の月" : "寝待月等",
+                illumination: illumination,
                 rise: formatTime(baseRiseHour),
                 set: formatTime(baseSetHour)
             };
         }
 
-        const modal = document.getElementById('settings-modal');
-        document.getElementById('btn-settings').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('close-modal').addEventListener('click', () => modal.classList.add('hidden'));
-
-        document.getElementById('apply-preset').addEventListener('click', () => {
-            const val = document.getElementById('preset-city').value;
-            const city = CITIES[val];
-            currentLat = city.lat;
-            currentLon = city.lon;
-            currentLocName = city.name;
-            document.getElementById('location-name').textContent = currentLocName;
-            modal.classList.add('hidden');
-            fetchWeatherData(currentLat, currentLon);
-        });
-
-        document.getElementById('btn-location').addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                alert("位置情報に対応していません");
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    currentLat = pos.coords.latitude;
-                    currentLon = pos.coords.longitude;
-                    currentLocName = `現在地 (${currentLat.toFixed(2)}, ${currentLon.toFixed(2)})`;
-                    document.getElementById('location-name').textContent = currentLocName;
-                    fetchWeatherData(currentLat, currentLon);
-                },
-                (err) => { alert("位置情報の取得に失敗しました。"); },
-                { timeout: 10000, enableHighAccuracy: true }
-            );
-        });
-
-        async function fetchWeatherData(lat, lon) {
+        async function fetchWeatherData() {
             document.getElementById('update-time').textContent = "取得中...";
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=cloudcover,visibility&timezone=auto`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${GIFU_LAT}&longitude=${GIFU_LON}&hourly=temperature_2m,relative_humidity_2m,cloudcover,cloudcover_high,cloudcover_mid,cloudcover_low,visibility,wind_speed_10m&timezone=auto`;
                 const res = await fetch(url);
                 const data = await res.json();
-                updateDashboard(data, lat, lon);
+                updateDashboard(data);
                 document.getElementById('update-time').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " 更新";
             } catch (e) {
                 document.getElementById('update-time').textContent = "取得失敗";
             }
         }
 
-        function updateDashboard(data, lat, lon) {
+        function updateDashboard(data) {
             const hourly = data.hourly;
             const now = new Date();
             
-            const moonInfo = calculateMoonData(now, lat, lon);
+            const moonInfo = calculateMoonData(now, GIFU_LAT, GIFU_LON);
             document.getElementById('moon-age-text').textContent = `${moonInfo.age} (${moonInfo.phaseName})`;
             document.getElementById('moon-rise-set').textContent = `出 ${moonInfo.rise} / 入 ${moonInfo.set}`;
 
+            let currentIdx = hourly.time.findIndex(t => new Date(t).getHours() === now.getHours());
+            if (currentIdx === -1) currentIdx = 0;
+
+            const currentCloud = hourly.cloudcover[currentIdx];
+            const temp = hourly.temperature_2m[currentIdx];
+            const humidity = hourly.relative_humidity_2m[currentIdx];
+            const visibility = (hourly.visibility[currentIdx] / 1000).toFixed(1);
+            const wind = hourly.wind_speed_10m[currentIdx];
+            const highCloud = hourly.cloudcover_high[currentIdx];
+            const midCloud = hourly.cloudcover_mid[currentIdx];
+            const lowCloud = hourly.cloudcover_low[currentIdx];
+
+            document.getElementById('cloud-cover-text').textContent = `${currentCloud}% (${currentCloud < 30 ? '晴れ' : currentCloud < 70 ? '薄曇り' : '曇り'})`;
+            document.getElementById('temp-text').textContent = `${temp} °C`;
+            document.getElementById('humidity-text').textContent = `${humidity} %`;
+            document.getElementById('visibility-text').textContent = `${visibility} km`;
+            document.getElementById('wind-text').textContent = `${wind} m/s`;
+            
+            let desc = "快晴";
+            if (currentCloud >= 30 && currentCloud < 70) desc = "晴れ時々曇り";
+            else if (currentCloud >= 70) desc = "曇天";
+            document.getElementById('weather-desc').textContent = desc;
+
+            document.getElementById('cloud-high').textContent = `${highCloud}%`;
+            document.getElementById('cloud-mid').textContent = `${midCloud}%`;
+            document.getElementById('cloud-low').textContent = `${lowCloud}%`;
+
+            // 【月明かりのペナルティを考慮した総合星空スコア計算】
+            // 雲が少なくても月が明るい（illuminationが高い）とスコアが下がる
+            let baseScore = 100 - (currentCloud * 0.7);
+            let moonPenalty = moonInfo.illumination * 40; // 満月付近なら最大40点マイナス
+            let score = Math.max(0, Math.min(100, Math.round(baseScore - moonPenalty)));
+            
+            let scoreText = "極めて良好";
+            if (score < 40) scoreText = "月明かり強・注意";
+            else if (score < 70) scoreText = "良好（月光あり）";
+            document.getElementById('stargaze-score').textContent = `${score}点 (${scoreText})`;
+
+            // 18時〜0時のタイムライン生成（月明かり影響を各時間帯の評価に反映）
             const timelineContainer = document.getElementById('night-timeline');
             timelineContainer.innerHTML = '';
 
-            const times = hourly.time;
-            const cloudcovers = hourly.cloudcover;
             let targetHours = [18, 19, 20, 21, 22, 23, 0];
+            let bestScore = -1;
             let bestHourStr = "";
-            let minCloud = 101;
             let htmlContent = '';
 
             targetHours.forEach(h => {
-                let idx = times.findIndex(t => {
+                let idx = hourly.time.findIndex(t => {
                     const d = new Date(t);
                     return d.getHours() === h && (h >= 18 ? d.getDate() === now.getDate() : d.getDate() > now.getDate());
                 });
 
-                let cloud = idx !== -1 ? cloudcovers[idx] : 15;
-                if (cloud < minCloud) {
-                    minCloud = cloud;
+                let cloud = idx !== -1 ? hourly.cloudcover[idx] : 15;
+                // 時間帯ごとの個別スコア（雲＋月光）
+                let hScore = Math.round((100 - cloud * 0.7) - (moonInfo.illumination * 40));
+                if (hScore < 0) hScore = 0;
+
+                if (hScore > bestScore) {
+                    bestScore = hScore;
                     bestHourStr = `${h}:00`;
                 }
 
                 let bgClass = "bg-emerald-900/60 border-emerald-600/50 text-emerald-300";
                 let badgeText = "最適";
-                if (cloud > 20 && cloud <= 50) {
-                    bgClass = "bg-blue-900/60 border-blue-600/50 text-blue-300";
-                    badgeText = "良好";
-                } else if (cloud > 50 && cloud <= 80) {
+                if (hScore < 40) {
+                    bgClass = "bg-rose-900/60 border-rose-600/50 text-rose-300";
+                    badgeText = "月明かり";
+                } else if (hScore < 70) {
                     bgClass = "bg-amber-900/60 border-amber-600/50 text-amber-300";
                     badgeText = "注意";
-                } else if (cloud > 80) {
-                    bgClass = "bg-rose-900/60 border-rose-600/50 text-rose-300";
-                    badgeText = "曇天";
+                } else if (cloud > 50) {
+                    bgClass = "bg-blue-900/60 border-blue-600/50 text-blue-300";
+                    badgeText = "雲多め";
                 }
 
                 htmlContent += `
                     <div class="bg-space-900/80 border border-space-700 rounded-xl p-1.5 flex flex-col items-center justify-between">
                         <span class="text-[10px] text-gray-400 font-bold">${h}時</span>
                         <div class="my-1 px-1 py-0.5 rounded text-[9px] font-bold border ${bgClass}">${badgeText}</div>
-                        <span class="text-[10px] text-gray-300">${cloud}%</span>
+                        <span class="text-[10px] font-semibold text-gray-300">雲${cloud}%</span>
                     </div>
                 `;
             });
 
             timelineContainer.innerHTML = htmlContent;
-            document.getElementById('advice-text').textContent = `本日の最も撮影しやすい時間帯は 【 ${bestHourStr} 】 頃です（雲量 ${minCloud}%）。移動の判断にご活用ください。`;
-
-            let currentIdx = times.findIndex(t => new Date(t).getHours() === now.getHours());
-            if (currentIdx === -1) currentIdx = 0;
-            let currentCloud = cloudcovers[currentIdx];
-            document.getElementById('cloud-cover-text').textContent = `${currentCloud}% (${currentCloud < 30 ? '晴れ' : currentCloud < 70 ? '薄曇り' : '曇り'})`;
-
-            let score = Math.max(0, Math.min(100, Math.round(100 - currentCloud * 0.8)));
-            document.getElementById('stargaze-score').textContent = `${score}点 (${score > 70 ? '極めて良好' : '良好'})`;
+            document.getElementById('advice-text').textContent = `今夜は月明かりの影響（月齢${moonInfo.age}）があります。最も条件が良い時間帯は 【 ${bestHourStr} 】 頃です。`;
         }
 
-        fetchWeatherData(currentLat, currentLon);
+        fetchWeatherData();
     </script>
 </body>
 </html>
