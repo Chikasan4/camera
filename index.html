@@ -1,300 +1,298 @@
 <!DOCTYPE html>
-<html lang="ja" class="dark">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影地比較・天空観測ダッシュボードV7</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        space: { 900: '#0b0f19', 800: '#111827', 700: '#1f2937', 600: '#374151' }
-                    }
-                }
-            }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>SkyPulse - 撮影条件ダッシュボードV8</title>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151b2b;
+            --accent-gold: #fbbf24;
+            --text-main: #f3f4f6;
+            --text-sub: #9ca3af;
+            --border-color: #2a3447;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        .mode-badge {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: #60a5fa;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .update-time {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        
+        /* ファーストビュー：最重要結論（大きな文字） */
+        .hero-card {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-gold);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15);
+        }
+        .hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .hero-title {
+            font-size: 16px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hero-badge {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--accent-gold);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .hero-summary {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.5;
+            color: #ffffff;
+        }
+
+        /* セクション共通 */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 24px 0 12px 4px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 月・位置情報カード */
+        .grid-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .moon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .moon-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .moon-subbadge {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--accent-gold);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .moon-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .label {
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 簡易コンパス風ビュー */
+        .compass-container {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            border: 2px dashed var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .compass-dir {
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-sub);
+        }
+        .dir-n { top: 10px; }
+        .dir-s { bottom: 10px; }
+        .dir-e { right: 14px; }
+        .dir-w { left: 14px; }
+        .moon-marker {
+            background: var(--accent-gold);
+            color: #000;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+
+        /* スクロール先の詳細セクション */
+        .details-section {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        .detail-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .detail-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #60a5fa;
+        }
+        .detail-body {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
     </style>
 </head>
-<body class="bg-space-900 text-gray-100 min-h-screen pb-12">
+<body>
 
-    <!-- ヘッダー -->
-    <header class="bg-space-800 border-b border-space-700 sticky top-0 z-50 px-4 py-3 shadow-md">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <i data-lucide="compass" class="w-6 h-6 text-indigo-400"></i>
-                <h1 class="text-xl font-bold tracking-tight">SkyPulse</h1>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs bg-indigo-900/60 text-indigo-300 px-3 py-1.5 rounded-full border border-indigo-700/50 font-semibold">
-                    📍 撮影地比較モード
-                </span>
-                <span id="update-time" class="text-xs text-gray-400">--:-- 更新</span>
-            </div>
+    <header>
+        <div class="logo-area">
+            <span>🌌</span> SkyPulse
+        </div>
+        <div>
+            <span class="mode-badge">撮影地比較モード</span>
+            <div class="update-time" style="text-align: right; margin-top: 4px;">14:26 更新</div>
         </div>
     </header>
 
-    <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
-
-        <!-- 1. 最上部：行動決定・撮影条件推奨 -->
-        <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="target" class="w-4 h-4 text-indigo-400"></i>
-                    <h2 class="text-sm font-bold text-gray-200">行動決定・撮影条件推奨</h2>
-                </div>
-                <span id="recommend-badge" class="text-[10px] px-2 py-0.5 rounded font-bold border">判定中</span>
+    <!-- 【ファーストビュー】一番伝えたい結論（文字大・スクロールなしで完結） -->
+    <div class="hero-card">
+        <div class="hero-header">
+            <div class="hero-title">
+                <span>🎯</span> 行動決定・撮影条件推奨
             </div>
-            <div class="bg-space-900/80 p-3 rounded-xl border border-space-700 space-y-2">
-                <div class="flex items-start space-x-2">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
-                    <p id="recommend-advice" class="text-xs text-gray-200 leading-relaxed">月あかりと各地の気象データを解析中...</p>
-                </div>
+            <div class="hero-badge">★ 遠征チャンス</div>
+        </div>
+        <div class="hero-summary">
+            月明かりの影響が少なく絶好のチャンスです。各地の雲の抜け具合を比較してベストな遠征先を決定しましょう。
+        </div>
+    </div>
+
+    <!-- 月・方角の要点カード -->
+    <div class="grid-card">
+        <div class="moon-header">
+            <div class="moon-title">
+                <span>🌙</span> 今夜の月明かり・位置情報
             </div>
-        </section>
+            <div class="moon-subbadge">月光中 (66%)</div>
+        </div>
 
-        <!-- 2. 中段：月あかり影響度（時間変化ベース） & レーダー -->
-        <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg space-y-3">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-gray-200 flex items-center space-x-1.5">
-                    <i data-lucide="moon" class="w-4 h-4 text-amber-400"></i>
-                    <span>今夜の月明かり・位置情報</span>
-                </h2>
-                <span id="moon-impact-badge" class="text-xs px-2 py-0.5 rounded-full font-bold">--</span>
+        <div class="moon-details">
+            <div>
+                <div class="label">月齢・状態</div>
+                <div class="value">20.6 (下弦の月)</div>
             </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
-                    <span class="text-gray-400 block text-[10px]">月齢・状態</span>
-                    <span id="moon-age-text" class="font-semibold text-gray-200 text-sm">--</span>
-                </div>
-                <div class="bg-space-900/60 p-2.5 rounded-xl border border-space-700">
-                    <span class="text-gray-400 block text-[10px]">月の出 / 月の入り</span>
-                    <span id="moon-rise-set" class="font-semibold text-gray-200 text-xs">--</span>
-                </div>
+            <div>
+                <div class="label">月の出 / 月の入り</div>
+                <div class="value" style="font-size: 16px;">出 18:09 / 入 08:09</div>
             </div>
+        </div>
 
-            <!-- 天空ビジュアルレーダー（現在の月の位置を可視化） -->
-            <div class="relative w-full aspect-square max-w-[220px] mx-auto bg-space-900 rounded-full border border-space-700 flex items-center justify-center overflow-hidden my-1 shadow-inner">
-                <div class="absolute inset-4 border border-space-700/60 rounded-full"></div>
-                <div class="absolute inset-16 border border-space-700/40 rounded-full"></div>
-                <div class="absolute w-full h-[1px] bg-space-700/60"></div>
-                <div class="absolute h-full w-[1px] bg-space-700/60"></div>
-                <span class="absolute top-2 text-[9px] text-gray-500 font-bold">N(北)</span>
-                <span class="absolute bottom-2 text-[9px] text-gray-500 font-bold">S(南)</span>
-                <span class="absolute left-2 text-[9px] text-gray-500 font-bold">W(西)</span>
-                <span class="absolute right-2 text-[9px] text-gray-500 font-bold">E(東)</span>
-                <div id="moon-node" class="absolute transition-all duration-500 flex flex-col items-center">
-                    <div class="w-6 h-6 bg-amber-200 rounded-full shadow-[0_0_10px_rgba(253,230,138,0.6)] flex items-center justify-center text-space-900 text-[10px] font-bold">月</div>
-                </div>
+        <!-- 視認性重視の方角レーダー -->
+        <div class="compass-container">
+            <span class="compass-dir dir-n">N(北)</span>
+            <span class="compass-dir dir-s">S(南)</span>
+            <span class="compass-dir dir-e">E(東)</span>
+            <span class="compass-dir dir-w">W(西)</span>
+            <div class="moon-marker">月 (南西)</div>
+        </div>
+    </div>
+
+    <!-- 【スクロール先】詳細データ・推移セクション -->
+    <div class="details-section">
+        <div class="section-title">
+            <span>📉</span> 詳細データ・ポイント別比較 (18:00 - 00:00)
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-header">📍 近場（岐阜市）</div>
+            <div class="detail-body">
+                時間帯別雲量推移: 18時(21%) → 20時(16%) → 22時(7%)<br>
+                月光影響: × 雲量多めから徐々にクリアに
             </div>
-        </section>
+        </div>
 
-        <!-- 3. 下段：近場 ＆ 登録遠征ポイント比較（18:00〜0:00の月光×雲量） -->
-        <section class="bg-space-800 border border-space-700 rounded-2xl p-4 shadow-lg space-y-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-gray-200 flex items-center space-x-1.5">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-indigo-400"></i>
-                    <span>ポイント別 撮影条件比較 (18:00 - 00:00)</span>
-                </h2>
-                <span class="text-[10px] text-gray-400">月光影響 × 雲量</span>
+        <div class="detail-card">
+            <div class="detail-header">📍 遠征先候補 A（根の上高原方面）</div>
+            <div class="detail-body">
+                時間帯別雲量推移: 18時(15%) → 20時(8%) → 22時(3%)<br>
+                月光影響: ◯ 抜け抜群、星空指数 90
             </div>
+        </div>
 
-            <!-- 比較リストコンテナ -->
-            <div id="comparison-container" class="space-y-3">
-                <!-- JavaScriptで動的生成 -->
+        <div class="detail-card">
+            <div class="detail-header">📍 遠征先候補 B（伊吹・関ヶ原方面）</div>
+            <div class="detail-body">
+                時間帯別雲量推移: 18時(30%) → 20時(25%) → 22時(18%)<br>
+                月光影響: △ 西側の雲に注意が必要
             </div>
-        </section>
+        </div>
+    </div>
 
-    </main>
-
-    <script>
-        lucide.createIcons();
-
-        // 比較する地点リスト（近場1箇所 ＋ 遠征ポイント2箇所：座標や名前は自由に変更可能）
-        const POINTS = [
-            { id: "near", name: "近場 (岐阜市)", lat: 35.4233, lon: 136.7607 },
-            { id: "exp1", name: "遠征① (根尾・淡墨周辺)", lat: 35.6172, lon: 136.6083 },
-            { id: "exp2", name: "遠征② (郡上八幡周辺)", lat: 35.7486, lon: 136.9575 }
-        ];
-
-        function getJulianDate(date) {
-            return (date.getTime() / 86400000) + 2440587.5;
-        }
-
-        function calculateMoonData(date) {
-            const jd = getJulianDate(date);
-            let L0 = 218.3164477 + 13.17639647 * (jd - 2451545.0);
-            L0 = (L0 % 360 + 360) % 360;
-
-            const synodicMonth = 29.53058867;
-            const newMoonRef = 2451549.5;
-            const daysSinceNew = (jd - newMoonRef) % synodicMonth;
-            const moonAge = (daysSinceNew + synodicMonth) % synodicMonth;
-
-            const moonPhaseRad = (moonAge / synodicMonth) * 2 * Math.PI;
-            const illumination = (1 - Math.cos(moonPhaseRad)) / 2;
-
-            // 簡易的な月の出・月の入り計算（時分）
-            const baseRiseHour = 17 + (moonAge * 0.45) % 4 - (136.7 - 135) / 15;
-            const baseSetHour = 7 + (moonAge * 0.45) % 4 - (136.7 - 135) / 15;
-
-            const formatTime = (hourDecimal) => {
-                let h = Math.floor(hourDecimal) % 24;
-                if (h < 0) h += 24;
-                let m = Math.floor((hourDecimal - Math.floor(hourDecimal)) * 60);
-                return `${String(h).padStart(2, '0')}時 ${String(m).padStart(2, '0')}分`;
-            };
-
-            return {
-                age: moonAge.toFixed(1),
-                phaseName: moonAge < 1 ? "新月" : moonAge < 7 ? "上弦の月" : moonAge < 15 ? "満月" : moonAge < 22 ? "下弦の月" : "寝待月等",
-                illumination: illumination,
-                riseHour: baseRiseHour,
-                setHour: baseSetHour,
-                rise: formatTime(baseRiseHour),
-                set: formatTime(baseSetHour)
-            };
-        }
-
-        // 時間ごとの月の明るさ（影響度）を計算する関数
-        // 夜18時〜0時の中で、月がどの程度影響するかを算出（深夜に近づくにつれて沈むため影響が軽減する挙動を反映）
-        function getHourlyMoonImpact(hour, moonInfo) {
-            // 簡易的に、夜の後半（23時〜0時など）に向かって月が傾き、影響が少し和らぐ、あるいは昇っている時間を評価
-            // 満月期（illumination高）の場合、沈む前（朝方）までは強い影響
-            let baseImpact = moonInfo.illumination; 
-            if (hour >= 23 || hour === 0) {
-                baseImpact *= 0.85; // 深夜にかけてわずかに低空化する効果
-            }
-            return baseImpact;
-        }
-
-        async function fetchAllData() {
-            document.getElementById('update-time').textContent = "取得中...";
-            try {
-                const now = new Date();
-                const moonInfo = calculateMoonData(now);
-                document.getElementById('moon-age-text').textContent = `${moonInfo.age} (${moonInfo.phaseName})`;
-                document.getElementById('moon-rise-set').textContent = `出 ${moonInfo.rise} / 入 ${moonInfo.set}`;
-
-                const illumPercent = Math.round(moonInfo.illumination * 100);
-                const moonBadge = document.getElementById('moon-impact-badge');
-                if (illumPercent > 70) {
-                    moonBadge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-rose-900/60 text-rose-300 border border-rose-700";
-                    moonBadge.textContent = `月光強 (${illumPercent}%)`;
-                } else if (illumPercent > 30) {
-                    moonBadge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-amber-900/60 text-amber-300 border border-amber-700";
-                    moonBadge.textContent = `月光中 (${illumPercent}%)`;
-                } else {
-                    moonBadge.className = "text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700";
-                    moonBadge.textContent = `新月期 (${illumPercent}%)`;
-                }
-
-                // 推奨コメント
-                const recBadge = document.getElementById('recommend-badge');
-                const recAdvice = document.getElementById('recommend-advice');
-                if (illumPercent > 70) {
-                    recBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-rose-900/60 text-rose-300 border border-rose-700";
-                    recBadge.textContent = "❌ 月光注意・雲で判断";
-                    recAdvice.innerHTML = `今夜は<strong>月齢${moonInfo.age}（輝面比${illumPercent}%）の強い月明かり</strong>があります。各ポイントの「時間ごとの雲予報」を比較し、雲の隙間を狙える場所を選んでください。`;
-                } else {
-                    recBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700";
-                    recBadge.textContent = "⭐ 遠征チャンス";
-                    recAdvice.innerHTML = `月明かりの影響が少なく絶好のチャンスです。各地の雲の抜け具合を比較してベストな遠征先を決定しましょう。`;
-                }
-
-                // 現在時刻の月の位置をレーダーに反映（簡易方位計算）
-                const currentHour = now.getHours();
-                const moonNode = document.getElementById('moon-node');
-                // 時間とともに時計回りに月が移動するイメージの簡易座標計算
-                const angle = ((currentHour - 6) / 24) * 2 * Math.PI;
-                const radius = 65; // レーダー内の半径
-                const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
-                moonNode.style.transform = `translate(${x}px, ${y}px)`;
-
-                // 各ポイントのデータを並列取得して比較表示
-                const container = document.getElementById('comparison-container');
-                container.innerHTML = '';
-
-                for (const pt of POINTS) {
-                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${pt.lat}&longitude=${pt.lon}&hourly=cloudcover,temperature_2m&timezone=auto`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    
-                    renderPointCard(pt.name, data.hourly, moonInfo);
-                }
-
-                document.getElementById('update-time').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " 更新";
-            } catch (e) {
-                document.getElementById('update-time').textContent = "取得失敗";
-            }
-        }
-
-        function renderPointCard(name, hourly, moonInfo) {
-            const container = document.getElementById('comparison-container');
-            const now = new Date();
-            let targetHours = [18, 19, 20, 21, 22, 23, 0];
-            let timelineHtml = '';
-
-            targetHours.forEach(h => {
-                let idx = hourly.time.findIndex(t => {
-                    const d = new Date(t);
-                    return d.getHours() === h && (h >= 18 ? d.getDate() === now.getDate() : d.getDate() > now.getDate());
-                });
-                let cloud = idx !== -1 ? hourly.cloudcover[idx] : 15;
-                
-                // 時間ごとの月明かり影響度を考慮
-                let hourlyImpact = getHourlyMoonImpact(h, moonInfo);
-                
-                let badgeBg = "bg-emerald-900/60 text-emerald-300 border-emerald-700";
-                let badgeText = "狙い目";
-                
-                if (hourlyImpact > 0.7 && cloud > 40) {
-                    badgeText = "月+雲";
-                    badgeBg = "bg-rose-900/60 text-rose-300 border-rose-700";
-                } else if (hourlyImpact > 0.7) {
-                    badgeText = "月明かり";
-                    badgeBg = "bg-amber-900/60 text-amber-300 border-amber-700";
-                } else if (cloud > 50) {
-                    badgeText = "雲多め";
-                    badgeBg = "bg-blue-900/60 text-blue-300 border-blue-700";
-                }
-
-                timelineHtml += `
-                    <div class="bg-space-900/90 border border-space-700 rounded-lg p-1 text-center">
-                        <span class="text-[9px] text-gray-400 font-bold block">${h}時</span>
-                        <div class="my-0.5 text-[8px] px-0.5 py-0.2 rounded border font-bold ${badgeBg}">${badgeText}</div>
-                        <span class="text-[9px] text-gray-200 font-semibold">雲${cloud}%</span>
-                    </div>
-                `;
-            });
-
-            const card = document.createElement('div');
-            card.className = "bg-space-900/60 border border-space-700 rounded-xl p-3 space-y-2";
-            card.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-indigo-300 flex items-center space-x-1">
-                        <i data-lucide="map-pin" class="w-3 h-3"></i>
-                        <span>${name}</span>
-                    </span>
-                    <span class="text-[10px] text-gray-400">18:00〜00:00 推移</span>
-                </div>
-                <div class="grid grid-cols-7 gap-1">
-                    ${timelineHtml}
-                </div>
-            `;
-            container.appendChild(card);
-            lucide.createIcons();
-        }
-
-        fetchAllData();
-    </script>
 </body>
 </html>
