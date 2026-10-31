@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件ダッシュボード</title>
+    <title>SkyPulse - 撮影条件ダッシュボードV5S</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -13,6 +13,7 @@
             --text-sub: #9ca3af;
             --border-color: #2a3447;
             --btn-blue: #3b82f6;
+            --btn-gpv: #10b981;
         }
         * {
             box-sizing: border-box;
@@ -93,7 +94,12 @@
             margin-bottom: 16px;
         }
 
-        /* 外部リンクボタン */
+        /* リンクボタン群 */
+        .link-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
         .link-btn {
             display: inline-flex;
             align-items: center;
@@ -107,7 +113,10 @@
             font-size: 14px;
             font-weight: bold;
             width: 100%;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
+        }
+        .link-btn.gpv {
+            background: var(--btn-gpv);
         }
         .link-btn:active {
             opacity: 0.8;
@@ -257,10 +266,15 @@
         <div class="hero-summary">
             今夜のベストは「根の上高原方面」！月明かりの影響が少なく雲の抜けも抜群。遠征しての撮影が最もおすすめです。
         </div>
-        <!-- 確実に飛べるWindy等の気象レーダーリンクに変更 -->
-        <a href="https://www.windy.com/" target="_blank" class="link-btn">
-            <span>🌐</span> Windy気象レーダーで詳細雲量を確認する
-        </a>
+        <!-- GPV & Windy ダブルリンク -->
+        <div class="link-group">
+            <a href="https://weather-gpv.info/" target="_blank" class="link-btn gpv">
+                <span>🛰️</span> WEATHER-GPV (中部・詳細) で雲量を確認
+            </a>
+            <a href="https://www.windy.com/" target="_blank" class="link-btn">
+                <span>🌐</span> Windy気象レーダーを開く
+            </a>
+        </div>
     </div>
 
     <!-- 月・方角の要点カード -->
@@ -308,9 +322,14 @@
                 時間帯別雲量推移: 18時(15%) → 20時(8%) → 22時(3%)<br>
                 月光影響: ◯ 抜け抜群、星空指数 90
             </div>
-            <a href="https://www.windy.com/" target="_blank" class="link-btn" style="background: #1e3a8a; font-size: 13px; padding: 8px;">
-                 Windyで詳細雲量を確認
-            </a>
+            <div class="link-group" style="gap: 6px;">
+                <a href="https://weather-gpv.info/" target="_blank" class="link-btn gpv" style="font-size: 13px; padding: 8px;">
+                    GPVで雲量詳細チェック
+                </a>
+                <a href="https://www.windy.com/" target="_blank" class="link-btn" style="background: #1e3a8a; font-size: 13px; padding: 8px;">
+                     Windyで確認
+                </a>
+            </div>
         </div>
 
         <div class="detail-card">
