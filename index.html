@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件ダッシュボードV8</title>
+    <title>SkyPulse - 撮影条件ダッシュボード</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -12,6 +12,7 @@
             --text-main: #f3f4f6;
             --text-sub: #9ca3af;
             --border-color: #2a3447;
+            --btn-blue: #3b82f6;
         }
         * {
             box-sizing: border-box;
@@ -89,6 +90,27 @@
             font-weight: bold;
             line-height: 1.5;
             color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        /* 外部リンクボタン */
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--btn-blue);
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .link-btn:active {
+            opacity: 0.8;
         }
 
         /* セクション共通 */
@@ -200,11 +222,15 @@
             font-weight: bold;
             margin-bottom: 8px;
             color: #60a5fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .detail-body {
             font-size: 15px;
             color: var(--text-sub);
-            line-height: 1.4;
+            line-height: 1.5;
+            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -220,17 +246,21 @@
         </div>
     </header>
 
-    <!-- 【ファーストビュー】一番伝えたい結論（文字大・スクロールなしで完結） -->
+    <!-- 【ファーストビュー】最重要結論（文字大・スクロールなしで完結） -->
     <div class="hero-card">
         <div class="hero-header">
             <div class="hero-title">
                 <span>🎯</span> 行動決定・撮影条件推奨
             </div>
-            <div class="hero-badge">★ 遠征チャンス</div>
+            <div class="hero-badge">★★★ 遠征チャンス</div>
         </div>
         <div class="hero-summary">
-            月明かりの影響が少なく絶好のチャンスです。各地の雲の抜け具合を比較してベストな遠征先を決定しましょう。
+            今夜のベストは「根の上高原方面」！月明かりの影響が少なく雲の抜けも抜群。遠征しての撮影が最もおすすめです。
         </div>
+        <!-- GPV等へのダイレクトリンク -->
+        <a href="https://weather-gpv.info/" target="_blank" class="link-btn">
+            <span>🌐</span> GPV気象予報で詳細レーダーを確認する
+        </a>
     </div>
 
     <!-- 月・方角の要点カード -->
@@ -269,8 +299,24 @@
             <span>📉</span> 詳細データ・ポイント別比較 (18:00 - 00:00)
         </div>
 
+        <div class="detail-card" style="border-color: #3b82f6;">
+            <div class="detail-header">
+                <span>📍 遠征先候補 A（根の上高原方面）</span>
+                <span style="background: #2563eb; color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 4px;">推挽</span>
+            </div>
+            <div class="detail-body">
+                時間帯別雲量推移: 18時(15%) → 20時(8%) → 22時(3%)<br>
+                月光影響: ◯ 抜け抜群、星空指数 90
+            </div>
+            <a href="https://www.windy.com/" target="_blank" class="link-btn" style="background: #1e3a8a; font-size: 13px; padding: 8px;">
+                 Windyで詳細雲量を確認
+            </a>
+        </div>
+
         <div class="detail-card">
-            <div class="detail-header">📍 近場（岐阜市）</div>
+            <div class="detail-header">
+                <span>📍 近場（岐阜市）</span>
+            </div>
             <div class="detail-body">
                 時間帯別雲量推移: 18時(21%) → 20時(16%) → 22時(7%)<br>
                 月光影響: × 雲量多めから徐々にクリアに
@@ -278,15 +324,9 @@
         </div>
 
         <div class="detail-card">
-            <div class="detail-header">📍 遠征先候補 A（根の上高原方面）</div>
-            <div class="detail-body">
-                時間帯別雲量推移: 18時(15%) → 20時(8%) → 22時(3%)<br>
-                月光影響: ◯ 抜け抜群、星空指数 90
+            <div class="detail-header">
+                <span>📍 遠征先候補 B（伊吹・関ヶ原方面）</span>
             </div>
-        </div>
-
-        <div class="detail-card">
-            <div class="detail-header">📍 遠征先候補 B（伊吹・関ヶ原方面）</div>
             <div class="detail-body">
                 時間帯別雲量推移: 18時(30%) → 20時(25%) → 22時(18%)<br>
                 月光影響: △ 西側の雲に注意が必要
