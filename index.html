@@ -12,9 +12,6 @@
             --text-main: #f3f4f6;
             --text-sub: #9ca3af;
             --border-color: #2a3447;
-            --c-good: #1e3a8a;  /* 青：好条件 */
-            --c-mid: #14532d;   /* 緑：中程度 */
-            --c-bad: #854d0e;   /* 黄：注意 */
         }
         * {
             box-sizing: border-box;
@@ -142,12 +139,12 @@
             text-align: center;
         }
         
-        /* セル色分け（画像準拠） */
-        .cell-blue { background-color: #1e3a8a; color: #93c5fd; font-weight: bold; }
-        .cell-green { background-color: #14532d; color: #86efac; font-weight: bold; }
-        .cell-yellow { background-color: #854d0e; color: #fde047; font-weight: bold; }
+        /* 表の色分け（スプレッドシート画像完全準拠） */
+        .bg-blue { background-color: #2563eb; color: #ffffff; font-weight: bold; }
+        .bg-green { background-color: #16a34a; color: #ffffff; font-weight: bold; }
+        .bg-yellow { background-color: #eab308; color: #000000; font-weight: bold; }
 
-        /* 月・位置情報カード（コンパクト化） */
+        /* 月・位置情報カード */
         .grid-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -240,11 +237,11 @@
             <div class="hero-badge">★★★ 根の上高原がベスト</div>
         </div>
         <div class="hero-summary">
-            21時〜22時頃に根の上高原方面の雲が最も抜け（20%→30%）、月明かりの影響もクリア。今夜は遠征が狙い目です！
+            21時〜22時台の根の上高原は雲量20%〜30%かつ月影響も低めで狙い目です！
         </div>
     </div>
 
-    <!-- 【メイン】時系列マトリクス表 -->
+    <!-- 【メイン】時系列マトリクス表（画像完全一致の数値・配色） -->
     <div class="section-title">
         <span>📊</span> 場所・時間帯別 雲量 & 月影響マトリクス
     </div>
@@ -252,8 +249,8 @@
         <table class="matrix-table">
             <thead>
                 <tr>
-                    <th style="min-width: 80px;">地点</th>
-                    <th style="min-width: 45px;">項目</th>
+                    <th style="min-width: 70px;">地点</th>
+                    <th style="min-width: 40px;">項目</th>
                     <th>18:00</th>
                     <th>19:00</th>
                     <th>20:00</th>
@@ -270,81 +267,81 @@
                 <tr>
                     <td rowspan="2" class="spot-name">岐阜</td>
                     <td class="type-label">雲</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">2%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-green">20%</td>
-                    <td class="cell-green">30%</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-yellow">80%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">2%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">20%</td>
+                    <td class="bg-green">30%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-yellow">80%</td>
                 </tr>
                 <tr>
                     <td class="type-label">月</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
                 </tr>
 
                 <!-- 揖斐（登録1） -->
                 <tr>
                     <td rowspan="2" class="spot-name">揖斐<br><span style="font-size:10px; color:#9ca3af;">(登録1)</span></td>
                     <td class="type-label">雲</td>
-                    <td class="cell-blue">20%</td>
-                    <td class="cell-green">30%</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
+                    <td class="bg-blue">20%</td>
+                    <td class="bg-green">30%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
                 </tr>
                 <tr>
                     <td class="type-label">月</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
                 </tr>
 
                 <!-- 根の上（登録2） -->
                 <tr>
                     <td rowspan="2" class="spot-name">根の上<br><span style="font-size:10px; color:#9ca3af;">(登録2)</span></td>
                     <td class="type-label">雲</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-blue">20%</td>
-                    <td class="cell-green">30%</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-yellow">100%</td>
-                    <td class="cell-yellow">80%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-blue">20%</td>
+                    <td class="bg-green">30%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-yellow">100%</td>
+                    <td class="bg-yellow">80%</td>
                 </tr>
                 <tr>
                     <td class="type-label">月</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-green">40%</td>
-                    <td class="cell-yellow">80%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
-                    <td class="cell-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-green">40%</td>
+                    <td class="bg-yellow">80%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
+                    <td class="bg-blue">10%</td>
                 </tr>
             </tbody>
         </table>
