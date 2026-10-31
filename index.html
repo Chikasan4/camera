@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件ダッシュボードV5S</title>
+    <title>SkyPulse - 撮影条件マトリクスダッシュボード</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -12,8 +12,9 @@
             --text-main: #f3f4f6;
             --text-sub: #9ca3af;
             --border-color: #2a3447;
-            --btn-blue: #3b82f6;
-            --btn-gpv: #10b981;
+            --c-good: #1e3a8a;  /* 青：好条件 */
+            --c-mid: #14532d;   /* 緑：中程度 */
+            --c-bad: #854d0e;   /* 黄：注意 */
         }
         * {
             box-sizing: border-box;
@@ -24,20 +25,20 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: 16px;
+            padding: 12px;
             padding-bottom: 40px;
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .logo-area {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: var(--text-main);
         }
@@ -45,33 +46,29 @@
             background: #1e293b;
             border: 1px solid var(--border-color);
             color: #60a5fa;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
         }
-        .update-time {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-        
-        /* ファーストビュー：最重要結論（大きな文字） */
+
+        /* ファーストビュー：最重要結論 */
         .hero-card {
             background: var(--card-bg);
             border: 2px solid var(--accent-gold);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
             box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15);
         }
         .hero-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
         .hero-title {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--accent-gold);
             font-weight: bold;
             display: flex;
@@ -81,111 +78,120 @@
         .hero-badge {
             background: rgba(251, 191, 36, 0.2);
             color: var(--accent-gold);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: bold;
         }
         .hero-summary {
-            font-size: 20px;
-            font-weight: bold;
-            line-height: 1.5;
-            color: #ffffff;
-            margin-bottom: 16px;
-        }
-
-        /* リンクボタン群 */
-        .link-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .link-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: var(--btn-blue);
-            color: #ffffff;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-        .link-btn.gpv {
-            background: var(--btn-gpv);
-        }
-        .link-btn:active {
-            opacity: 0.8;
-        }
-
-        /* セクション共通 */
-        .section-title {
             font-size: 18px;
             font-weight: bold;
-            margin: 24px 0 12px 4px;
+            line-height: 1.4;
+            color: #ffffff;
+        }
+
+        /* セクション共通タイトル */
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0 10px 4px;
             color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        /* 月・位置情報カード */
+        /* マトリクス表コンテナ（スマホ横スクロール対応） */
+        .matrix-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        table.matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        table.matrix-table th, table.matrix-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 6px;
+        }
+        table.matrix-table th {
+            background: #1e293b;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+        .spot-name {
+            text-align: left;
+            font-weight: bold;
+            background: #1e293b;
+            color: #60a5fa;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+        .type-label {
+            background: #111827;
+            color: var(--text-sub);
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        /* セル色分け（画像準拠） */
+        .cell-blue { background-color: #1e3a8a; color: #93c5fd; font-weight: bold; }
+        .cell-green { background-color: #14532d; color: #86efac; font-weight: bold; }
+        .cell-yellow { background-color: #854d0e; color: #fde047; font-weight: bold; }
+
+        /* 月・位置情報カード（コンパクト化） */
         .grid-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 14px;
+            padding: 16px;
             margin-bottom: 16px;
         }
         .moon-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .moon-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: var(--accent-gold);
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-        .moon-subbadge {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--accent-gold);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
+            gap: 6px;
         }
         .moon-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-            font-size: 16px;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 15px;
         }
         .label {
             color: var(--text-sub);
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 2px;
         }
         .value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }
 
-        /* 簡易コンパス風ビュー */
+        /* 簡易コンパス */
         .compass-container {
             position: relative;
             width: 100%;
-            max-width: 280px;
-            height: 280px;
+            max-width: 240px;
+            height: 240px;
             margin: 0 auto;
             border: 2px dashed var(--border-color);
             border-radius: 50%;
@@ -195,51 +201,22 @@
         }
         .compass-dir {
             position: absolute;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--text-sub);
         }
-        .dir-n { top: 10px; }
-        .dir-s { bottom: 10px; }
-        .dir-e { right: 14px; }
-        .dir-w { left: 14px; }
+        .dir-n { top: 8px; }
+        .dir-s { bottom: 8px; }
+        .dir-e { right: 12px; }
+        .dir-w { left: 12px; }
         .moon-marker {
             background: var(--accent-gold);
             color: #000;
-            padding: 10px 18px;
-            border-radius: 30px;
+            padding: 8px 14px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
-        }
-
-        /* スクロール先の詳細セクション */
-        .details-section {
-            margin-top: 30px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
-        .detail-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .detail-header {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #60a5fa;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .detail-body {
-            font-size: 15px;
-            color: var(--text-sub);
-            line-height: 1.5;
-            margin-bottom: 12px;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
         }
     </style>
 </head>
@@ -250,31 +227,127 @@
             <span>🌌</span> SkyPulse
         </div>
         <div>
-            <span class="mode-badge">撮影地比較モード</span>
-            <div class="update-time" style="text-align: right; margin-top: 4px;">14:26 更新</div>
+            <span class="mode-badge">時系列比較モード</span>
         </div>
     </header>
 
-    <!-- 【ファーストビュー】最重要結論（大きな文字） -->
+    <!-- 【ファーストビュー】最重要結論 -->
     <div class="hero-card">
         <div class="hero-header">
             <div class="hero-title">
-                <span>🎯</span> 行動決定・撮影条件推奨
+                <span>🎯</span> 今夜の判断推奨
             </div>
-            <div class="hero-badge">★★★ 遠征チャンス</div>
+            <div class="hero-badge">★★★ 根の上高原がベスト</div>
         </div>
         <div class="hero-summary">
-            今夜のベストは「根の上高原方面」！月明かりの影響が少なく雲の抜けも抜群。遠征しての撮影が最もおすすめです。
+            21時〜22時頃に根の上高原方面の雲が最も抜け（20%→30%）、月明かりの影響もクリア。今夜は遠征が狙い目です！
         </div>
-        <!-- GPV & Windy ダブルリンク -->
-        <div class="link-group">
-            <a href="https://weather-gpv.info/" target="_blank" class="link-btn gpv">
-                <span>🛰️</span> WEATHER-GPV (中部・詳細) で雲量を確認
-            </a>
-            <a href="https://www.windy.com/" target="_blank" class="link-btn">
-                <span>🌐</span> Windy気象レーダーを開く
-            </a>
-        </div>
+    </div>
+
+    <!-- 【メイン】時系列マトリクス表 -->
+    <div class="section-title">
+        <span>📊</span> 場所・時間帯別 雲量 & 月影響マトリクス
+    </div>
+    <div class="matrix-container">
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th style="min-width: 80px;">地点</th>
+                    <th style="min-width: 45px;">項目</th>
+                    <th>18:00</th>
+                    <th>19:00</th>
+                    <th>20:00</th>
+                    <th>21:00</th>
+                    <th>22:00</th>
+                    <th>23:00</th>
+                    <th>0:00</th>
+                    <th>1:00</th>
+                    <th>2:00</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 岐阜 -->
+                <tr>
+                    <td rowspan="2" class="spot-name">岐阜</td>
+                    <td class="type-label">雲</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">2%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-green">20%</td>
+                    <td class="cell-green">30%</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-yellow">80%</td>
+                </tr>
+                <tr>
+                    <td class="type-label">月</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                </tr>
+
+                <!-- 揖斐（登録1） -->
+                <tr>
+                    <td rowspan="2" class="spot-name">揖斐<br><span style="font-size:10px; color:#9ca3af;">(登録1)</span></td>
+                    <td class="type-label">雲</td>
+                    <td class="cell-blue">20%</td>
+                    <td class="cell-green">30%</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                </tr>
+                <tr>
+                    <td class="type-label">月</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                </tr>
+
+                <!-- 根の上（登録2） -->
+                <tr>
+                    <td rowspan="2" class="spot-name">根の上<br><span style="font-size:10px; color:#9ca3af;">(登録2)</span></td>
+                    <td class="type-label">雲</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-blue">20%</td>
+                    <td class="cell-green">30%</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-yellow">100%</td>
+                    <td class="cell-yellow">80%</td>
+                </tr>
+                <tr>
+                    <td class="type-label">月</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-green">40%</td>
+                    <td class="cell-yellow">80%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                    <td class="cell-blue">10%</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- 月・方角の要点カード -->
@@ -283,7 +356,7 @@
             <div class="moon-title">
                 <span>🌙</span> 今夜の月明かり・位置情報
             </div>
-            <div class="moon-subbadge">月光中 (66%)</div>
+            <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;">月光中 (66%)</div>
         </div>
 
         <div class="moon-details">
@@ -292,8 +365,8 @@
                 <div class="value">20.6 (下弦の月)</div>
             </div>
             <div>
-                <div class="label">月の出 / 月の入り</div>
-                <div class="value" style="font-size: 16px;">出 18:09 / 入 08:09</div>
+                <div class="label">月の出 / 入</div>
+                <div class="value" style="font-size: 15px;">出 18:09 / 入 08:09</div>
             </div>
         </div>
 
@@ -304,52 +377,6 @@
             <span class="compass-dir dir-e">E(東)</span>
             <span class="compass-dir dir-w">W(西)</span>
             <div class="moon-marker">月 (南西)</div>
-        </div>
-    </div>
-
-    <!-- 【スクロール先】詳細データ・推移セクション -->
-    <div class="details-section">
-        <div class="section-title">
-            <span>📉</span> 詳細データ・ポイント別比較 (18:00 - 00:00)
-        </div>
-
-        <div class="detail-card" style="border-color: #3b82f6;">
-            <div class="detail-header">
-                <span>📍 遠征先候補 A（根の上高原方面）</span>
-                <span style="background: #2563eb; color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 4px;">推奨</span>
-            </div>
-            <div class="detail-body">
-                時間帯別雲量推移: 18時(15%) → 20時(8%) → 22時(3%)<br>
-                月光影響: ◯ 抜け抜群、星空指数 90
-            </div>
-            <div class="link-group" style="gap: 6px;">
-                <a href="https://weather-gpv.info/" target="_blank" class="link-btn gpv" style="font-size: 13px; padding: 8px;">
-                    GPVで雲量詳細チェック
-                </a>
-                <a href="https://www.windy.com/" target="_blank" class="link-btn" style="background: #1e3a8a; font-size: 13px; padding: 8px;">
-                     Windyで確認
-                </a>
-            </div>
-        </div>
-
-        <div class="detail-card">
-            <div class="detail-header">
-                <span>📍 近場（岐阜市）</span>
-            </div>
-            <div class="detail-body">
-                時間帯別雲量推移: 18時(21%) → 20時(16%) → 22時(7%)<br>
-                月光影響: × 雲量多めから徐々にクリアに
-            </div>
-        </div>
-
-        <div class="detail-card">
-            <div class="detail-header">
-                <span>📍 遠征先候補 B（伊吹・関ヶ原方面）</span>
-            </div>
-            <div class="detail-body">
-                時間帯別雲量推移: 18時(30%) → 20時(25%) → 22時(18%)<br>
-                月光影響: △ 西側の雲に注意が必要
-            </div>
         </div>
     </div>
 
