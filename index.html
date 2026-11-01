@@ -39,6 +39,11 @@
             font-weight: bold;
             color: var(--text-main);
         }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .mode-badge {
             background: #1e293b;
             border: 1px solid var(--border-color);
@@ -47,6 +52,33 @@
             border-radius: 20px;
             font-size: 13px;
             font-weight: bold;
+        }
+        /* 更新ボタン */
+        .reload-btn {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+        }
+        .reload-btn:active {
+            background: #1d4ed8;
+        }
+
+        /* 最終更新日時表示バー */
+        .update-info-bar {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-align: right;
+            margin-bottom: 10px;
+            padding-right: 4px;
         }
 
         /* ファーストビュー：最重要結論 */
@@ -139,7 +171,7 @@
             text-align: center;
         }
         
-        /* 厳密な配色定義 */
+        /* 厳密な配色定義（スプレッドシート完全一致） */
         .c-blue { background-color: #2563eb; color: #ffffff; font-weight: bold; }   /* 青 */
         .c-green { background-color: #16a34a; color: #ffffff; font-weight: bold; }  /* 緑 */
         .c-yellow { background-color: #eab308; color: #000000; font-weight: bold; } /* 黄 */
@@ -223,10 +255,18 @@
         <div class="logo-area">
             <span>🌌</span> SkyPulse
         </div>
-        <div>
+        <div class="header-right">
             <span class="mode-badge">時系列比較モード</span>
+            <button class="reload-btn" onclick="location.reload(true);">
+                <span>🔄</span> 更新
+            </button>
         </div>
     </header>
+
+    <!-- 最終更新日時バー -->
+    <div class="update-info-bar" id="update-time">
+        最終データ同期: 読み込み中...
+    </div>
 
     <!-- 【ファーストビュー】最重要結論 -->
     <div class="hero-card">
@@ -241,7 +281,7 @@
         </div>
     </div>
 
-    <!-- 【メイン】時系列マトリクス表 -->
+    <!-- 【メイン】時系列マトリクス表（スプレッドシート完全一致） -->
     <div class="section-title">
         <span>📊</span> 場所・時間帯別 雲量 & 月影響マトリクス
     </div>
@@ -377,5 +417,11 @@
         </div>
     </div>
 
+    <script>
+        // 最終更新日時を動的に表示するスクリプト（キャッシュ残存の有無が一目でわかります）
+        const now = new Date();
+        const timeString = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        document.getElementById('update-time').innerText = `最終データ同期: ${timeString}`;
+    </script>
 </body>
 </html>
