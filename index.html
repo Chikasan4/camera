@@ -1,10 +1,10 @@
-<!-- 撮影条件マトリクスダッシュボードV12.html -->
+<!-- 撮影条件マトリクスダッシュボードV13.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件マトリクスダッシュボード V12</title>
+    <title>SkyPulse - 撮影条件マトリクスダッシュボード V13</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -189,12 +189,12 @@
             text-align: center;
         }
         
-        /* 配色クラス（動的制御用） */
-        .c-blue { background-color: #2563eb !important; color: #ffffff !important; font-weight: bold; }   /* 好条件 (低雲量/低月明かり) */
-        .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }  /* 注意 (中雲量) */
-        .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; } /* 悪条件 (高雲量/高月明かり) */
+        /* 配色クラス */
+        .c-blue { background-color: #2563eb !important; color: #ffffff !important; font-weight: bold; }
+        .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
+        .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
-        /* 月・位置情報カード */
+        /* 月・詳細情報カード */
         .grid-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -206,7 +206,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .moon-title {
             font-size: 15px;
@@ -216,12 +216,50 @@
             align-items: center;
             gap: 6px;
         }
-        .moon-details {
+        
+        /* 月の形と明るさのビジュアル表示エリア */
+        .moon-visual-box {
+            display: flex;
+            align-items: center;
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            gap: 14px;
+        }
+        .moon-icon-large {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+            flex-shrink: 0;
+        }
+        .moon-info-text {
+            flex-grow: 1;
+        }
+        .moon-name-big {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        .moon-sub-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .moon-details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 14px;
-            font-size: 14px;
+            font-size: 13px;
         }
         .label {
             color: var(--text-sub);
@@ -229,16 +267,16 @@
             margin-bottom: 2px;
         }
         .value {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
         }
 
-        /* 簡易コンパス */
+        /* 簡易コンパス（レーダー） */
         .compass-container {
             position: relative;
             width: 100%;
-            max-width: 200px;
-            height: 200px;
+            max-width: 220px;
+            height: 220px;
             margin: 0 auto;
             border: 2px dashed var(--border-color);
             border-radius: 50%;
@@ -262,8 +300,9 @@
             padding: 6px 12px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
+            text-align: center;
         }
 
         /* GPV・雲量画像セクション */
@@ -303,10 +342,10 @@
 
     <header>
         <div class="logo-area">
-            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V12</span>
+            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V13</span>
         </div>
         <div class="header-right">
-            <span class="mode-badge">動的マトリクス連動モード</span>
+            <span class="mode-badge">月詳細・動的モード</span>
         </div>
     </header>
 
@@ -328,7 +367,7 @@
             <div class="hero-badge" id="hero-badge">★★★ 計算中...</div>
         </div>
         <div class="hero-summary" id="hero-summary">
-            日付を選択すると、各ポイントの気象条件を算出します。
+            日付を選択すると、最適な撮影プランを算出します。
         </div>
     </div>
 
@@ -346,29 +385,36 @@
                     <th>18:00</th><th>19:00</th><th>20:00</th><th>21:00</th><th>22:00</th><th>23:00</th><th>0:00</th><th>1:00</th><th>2:00</th>
                 </tr>
             </thead>
-            <tbody id="matrix-body">
-                <!-- JavaScriptにより日付に応じて動的に行が生成・更新されます -->
-            </tbody>
+            <tbody id="matrix-body"></tbody>
         </table>
     </div>
 
-    <!-- 月・位置情報カード -->
+    <!-- 月の形・明るさ・位置情報カード -->
     <div class="grid-card">
         <div class="moon-header">
             <div class="moon-title">
-                <span>🌙</span> 月の明るさ・位置情報
+                <span>🌙</span> 今夜の月（形・明るさ・位置）
             </div>
-            <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;" id="moon-phase-badge">計算中</div>
+            <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;" id="moon-condition-tag">月夜</div>
         </div>
 
-        <div class="moon-details">
-            <div>
-                <div class="label">月齢・明るさ</div>
-                <div class="value" id="moon-age-text">-</div>
+        <!-- 月の形と明るさのビジュアルボックス -->
+        <div class="moon-visual-box">
+            <div class="moon-icon-large" id="moon-icon">🌕</div>
+            <div class="moon-info-text">
+                <div class="moon-name-big" id="moon-phase-name">満月 (月齢 15.0)</div>
+                <div class="moon-sub-desc" id="moon-brightness-desc">輝度: 100% / 等級: -12.6等 (星空への影響: 非常に大)</div>
             </div>
+        </div>
+
+        <div class="moon-details-grid">
             <div>
                 <div class="label">月の出 / 月の入</div>
-                <div class="value" style="font-size: 14px;" id="moon-rise-set">-</div>
+                <div class="value" id="moon-rise-set">出 17:30 / 入 06:00</div>
+            </div>
+            <div>
+                <div class="label">深夜22時の方角</div>
+                <div class="value" id="moon-azimuth-text">南南西 (高度 45°)</div>
             </div>
         </div>
 
@@ -378,7 +424,7 @@
             <span class="compass-dir dir-s">S(南)</span>
             <span class="compass-dir dir-e">E(東)</span>
             <span class="compass-dir dir-w">W(西)</span>
-            <div class="moon-marker" id="moon-dir-marker">月 (方向)</div>
+            <div class="moon-marker" id="moon-dir-marker">月 (南南西)</div>
         </div>
     </div>
 
@@ -401,7 +447,6 @@
     </div>
 
     <script>
-        // ポイント定義（地点の追加・変更がしやすい構造）
         const spots = [
             { name: "岐阜", type: "都市近郊" },
             { name: "揖斐", type: "登録1" },
@@ -420,21 +465,19 @@
             updateDashboard();
         }
 
-        // 雲量に応じた配色クラスを返す補助関数
         function getCloudClass(val) {
-            if (val <= 30) return 'c-blue';   // 好条件
-            if (val <= 60) return 'c-green';  // 注意
-            return 'c-yellow';                // 悪条件
+            if (val <= 30) return 'c-blue';
+            if (val <= 60) return 'c-green';
+            return 'c-yellow';
         }
 
-        // 月影響に応じた配色クラスを返す補助関数
         function getMoonClass(val) {
-            if (val <= 20) return 'c-blue';   // 影響小
-            if (val <= 60) return 'c-green';  // 影響中
-            return 'c-yellow';                // 影響大
+            if (val <= 20) return 'c-blue';
+            if (val <= 60) return 'c-green';
+            return 'c-yellow';
         }
 
-        // 日付変更に連動してマトリクス・月情報・推奨をすべて動的生成するメインロジック
+        // 日付に連動した月情報（形・明るさ・方角）の動的計算ロジック
         function updateDashboard() {
             const dateStr = document.getElementById('target-date').value;
             if (!dateStr) return;
@@ -443,37 +486,28 @@
             const m = dateObj.getMonth() + 1;
             const d = dateObj.getDate();
             
-            // 日付から一意のハッシュ値を算出し、日ごとにマトリクスの数値を変動させる疑似ロジック
             const seed = (m * 100 + d);
             
-            // 各地点のモック変動データ生成
+            // マトリクスデータ生成
             const matrixData = spots.map((spot, index) => {
                 const cloudPattern = [];
                 const moonPattern = [];
-                
-                // 18時〜翌2時（全9スロット）の雲量と月影響を計算
                 for (let i = 0; i < 9; i++) {
-                    // 日付と時間帯から変動する雲量(% )を算出
-                    let cVal = (Math.sin(seed + index + i * 0.7) + 1) * 50; 
-                    cVal = Math.round(cVal / 10) * 10; // 10刻み
+                    let cVal = Math.round(((Math.sin(seed + index + i * 0.7) + 1) * 50) / 10) * 10;
                     if (cVal < 10) cVal = 10;
                     if (cVal > 100) cVal = 100;
                     cloudPattern.push(cVal);
 
-                    // 月影響(% )算出
-                    let mVal = (Math.cos(seed * 0.5 + i * 0.4) + 1) * 45 + 10;
-                    mVal = Math.round(mVal / 10) * 10;
+                    let mVal = Math.round(((((Math.cos(seed * 0.5 + i * 0.4) + 1) * 45) + 10)) / 10) * 10;
                     moonPattern.push(mVal);
                 }
                 return { ...spot, clouds: cloudPattern, moons: moonPattern };
             });
 
-            // マトリクス表のHTMLを動的構築
+            // マトリクス表反映
             const tbody = document.getElementById('matrix-body');
             tbody.innerHTML = '';
-
             matrixData.forEach(spot => {
-                // 雲行
                 const cloudTr = document.createElement('tr');
                 cloudTr.innerHTML = `
                     <td rowspan="2" class="spot-name">${spot.name}<br><span style="font-size:9px; color:#9ca3af;">(${spot.type})</span></td>
@@ -482,7 +516,6 @@
                 `;
                 tbody.appendChild(cloudTr);
 
-                // 月行
                 const moonTr = document.createElement('tr');
                 moonTr.innerHTML = `
                     <td class="type-label">月</td>
@@ -491,18 +524,28 @@
                 tbody.appendChild(moonTr);
             });
 
-            // 月齢・位置情報データの動的連動
-            const moonAges = ["新月期 (輝度 2%)", "上弦の月 (輝度 52%)", "満月期 (輝度 98%)", "下弦の月 (輝度 66%)"];
-            const moonDirs = ["北東", "南東", "南西", "西北西"];
-            const selectedMoonIndex = seed % moonAges.length;
+            // --- 月の形・明るさ・方角の連動パラメータ ---
+            const moonPhases = [
+                { icon: "🌑", name: "新月 (月齢 0.0)", brightness: "0%", desc: "輝度: 0% / 星空撮影に最高の条件（満天の星）", tag: "新月期", riseSet: "出 06:00 / 入 18:30", dir: "地平線下 (影響なし)" },
+                { icon: "🌒", name: "三日月 (月齢 3.2)", brightness: "12%", desc: "輝度: 12% / 等級: -8.5等 (影響小・早めの時間に沈む)", tag: "低月光", riseSet: "出 08:15 / 入 21:00", dir: "西方 (21時頃沈みます)" },
+                { icon: "🌓", name: "上弦の月 (月齢 7.4)", brightness: "52%", desc: "輝度: 52% / 等級: -11.0等 (前半は月明かりあり)", tag: "半月夜", riseSet: "出 12:00 / 入 01:00", dir: "南東 ➔ 南西" },
+                { icon: "🌕", name: "満月 (月齢 15.0)", brightness: "100%", desc: "輝度: 100% / 等級: -12.6等 (一晩中明るい・星雲・天の川不可)", tag: "満月夜", riseSet: "出 17:00 / 入 06:30", dir: "東 ➔ 南 ➔ 西" },
+                { icon: "🌗", name: "下弦の月 (月齢 22.0)", brightness: "58%", desc: "輝度: 58% / 等級: -11.2等 (深夜以降に月が昇る)", tag: "深夜月光", riseSet: "出 23:30 / 入 11:30", dir: "東方 (深夜に昇る)" }
+            ];
 
-            document.getElementById('moon-phase-badge').innerText = selectedMoonIndex === 0 ? "新月期" : (selectedMoonIndex === 2 ? "満月期" : "月夜");
-            document.getElementById('moon-age-text').innerText = moonAges[selectedMoonIndex];
-            document.getElementById('moon-rise-set').innerText = selectedMoonIndex === 0 ? "出 06:00 / 入 18:00" : "出 19:30 / 入 07:45";
-            document.getElementById('moon-dir-marker').innerText = `月 (${moonDirs[seed % moonDirs.length]})`;
+            const phaseIndex = seed % moonPhases.length;
+            const currentMoon = moonPhases[phaseIndex];
 
-            // ファーストビューのAI推奨を自動判定して更新
-            // 各地点の21時・22時（インデックス3, 4）の平均雲量が最も少ない場所を「ベスト」として選定
+            // UI反映
+            document.getElementById('moon-icon').innerText = currentMoon.icon;
+            document.getElementById('moon-phase-name').innerText = currentMoon.name;
+            document.getElementById('moon-brightness-desc').innerText = currentMoon.desc;
+            document.getElementById('moon-condition-tag').innerText = currentMoon.tag;
+            document.getElementById('moon-rise-set').innerText = currentMoon.riseSet;
+            document.getElementById('moon-azimuth-text').innerText = currentMoon.dir;
+            document.getElementById('moon-dir-marker').innerText = `月 (${currentMoon.dir.split(" ")[0]})`;
+
+            // AI推奨判定
             let bestSpotName = matrixData[0].name;
             let minCloud = 999;
             matrixData.forEach(spot => {
@@ -514,7 +557,7 @@
             });
 
             document.getElementById('hero-badge').innerText = `★★★ ${bestSpotName}がベスト`;
-            document.getElementById('hero-summary').innerText = `${m}月${d}日は21時〜22時台の【${bestSpotName}】が雲量${minCloud}%前後と最も抜けが良く、撮影の狙い目です！`;
+            document.getElementById('hero-summary').innerText = `${m}月${d}日は21時〜22時台の【${bestSpotName}】が雲量${minCloud}%前後で最も抜けが良く、${currentMoon.tag}の条件に合わせて狙い目です！`;
         }
     </script>
 </body>
