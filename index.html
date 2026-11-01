@@ -74,7 +74,7 @@
             padding-right: 4px;
         }
 
-        /* ファーストビュー：最重要結論 */
+        /* ファーストビュー：最重要結論（揖斐最適化版） */
         .hero-card {
             background: var(--card-bg);
             border: 2px solid var(--accent-gold);
@@ -260,16 +260,16 @@
         同期確認中...
     </div>
 
-    <!-- 【ファーストビュー】最重要結論 -->
+    <!-- 【ファーストビュー】最重要結論：揖斐を最適地に変更 -->
     <div class="hero-card">
         <div class="hero-header">
             <div class="hero-title">
                 <span>🎯</span> 今夜の判断推奨
             </div>
-            <div class="hero-badge">★★★ 根の上高原がベスト</div>
+            <div class="hero-badge">★★★ 揖斐（登録1）がベスト</div>
         </div>
         <div class="hero-summary">
-            21時〜22時台の根の上高原は雲量20%〜30%かつ月影響も低めで狙い目です！
+            18時〜19時台の揖斐は雲量20%〜30%かつ月影響も10%と低めで最高の条件です！
         </div>
     </div>
 
@@ -401,22 +401,21 @@
 
         <div class="compass-container">
             <span class="compass-dir dir-n">N(北)</span>
-            <span class="compass-dir dir-s">S(南)</i></span>
+            <span class="compass-dir dir-s">S(南)</span>
             <span class="compass-dir dir-e">E(東)</span>
             <span class="compass-dir dir-w">W(西)</span>
-            <div class="moon-marker" id="moon-pos-marker">月 (計算中)</div>
+            <div class="moon-marker" id="moon-pos-marker">月 (南西)</div>
         </div>
     </div>
 
     <script>
-        // 1. 最終同期日時の表示（キャッシュ有無の即時判別用）
+        // 1. 最終同期日時の表示
         const now = new Date();
         const timeString = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-        document.getElementById('update-time').innerText = `最終同期: ${timeString} (動的反映版)`;
+        document.getElementById('update-time').innerText = `最終同期: ${timeString} (揖斐最適化版)`;
 
         // 2. 本日の日付に応じた簡易月齢・月相の動的計算ロジック
         function getMoonInfo(date) {
-            // 基準日（例: 2026年1月6日 新月付近をベースにした簡易算出）
             const baseDate = new Date(2026, 0, 6);
             const diffDays = (date - baseDate) / (1000 * 60 * 60 * 24);
             const cycle = 29.53058867;
@@ -441,7 +440,6 @@
         const moonData = getMoonInfo(now);
         document.getElementById('moon-age-val').innerText = `月齢 ${moonData.age} (${moonData.phase})`;
         
-        // 月相に応じたバッジ表示の切り替え
         const badgeElem = document.getElementById('moon-status-badge');
         if(moonData.age > 12 && moonData.age < 18) {
             badgeElem.innerText = "満月期 (影響大)";
