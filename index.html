@@ -53,7 +53,6 @@
             font-size: 13px;
             font-weight: bold;
         }
-        /* 更新ボタン */
         .reload-btn {
             background: #2563eb;
             color: #fff;
@@ -66,13 +65,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            transition: background 0.2s;
         }
-        .reload-btn:active {
-            background: #1d4ed8;
-        }
-
-        /* 最終更新日時表示バー */
         .update-info-bar {
             font-size: 11px;
             color: var(--text-sub);
@@ -171,10 +164,10 @@
             text-align: center;
         }
         
-        /* 厳密な配色定義（スプレッドシート完全一致） */
-        .c-blue { background-color: #2563eb; color: #ffffff; font-weight: bold; }   /* 青 */
-        .c-green { background-color: #16a34a; color: #ffffff; font-weight: bold; }  /* 緑 */
-        .c-yellow { background-color: #eab308; color: #000000; font-weight: bold; } /* 黄 */
+        /* スプレッドシート画像完全一致の配色定義 */
+        .c-blue { background-color: #2563eb; color: #ffffff; font-weight: bold; }   /* 青（好条件） */
+        .c-green { background-color: #16a34a; color: #ffffff; font-weight: bold; }  /* 緑（中程度） */
+        .c-yellow { background-color: #eab308; color: #000000; font-weight: bold; } /* 黄（注意） */
 
         /* 月・位置情報カード */
         .grid-card {
@@ -263,7 +256,6 @@
         </div>
     </header>
 
-    <!-- 最終更新日時バー -->
     <div class="update-info-bar" id="update-time">
         最終データ同期: 読み込み中...
     </div>
@@ -281,7 +273,7 @@
         </div>
     </div>
 
-    <!-- 【メイン】時系列マトリクス表（スプレッドシート完全一致） -->
+    <!-- 【メイン】時系列マトリクス表（スプレッドシート元画像と完全一致・修正版） -->
     <div class="section-title">
         <span>📊</span> 場所・時間帯別 雲量 & 月影響マトリクス
     </div>
@@ -311,11 +303,11 @@
                     <td class="c-blue">2%</td>
                     <td class="c-blue">10%</td>
                     <td class="c-blue">20%</td>
-                    <td class="c-blue">30%</td>
-                    <td class="c-green">40%</td>
-                    <td class="c-yellow">80%</td>
-                    <td class="c-yellow">100%</td>
-                    <td class="c-yellow">80%</td>
+                    <td class="c-green">30%</td>
+                    <td class="c-blue">10%</td> <!-- 元画像通りの修正 -->
+                    <td class="c-blue">10%</td>
+                    <td class="c-blue">10%</td>
+                    <td class="c-blue">10%</td>
                 </tr>
                 <tr>
                     <td class="type-label">月</td>
@@ -365,7 +357,7 @@
                     <td class="c-yellow">80%</td>
                     <td class="c-yellow">100%</td>
                     <td class="c-blue">20%</td>
-                    <td class="c-blue">30%</td>
+                    <td class="c-green">30%</td>
                     <td class="c-green">40%</td>
                     <td class="c-yellow">80%</td>
                     <td class="c-yellow">100%</td>
@@ -407,7 +399,6 @@
             </div>
         </div>
 
-        <!-- 視認性重視の方角レーダー -->
         <div class="compass-container">
             <span class="compass-dir dir-n">N(北)</span>
             <span class="compass-dir dir-s">S(南)</span>
@@ -418,7 +409,6 @@
     </div>
 
     <script>
-        // 最終更新日時を動的に表示するスクリプト（キャッシュ残存の有無が一目でわかります）
         const now = new Date();
         const timeString = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         document.getElementById('update-time').innerText = `最終データ同期: ${timeString}`;
