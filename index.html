@@ -1,10 +1,9 @@
-<!-- 撮影条件マトリクスダッシュボードV13.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件マトリクスダッシュボード V13</title>
+    <title>SkyPulse - 撮影条件マトリクスダッシュボード V14</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -217,7 +216,6 @@
             gap: 6px;
         }
         
-        /* 月の形と明るさのビジュアル表示エリア */
         .moon-visual-box {
             display: flex;
             align-items: center;
@@ -271,38 +269,56 @@
             font-weight: bold;
         }
 
-        /* 簡易コンパス（レーダー） */
-        .compass-container {
-            position: relative;
-            width: 100%;
-            max-width: 220px;
-            height: 220px;
-            margin: 0 auto;
-            border: 2px dashed var(--border-color);
-            border-radius: 50%;
+        /* 月の軌跡タイムラインリスト */
+        .trajectory-box {
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+        .trajectory-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
         }
-        .compass-dir {
-            position: absolute;
+        .trajectory-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .trajectory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 12px;
-            font-weight: bold;
+            border-bottom: 1px dashed rgba(42, 52, 71, 0.6);
+            padding-bottom: 4px;
+        }
+        .trajectory-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .t-time {
             color: var(--text-sub);
-        }
-        .dir-n { top: 6px; }
-        .dir-s { bottom: 6px; }
-        .dir-e { right: 10px; }
-        .dir-w { left: 10px; }
-        .moon-marker {
-            background: var(--accent-gold);
-            color: #000;
-            padding: 6px 12px;
-            border-radius: 20px;
             font-weight: bold;
-            font-size: 12px;
-            box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
-            text-align: center;
+            min-width: 45px;
+        }
+        .t-route {
+            color: #60a5fa;
+            font-weight: bold;
+            flex-grow: 1;
+            padding-left: 8px;
+        }
+        .t-note {
+            color: var(--text-main);
+            font-size: 11px;
+            text-align: right;
         }
 
         /* GPV・雲量画像セクション */
@@ -342,10 +358,10 @@
 
     <header>
         <div class="logo-area">
-            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V13</span>
+            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V14</span>
         </div>
         <div class="header-right">
-            <span class="mode-badge">月詳細・動的モード</span>
+            <span class="mode-badge">軌跡ビュー連動モード</span>
         </div>
     </header>
 
@@ -389,11 +405,11 @@
         </table>
     </div>
 
-    <!-- 月の形・明るさ・位置情報カード -->
+    <!-- 月の形・明るさ・軌跡情報カード -->
     <div class="grid-card">
         <div class="moon-header">
             <div class="moon-title">
-                <span>🌙</span> 今夜の月（形・明るさ・位置）
+                <span>🌙</span> 今夜の月（形・明るさ・移動軌跡）
             </div>
             <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;" id="moon-condition-tag">月夜</div>
         </div>
@@ -413,18 +429,19 @@
                 <div class="value" id="moon-rise-set">出 17:30 / 入 06:00</div>
             </div>
             <div>
-                <div class="label">深夜22時の方角</div>
-                <div class="value" id="moon-azimuth-text">南南西 (高度 45°)</div>
+                <div class="label">コンディション要約</div>
+                <div class="value" id="moon-summary-text">一晩中影響あり</div>
             </div>
         </div>
 
-        <!-- 方角レーダー -->
-        <div class="compass-container">
-            <span class="compass-dir dir-n">N(北)</span>
-            <span class="compass-dir dir-s">S(南)</span>
-            <span class="compass-dir dir-e">E(東)</span>
-            <span class="compass-dir dir-w">W(西)</span>
-            <div class="moon-marker" id="moon-dir-marker">月 (南南西)</div>
+        <!-- 【新機能】時間帯別の月の移動軌跡タイムライン -->
+        <div class="trajectory-box">
+            <div class="trajectory-title">
+                <span>⏳</span> 時間帯別・月の移動軌跡ビュー
+            </div>
+            <ul class="trajectory-list" id="trajectory-list">
+                <!-- JavaScriptで動的に挿入されます -->
+            </ul>
         </div>
     </div>
 
@@ -477,7 +494,7 @@
             return 'c-yellow';
         }
 
-        // 日付に連動した月情報（形・明るさ・方角）の動的計算ロジック
+        // 日付に連動した月情報・軌跡タイムラインの動的計算ロジック
         function updateDashboard() {
             const dateStr = document.getElementById('target-date').value;
             if (!dateStr) return;
@@ -524,13 +541,58 @@
                 tbody.appendChild(moonTr);
             });
 
-            // --- 月の形・明るさ・方角の連動パラメータ ---
+            // --- 月の形・明るさ・軌跡パターンデータ ---
             const moonPhases = [
-                { icon: "🌑", name: "新月 (月齢 0.0)", brightness: "0%", desc: "輝度: 0% / 星空撮影に最高の条件（満天の星）", tag: "新月期", riseSet: "出 06:00 / 入 18:30", dir: "地平線下 (影響なし)" },
-                { icon: "🌒", name: "三日月 (月齢 3.2)", brightness: "12%", desc: "輝度: 12% / 等級: -8.5等 (影響小・早めの時間に沈む)", tag: "低月光", riseSet: "出 08:15 / 入 21:00", dir: "西方 (21時頃沈みます)" },
-                { icon: "🌓", name: "上弦の月 (月齢 7.4)", brightness: "52%", desc: "輝度: 52% / 等級: -11.0等 (前半は月明かりあり)", tag: "半月夜", riseSet: "出 12:00 / 入 01:00", dir: "南東 ➔ 南西" },
-                { icon: "🌕", name: "満月 (月齢 15.0)", brightness: "100%", desc: "輝度: 100% / 等級: -12.6等 (一晩中明るい・星雲・天の川不可)", tag: "満月夜", riseSet: "出 17:00 / 入 06:30", dir: "東 ➔ 南 ➔ 西" },
-                { icon: "🌗", name: "下弦の月 (月齢 22.0)", brightness: "58%", desc: "輝度: 58% / 等級: -11.2等 (深夜以降に月が昇る)", tag: "深夜月光", riseSet: "出 23:30 / 入 11:30", dir: "東方 (深夜に昇る)" }
+                {
+                    icon: "🌑", name: "新月 (月齢 0.0)", brightness: "0% (非表示)", desc: "等級: なし / 星空撮影に最高の条件（満天の星）", tag: "新月期", riseSet: "出 06:00 / 入 18:30", summary: "一晩中まっくら (影響なし)",
+                    trajectories: [
+                        { time: "18:00", route: "地平線下", note: "すでに沈んでいます" },
+                        { time: "20:00", route: "地平線下", note: "暗闇・全天撮影OK" },
+                        { time: "22:00", route: "地平線下", note: "天の川・星雲の絶好期" },
+                        { time: "00:00", route: "地平線下", note: "深夜の暗闇チャンス" },
+                        { time: "02:00", route: "地平線下", note: "朝まで影響ゼロ" }
+                    ]
+                },
+                {
+                    icon: "🌒", name: "三日月 (月齢 3.2)", brightness: "12%", desc: "輝度: 12% / 等級: -8.5等 (影響小・早めに沈む)", tag: "低月光", riseSet: "出 08:15 / 入 21:00", summary: "21時以降は完全な暗闇",
+                    trajectories: [
+                        { time: "18:00", route: "西方 (低空)", note: "高度 15° / ほのかな明かり" },
+                        { time: "20:00", route: "西方 (山際)", note: "高度 5° / まもなく沈む" },
+                        { time: "22:00", route: "地平線下", note: "ここから深夜まで完全な暗闇" },
+                        { time: "00:00", route: "地平線下", note: "ディープスカイ撮影に最適" },
+                        { time: "02:00", route: "地平線下", note: "星空・天の川狙い目" }
+                    ]
+                },
+                {
+                    icon: "🌓", name: "上弦の月 (月齢 7.4)", brightness: "52%", desc: "輝度: 52% / 等級: -11.0等 (前半は明るい)", tag: "半月夜", riseSet: "出 12:00 / 入 01:00", summary: "深夜1時以降に月没",
+                    trajectories: [
+                        { time: "18:00", route: "南東 ➔ 南", note: "高度 45° / 前半は明るめ" },
+                        { time: "20:00", route: "南南西", note: "高度 35° / 影がハッキリ出る" },
+                        { time: "22:00", route: "西南西", note: "高度 20° / 徐々に高度が下がる" },
+                        { time: "00:00", route: "西の山際付近", note: "高度 5° / まもなく沈む" },
+                        { time: "02:00", route: "地平線下", note: "深夜1時以降は暗闇に転換" }
+                    ]
+                },
+                {
+                    icon: "🌕", name: "満月 (月齢 15.0)", brightness: "100%", desc: "輝度: 100% / 等級: -12.6等 (一晩中明るい)", tag: "満月夜", riseSet: "出 17:00 / 入 06:30", summary: "一晩中強い月明かり",
+                    trajectories: [
+                        { time: "18:00", route: "東方 (昇る)", note: "高度 10° / 幻想的な月の出" },
+                        { time: "20:00", route: "東南東", note: "高度 30° / 非常に明るい" },
+                        { time: "22:00", route: "南天 (真上)", note: "高度 50° / 影が最も濃い" },
+                        { time: "00:00", route: "西南西", note: "高度 45° / 全体を照らす" },
+                        { time: "02:00", route: "西方", note: "高度 30° / 朝まで影響継続" }
+                    ]
+                },
+                {
+                    icon: "🌗", name: "下弦の月 (月齢 22.0)", brightness: "58%", desc: "輝度: 58% / 等級: -11.2等 (深夜に昇る)", tag: "深夜月光", riseSet: "出 23:30 / 入 11:30", summary: "前半は暗く、深夜に昇る",
+                    trajectories: [
+                        { time: "18:00", route: "地平線下", note: "前半は月なし・星が綺麗" },
+                        { time: "20:00", route: "地平線下", note: "暗闇での撮影チャンス" },
+                        { time: "22:00", route: "地平線下", note: "深夜の昇る直前" },
+                        { time: "00:00", route: "東〜東南東", note: "高度 10° / 深夜に月が昇ってくる" },
+                        { time: "02:00", route: "南東", note: "高度 25° / 後半は月明かりあり" }
+                    ]
+                }
             ];
 
             const phaseIndex = seed % moonPhases.length;
@@ -542,8 +604,21 @@
             document.getElementById('moon-brightness-desc').innerText = currentMoon.desc;
             document.getElementById('moon-condition-tag').innerText = currentMoon.tag;
             document.getElementById('moon-rise-set').innerText = currentMoon.riseSet;
-            document.getElementById('moon-azimuth-text').innerText = currentMoon.dir;
-            document.getElementById('moon-dir-marker').innerText = `月 (${currentMoon.dir.split(" ")[0]})`;
+            document.getElementById('moon-summary-text').innerText = currentMoon.summary;
+
+            // 軌跡タイムラインリストの生成
+            const trajectoryListEl = document.getElementById('trajectory-list');
+            trajectoryListEl.innerHTML = '';
+            currentMoon.trajectories.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'trajectory-item';
+                li.innerHTML = `
+                    <span class="t-time">${item.time}</span>
+                    <span class="t-route">${item.route}</span>
+                    <span class="t-note">${item.note}</span>
+                `;
+                trajectoryListEl.appendChild(li);
+            });
 
             // AI推奨判定
             let bestSpotName = matrixData[0].name;
