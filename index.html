@@ -1,10 +1,10 @@
-<!-- 撮影条件マトリクスダッシュボードV11.html -->
+<!-- 撮影条件マトリクスダッシュボードV12.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影条件マトリクスダッシュボード V11</title>
+    <title>SkyPulse - 撮影条件マトリクスダッシュボード V12</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -54,7 +54,7 @@
             font-size: 12px;
             font-weight: bold;
         }
-        /* 要件①：日付変更コントロール */
+        /* 日付変更コントロールバー */
         .date-control-bar {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -148,7 +148,7 @@
             font-weight: normal;
         }
 
-        /* 要件④：マトリクス表コンテナ */
+        /* マトリクス表コンテナ */
         .matrix-container {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -189,12 +189,12 @@
             text-align: center;
         }
         
-        /* 配色定義 */
-        .c-blue { background-color: #2563eb; color: #ffffff; font-weight: bold; }   /* 好条件 */
-        .c-green { background-color: #16a34a; color: #ffffff; font-weight: bold; }  /* 注意 */
-        .c-yellow { background-color: #eab308; color: #000000; font-weight: bold; } /* 悪条件 */
+        /* 配色クラス（動的制御用） */
+        .c-blue { background-color: #2563eb !important; color: #ffffff !important; font-weight: bold; }   /* 好条件 (低雲量/低月明かり) */
+        .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }  /* 注意 (中雲量) */
+        .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; } /* 悪条件 (高雲量/高月明かり) */
 
-        /* 要件②：月・位置情報カード */
+        /* 月・位置情報カード */
         .grid-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -266,7 +266,7 @@
             box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
         }
 
-        /* 要件⑤：GPV・雲量画像セクション */
+        /* GPV・雲量画像セクション */
         .gpv-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -303,14 +303,14 @@
 
     <header>
         <div class="logo-area">
-            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V11</span>
+            <span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V12</span>
         </div>
         <div class="header-right">
-            <span class="mode-badge">行動判断モード</span>
+            <span class="mode-badge">動的マトリクス連動モード</span>
         </div>
     </header>
 
-    <!-- 要件①：日付変更コントロールバー -->
+    <!-- 日付変更コントロールバー -->
     <div class="date-control-bar">
         <label for="target-date">📅 撮影対象日</label>
         <div class="date-input-group">
@@ -319,20 +319,20 @@
         </div>
     </div>
 
-    <!-- 【ファーストビュー】最重要結論（自動判定） -->
+    <!-- ファーストビュー：最重要結論 -->
     <div class="hero-card">
         <div class="hero-header">
             <div class="hero-title">
                 <span>🎯</span> AI行動判断推奨
             </div>
-            <div class="hero-badge" id="hero-badge">★★★ 根の上高原がベスト</div>
+            <div class="hero-badge" id="hero-badge">★★★ 計算中...</div>
         </div>
         <div class="hero-summary" id="hero-summary">
-            選択日の21時〜22時台は根の上高原の雲量が少なく、月影響も低めで狙い目です！
+            日付を選択すると、各ポイントの気象条件を算出します。
         </div>
     </div>
 
-    <!-- 要件④：複数登録ポイントの時系列マトリクス表 -->
+    <!-- 複数登録ポイントの時系列マトリクス表 -->
     <div class="section-title">
         <span>📊</span> 登録ポイント別 時間帯マトリクス 
         <span class="sub-info">（雲量 / 月影響）</span>
@@ -346,60 +346,29 @@
                     <th>18:00</th><th>19:00</th><th>20:00</th><th>21:00</th><th>22:00</th><th>23:00</th><th>0:00</th><th>1:00</th><th>2:00</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- 岐阜 -->
-                <tr>
-                    <td rowspan="2" class="spot-name">岐阜</td>
-                    <td class="type-label">雲</td>
-                    <td class="c-blue">10%</td><td class="c-blue">2%</td><td class="c-blue">10%</td><td class="c-blue">20%</td><td class="c-blue">30%</td><td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-yellow">80%</td>
-                </tr>
-                <tr>
-                    <td class="type-label">月</td>
-                    <td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td>
-                </tr>
-
-                <!-- 揖斐（登録1） -->
-                <tr>
-                    <td rowspan="2" class="spot-name">揖斐<br><span style="font-size:9px; color:#9ca3af;">(登録1)</span></td>
-                    <td class="type-label">雲</td>
-                    <td class="c-blue">20%</td><td class="c-green">30%</td><td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-yellow">80%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td>
-                </tr>
-                <tr>
-                    <td class="type-label">月</td>
-                    <td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-yellow">80%</td><td class="c-blue">10%</td><td class="c-blue">10%</td>
-                </tr>
-
-                <!-- 根の上高原（登録2） -->
-                <tr>
-                    <td rowspan="2" class="spot-name">根の上<br><span style="font-size:9px; color:#9ca3af;">(登録2)</span></td>
-                    <td class="type-label">雲</td>
-                    <td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-blue">20%</td><td class="c-blue">30%</td><td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-yellow">100%</td><td class="c-yellow">80%</td>
-                </tr>
-                <tr>
-                    <td class="type-label">月</td>
-                    <td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-green">40%</td><td class="c-yellow">80%</td><td class="c-blue">10%</td><td class="c-blue">10%</td><td class="c-blue">10%</td>
-                </tr>
+            <tbody id="matrix-body">
+                <!-- JavaScriptにより日付に応じて動的に行が生成・更新されます -->
             </tbody>
         </table>
     </div>
 
-    <!-- 要件②：月・位置情報カード -->
+    <!-- 月・位置情報カード -->
     <div class="grid-card">
         <div class="moon-header">
             <div class="moon-title">
                 <span>🌙</span> 月の明るさ・位置情報
             </div>
-            <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;" id="moon-phase-badge">下弦の月</div>
+            <div style="background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;" id="moon-phase-badge">計算中</div>
         </div>
 
         <div class="moon-details">
             <div>
                 <div class="label">月齢・明るさ</div>
-                <div class="value" id="moon-age-text">20.6 (輝度 66%)</div>
+                <div class="value" id="moon-age-text">-</div>
             </div>
             <div>
                 <div class="label">月の出 / 月の入</div>
-                <div class="value" style="font-size: 14px;" id="moon-rise-set">出 18:09 / 入 08:09</div>
+                <div class="value" style="font-size: 14px;" id="moon-rise-set">-</div>
             </div>
         </div>
 
@@ -409,11 +378,11 @@
             <span class="compass-dir dir-s">S(南)</span>
             <span class="compass-dir dir-e">E(東)</span>
             <span class="compass-dir dir-w">W(西)</span>
-            <div class="moon-marker" id="moon-dir-marker">月 (南西)</div>
+            <div class="moon-marker" id="moon-dir-marker">月 (方向)</div>
         </div>
     </div>
 
-    <!-- 要件⑤：GPV・雲量画像確認セクション -->
+    <!-- GPV・雲量画像確認セクション -->
     <div class="gpv-card">
         <div class="section-title" style="margin: 0 0 8px 0;">
             <span>🗺️</span> 中部の雲量・気象画像リンク
@@ -432,7 +401,13 @@
     </div>
 
     <script>
-        // 本日の日付をデフォルト設定
+        // ポイント定義（地点の追加・変更がしやすい構造）
+        const spots = [
+            { name: "岐阜", type: "都市近郊" },
+            { name: "揖斐", type: "登録1" },
+            { name: "根の上", type: "登録2" }
+        ];
+
         window.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('target-date').value = today;
@@ -445,31 +420,101 @@
             updateDashboard();
         }
 
-        // 日付変更に連動したダッシュボード更新処理（シミュレーション連動）
+        // 雲量に応じた配色クラスを返す補助関数
+        function getCloudClass(val) {
+            if (val <= 30) return 'c-blue';   // 好条件
+            if (val <= 60) return 'c-green';  // 注意
+            return 'c-yellow';                // 悪条件
+        }
+
+        // 月影響に応じた配色クラスを返す補助関数
+        function getMoonClass(val) {
+            if (val <= 20) return 'c-blue';   // 影響小
+            if (val <= 60) return 'c-green';  // 影響中
+            return 'c-yellow';                // 影響大
+        }
+
+        // 日付変更に連動してマトリクス・月情報・推奨をすべて動的生成するメインロジック
         function updateDashboard() {
-            const selectedDateStr = document.getElementById('target-date').value;
-            if (!selectedDateStr) return;
+            const dateStr = document.getElementById('target-date').value;
+            if (!dateStr) return;
 
-            const dateObj = new Date(selectedDateStr);
-            const month = dateObj.getMonth() + 1;
-            const day = dateObj.getDate();
-
-            // 日付に応じた簡易的な月齢・推奨変動ロジック（モック連動）
-            const dayHash = (month * 31 + day) % 3;
+            const dateObj = new Date(dateStr);
+            const m = dateObj.getMonth() + 1;
+            const d = dateObj.getDate();
             
-            let bestSpot = "根の上高原";
-            let summaryText = `${month}月${day}日の21時〜22時台は根の上高原の雲量が少なく、月影響も低めで狙い目です！`;
+            // 日付から一意のハッシュ値を算出し、日ごとにマトリクスの数値を変動させる疑似ロジック
+            const seed = (m * 100 + d);
             
-            if (dayHash === 1) {
-                bestSpot = "揖斐（登録1）";
-                summaryText = `${month}月${day}日は揖斐エリアが深夜帯にかけて雲が抜け、絶好の撮影チャンスとなります。`;
-            } else if (dayHash === 2) {
-                bestSpot = "岐阜近郊";
-                summaryText = `${month}月${day}日は前半の18時〜20時台に岐阜市内で雲が晴れ、短時間勝負が可能です。`;
-            }
+            // 各地点のモック変動データ生成
+            const matrixData = spots.map((spot, index) => {
+                const cloudPattern = [];
+                const moonPattern = [];
+                
+                // 18時〜翌2時（全9スロット）の雲量と月影響を計算
+                for (let i = 0; i < 9; i++) {
+                    // 日付と時間帯から変動する雲量(% )を算出
+                    let cVal = (Math.sin(seed + index + i * 0.7) + 1) * 50; 
+                    cVal = Math.round(cVal / 10) * 10; // 10刻み
+                    if (cVal < 10) cVal = 10;
+                    if (cVal > 100) cVal = 100;
+                    cloudPattern.push(cVal);
 
-            document.getElementById('hero-badge').innerText = `★★★ ${bestSpot}がベスト`;
-            document.getElementById('hero-summary').innerText = summaryText;
+                    // 月影響(% )算出
+                    let mVal = (Math.cos(seed * 0.5 + i * 0.4) + 1) * 45 + 10;
+                    mVal = Math.round(mVal / 10) * 10;
+                    moonPattern.push(mVal);
+                }
+                return { ...spot, clouds: cloudPattern, moons: moonPattern };
+            });
+
+            // マトリクス表のHTMLを動的構築
+            const tbody = document.getElementById('matrix-body');
+            tbody.innerHTML = '';
+
+            matrixData.forEach(spot => {
+                // 雲行
+                const cloudTr = document.createElement('tr');
+                cloudTr.innerHTML = `
+                    <td rowspan="2" class="spot-name">${spot.name}<br><span style="font-size:9px; color:#9ca3af;">(${spot.type})</span></td>
+                    <td class="type-label">雲</td>
+                    ${spot.clouds.map(val => `<td class="${getCloudClass(val)}">${val}%</td>`).join('')}
+                `;
+                tbody.appendChild(cloudTr);
+
+                // 月行
+                const moonTr = document.createElement('tr');
+                moonTr.innerHTML = `
+                    <td class="type-label">月</td>
+                    ${spot.moons.map(val => `<td class="${getMoonClass(val)}">${val}%</td>`).join('')}
+                `;
+                tbody.appendChild(moonTr);
+            });
+
+            // 月齢・位置情報データの動的連動
+            const moonAges = ["新月期 (輝度 2%)", "上弦の月 (輝度 52%)", "満月期 (輝度 98%)", "下弦の月 (輝度 66%)"];
+            const moonDirs = ["北東", "南東", "南西", "西北西"];
+            const selectedMoonIndex = seed % moonAges.length;
+
+            document.getElementById('moon-phase-badge').innerText = selectedMoonIndex === 0 ? "新月期" : (selectedMoonIndex === 2 ? "満月期" : "月夜");
+            document.getElementById('moon-age-text').innerText = moonAges[selectedMoonIndex];
+            document.getElementById('moon-rise-set').innerText = selectedMoonIndex === 0 ? "出 06:00 / 入 18:00" : "出 19:30 / 入 07:45";
+            document.getElementById('moon-dir-marker').innerText = `月 (${moonDirs[seed % moonDirs.length]})`;
+
+            // ファーストビューのAI推奨を自動判定して更新
+            // 各地点の21時・22時（インデックス3, 4）の平均雲量が最も少ない場所を「ベスト」として選定
+            let bestSpotName = matrixData[0].name;
+            let minCloud = 999;
+            matrixData.forEach(spot => {
+                const avgCloud = (spot.clouds[3] + spot.clouds[4]) / 2;
+                if (avgCloud < minCloud) {
+                    minCloud = avgCloud;
+                    bestSpotName = spot.name;
+                }
+            });
+
+            document.getElementById('hero-badge').innerText = `★★★ ${bestSpotName}がベスト`;
+            document.getElementById('hero-summary').innerText = `${m}月${d}日は21時〜22時台の【${bestSpotName}】が雲量${minCloud}%前後と最も抜けが良く、撮影の狙い目です！`;
         }
     </script>
 </body>
