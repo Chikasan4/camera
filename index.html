@@ -1,10 +1,10 @@
-<!-- 総合撮影ダッシュボードV25.html -->
+<!-- 総合撮影ダッシュボードV26.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V25 (完全修正版)</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V26 (月齢完全同期版)</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -78,7 +78,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V25 総合版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V26 総合版 (月齢完全同期)</span></div>
     </header>
 
     <div class="tab-bar">
@@ -220,7 +220,7 @@
             { name: "根の上", type: "登録2" }
         ];
 
-        // 日本時間（JST）ベースで今日の日付文字列 (YYYY-MM-DD) を取得する正確な関数
+        // 日本時間（JST）ベースで今日の日付文字列 (YYYY-MM-DD) を取得
         function getTodayJST() {
             const now = new Date();
             const jstTime = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60000);
@@ -246,14 +246,33 @@
             return 'c-yellow';
         }
 
-        // 正確な月齢・輝度算出ロジック
+        // 【完全同期版】正確なユリウス日ベースの月齢・輝度計算アルゴリズム
         function calculateMoonAge(dateObj) {
-            const knownNewMoon = new Date(2000, 0, 6, 18, 14); // 基準新月
-            const diffDays = (dateObj - knownNewMoon) / (1000 * 60 * 60 * 24);
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+
+            // ユリウス日の計算（12月・1月補正含む）
+            let y = year;
+            let m = month;
+            if (m <= 2) {
+                y -= 1;
+                m += 12;
+            }
+            const a = Math.floor(y / 100);
+            const b = 2 - a + Math.floor(a / 4);
+            const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
+
+            // 基準新月（2000年1月6.8gを起点）からの経過日数
+            const daysSinceNew = jd - 2451549.5;
             const synodicMonth = 29.53058867;
-            let moonAge = diffDays % synodicMonth;
+            let moonAge = daysSinceNew % synodicMonth;
             if (moonAge < 0) moonAge += synodicMonth;
-            let illum = Math.round((1 - Math.cos((moonAge / synodicMonth) * 2 * Math.PI)) / 2 * 100);
+
+            // 月面輝度（%）の正確な導出（余弦定理ベース）
+            let phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
+            let illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
+
             return { age: moonAge.toFixed(1), illum };
         }
 
@@ -304,7 +323,6 @@
                 tbody.appendChild(moonTr);
             });
 
-            // 最適スポットの自動検出（夜間全体の最小平均雲量）
             let bestSpot = matrixData[0];
             let minCloud = 999;
             matrixData.forEach(spot => {
@@ -420,7 +438,7 @@
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v25');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v26');
             if (saved) {
                 try { landscapeSpots = JSON.parse(saved); } catch(e) { landscapeSpots = defaultLandscapeData; }
             } else {
@@ -430,7 +448,7 @@
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v25', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v26', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
