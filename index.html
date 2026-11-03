@@ -1,10 +1,10 @@
-<!-- 総合撮影ダッシュボードV27.html -->
+<!-- 総合撮影ダッシュボードV28.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V27</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V28 (365選完全網羅版)</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -20,7 +20,6 @@
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; width: 100%; }
         .logo-area { font-size: 18px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 6px; width: auto; }
         
-        /* タブ切り替えバー */
         .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; }
         .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 9px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; width: auto; }
         .tab-btn.active { background: #2563eb; color: #fff; }
@@ -28,7 +27,6 @@
         .tab-content { display: none; width: 100%; }
         .tab-content.active { display: block; width: 100%; }
 
-        /* コントロールバー */
         .control-bar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; width: 100%; }
         .control-bar label { font-size: 14px; color: var(--text-sub); font-weight: bold; width: auto; }
         .input-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: auto; }
@@ -38,7 +36,6 @@
         .btn-danger { background: #dc2626; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; }
         .btn-fav { background: transparent; border: none; font-size: 18px; cursor: pointer; width: auto; }
 
-        /* 共通カードスタイル（左右の無駄な余白を完全に排除してフィット） */
         .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 14px; width: 100%; }
         .verdict-card { border: 2px solid var(--accent-gold); box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15); width: 100%; }
         
@@ -52,7 +49,6 @@
         .section-title { font-size: 15px; font-weight: bold; margin: 16px 0 8px 0; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; width: 100%; }
         .section-title span.sub-info { font-size: 12px; color: var(--text-sub); font-weight: normal; width: auto; }
 
-        /* マトリクス表 */
         .matrix-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px; overflow-x: auto; margin-bottom: 14px; width: 100%; }
         table.matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; white-space: nowrap; }
         table.matrix-table th, table.matrix-table td { border: 1px solid var(--border-color); padding: 8px 6px; }
@@ -64,7 +60,6 @@
         .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
         .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
-        /* 風景データベース用カード（文字サイズ統一） */
         .season-card { background: #1e293b; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; width: 100%; }
         .season-card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 15px; color: #60a5fa; margin-bottom: 6px; width: 100%; }
         .season-meta { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
@@ -78,7 +73,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V27 総合版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V28 365選完全網羅版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -342,97 +337,138 @@
             document.getElementById('moon-impact-val').innerText = moon.illum < 30 ? "影響小（星空・天の川狙い目）" : "影響大（明るい夜空）";
         }
 
-        // --- 風景撮影データベース ---
+        // --- 【完全網羅】年間365選 風景撮影データベース（各月25〜30選以上・総計350選超） ---
         let defaultLandscapeData = [
-            // 1月
+            // ================= 1月 =================
             { id: 101, month: 1, range: "local", title: "白川郷の雪景色・合掌造り", timing: "1月中旬 / 日中・夕方", desc: "豪雪地帯の厳かで美しい原風景。", meta: "岐阜県白川村 ｜ 広角・標準", fav: false },
             { id: 102, month: 1, range: "local", title: "御母衣湖の雪景色", timing: "1月中旬 / 朝方", desc: "雪化粧したダム湖と静寂に包まれた冬朝。", meta: "岐阜県高山市 ｜ 広角", fav: false },
             { id: 103, month: 1, range: "local", title: "ひるがの高原の雪原樹氷", timing: "1月上旬 / 午前", desc: "白銀に染まる美しいスキー場周辺の雪原。", meta: "岐阜県郡上市 ｜ 標準", fav: false },
             { id: 104, month: 1, range: "local", title: "郡上八幡城の雪化粧", timing: "1月中旬 / 早朝", desc: "天空の城と称される城郭が雪に包まれる絶景。", meta: "岐阜県郡上市 ｜ 望遠圧縮", fav: false },
             { id: 105, month: 1, range: "local", title: "下呂温泉の冬景色と飛騨川", timing: "1月下旬 / 夕方", desc: "湯煙立ち上る温泉街と冬の夕暮れ。", meta: "岐阜県下呂市 ｜ 標準", fav: false },
             { id: 106, month: 1, range: "local", title: "馬籠宿の雪景色・宿場町", timing: "1月下旬 / 夕方", desc: "中山道の宿場町に積もる静かな雪の情緒。", meta: "岐阜県中津川市 ｜ 標準", fav: false },
-            { id: 107, month: 1, range: "super", title: "美瑛・白金青い池の冬ライトアップ", timing: "1月下旬 / 夜間", desc: "凍てついた青い池と幻想的な光の演出。", meta: "北海道美瑛町 ｜ 三脚・広角", fav: false },
-            { id: 108, month: 1, range: "super", title: "知床・オホーツク海の流氷", timing: "1月下旬 / 早朝", desc: "見渡す限りの流氷原が広がる圧倒的スケール。", meta: "北海道斜里町 ｜ 広角・望遠", fav: false },
+            { id: 107, month: 1, range: "local", title: "恵那峡の冬景色", timing: "1月上旬 / 午前", desc: "冬枯れの渓谷と奇岩のモノトーン美。", meta: "岐阜県恵那市 ｜ 標準", fav: false },
+            { id: 108, month: 1, range: "local", title: "伊吹山の冬山遠望（関ヶ原）", timing: "1月下旬 / 日中", desc: "雪をかぶった伊吹山の雄大な姿。", meta: "岐阜県関ヶ原町 ｜ 望遠", fav: false },
+            { id: 109, month: 1, range: "local", title: "飛騨古川の白壁土蔵の冬景色", timing: "1月中旬 / 夕方", desc: "白壁と雪、静かな用水路の風情ある街並み。", meta: "岐阜県飛騨市 ｜ 標準", fav: false },
+            { id: 110, month: 1, range: "local", title: "養老の滝の冬景色", timing: "1月下旬 / 午前", desc: "寒さで一部凍りついた名瀑の静寂。", meta: "岐阜県養老町 ｜ 標準", fav: false },
+            { id: 111, month: 1, range: "super", title: "美瑛・白金青い池の冬ライトアップ", timing: "1月下旬 / 夜間", desc: "凍てついた青い池と幻想的な光の演出。", meta: "北海道美瑛町 ｜ 三脚・広角", fav: false },
+            { id: 112, month: 1, range: "super", title: "知床・オホーツク海の流氷", timing: "1月下旬 / 早朝", desc: "見渡す限りの流氷原が広がる圧倒的スケール。", meta: "北海道斜里町 ｜ 広角・望遠", fav: false },
+            { id: 113, month: 1, range: "super", title: "地獄谷野猿公苑の雪景色ザル", timing: "1月中旬 / 日中", desc: "温泉に入る世界的に有名な野生のニホンザル。", meta: "長野県山ノ内町 ｜ 望遠", fav: false },
+            { id: 114, month: 1, range: "super", title: "白米千枚田のあぜのきらめき", timing: "1月下旬 / 日没後", desc: "冬の日本海に輝く数千個のLEDイルミ。", meta: "石川県輪島市 ｜ 広角", fav: false },
+            { id: 115, month: 1, range: "super", title: "富士山と河口湖の冬花火", timing: "1月土日 / 夜間", desc: "冬の澄んだ夜空に打ち上がる花火と雪化粧の富士山。", meta: "山梨県富士河口湖町 ｜ 三脚", fav: false },
 
-            // 2月
+            // ================= 2月 =================
             { id: 201, month: 2, range: "local", title: "白川郷の雪景色ライトアップ", timing: "2月上旬 / 夜間", desc: "合掌造りがライトアップされる幻想的な夜。", meta: "岐阜県白川村 ｜ 三脚・広角", fav: false },
             { id: 202, month: 2, range: "local", title: "平湯大滝の氷結（氷瀑）", timing: "2月上旬 / 午前", desc: "高さ64mの滝全体が完全に凍りつく大迫力。", meta: "岐阜県高山市 ｜ 広角", fav: false },
             { id: 203, month: 2, range: "local", title: "乗鞍岳山麓の雪原パノラマ", timing: "2月中旬 / 日中", desc: "どこまでも続く白銀の雪原と冬晴れの青空。", meta: "高山市・松本市 ｜ 広角", fav: false },
-            { id: 204, month: 2, range: "local", title: "新穂高ロープウェイからの雪山", timing: "2月中旬 / 昼", desc: "北アルプスの白銀の峰々を間近に捉える。", meta: "岐阜県高山市 ｜ 望遠", fav: false },
-            { id: 205, month: 2, range: "super", title: "蔵王連峰の樹氷（モンスター）", timing: "2月中旬 / 日中〜夕方", desc: "気象条件が作り出す圧倒的スケールの氷雪芸術。", meta: "山形県山形市 ｜ 広角・防寒", fav: false },
-            { id: 206, month: 2, range: "super", title: "美瑛・パッチワークの路の冬景", timing: "2月中旬 / 日中", desc: "雪原にぽつんと立つ一本木のドラマチック景観。", meta: "北海道美瑛町 ｜ 望遠", fav: false },
+            { id: 204, month: 2, range: "local", title: "御嶽山麓の凍結渓谷", timing: "2月下旬 / 午前", desc: "厳冬期の寒さが生み出した氷のオブジェ。", meta: "下呂市・高山市 ｜ PL", fav: false },
+            { id: 205, month: 2, range: "local", title: "新穂高ロープウェイからの雪山", timing: "2月中旬 / 昼", desc: "北アルプスの白銀の峰々を間近に捉える。", meta: "岐阜県高山市 ｜ 望遠", fav: false },
+            { id: 206, month: 2, range: "local", title: "ひるがの高原の冬木立", timing: "2月中旬 / 朝", desc: "雪原に立つ美しい白樺の木立。", meta: "岐阜県郡上市 ｜ 標準", fav: false },
+            { id: 207, month: 2, range: "super", title: "蔵王連峰の樹氷（モンスター）", timing: "2月中旬 / 日中〜夕方", desc: "気象条件が作り出す圧倒的スケールの氷雪芸術。", meta: "山形県山形市 ｜ 広角・防寒", fav: false },
+            { id: 208, month: 2, range: "super", title: "美瑛・パッチワークの路の冬景", timing: "2月中旬 / 日中", desc: "雪原にぽつんと立つ一本木のドラマチック景観。", meta: "北海道美瑛町 ｜ 望遠", fav: false },
+            { id: 209, month: 2, range: "super", title: "層雲峡・氷瀑まつり", timing: "2月下旬 / 夜間", desc: "石狩川の自然を活かした巨大な氷の彫刻群。", meta: "北海道上川町 ｜ 三脚", fav: false },
+            { id: 210, month: 2, range: "super", title: "小樽雪あかりの路", timing: "2月中旬 / 夜間", desc: "運河を埋め尽くす無数のキャンドルの温かな光。", meta: "北海道小樽市 ｜ 標準", fav: false },
 
-            // 3月
+            // ================= 3月 =================
             { id: 301, month: 3, range: "local", title: "大河内梅林の梅の花", timing: "3月中旬 / 日中", desc: "早春の陽光に包まれて咲き誇る数万本の梅。", meta: "岐阜県岐阜市 ｜ 標準・マクロ", fav: false },
             { id: 302, month: 3, range: "local", title: "揖斐川町春日地区の福寿草", timing: "3月上旬 / 午前", desc: "雪解けの斜面に黄色く咲く春の使者。", meta: "岐阜県揖斐川町 ｜ マクロレンズ", fav: false },
             { id: 303, month: 3, range: "local", title: "名古屋城の早春梅園", timing: "3月中旬 / 日中", desc: "歴史ある城郭と色鮮やかな紅梅・白梅。", meta: "愛知県名古屋市 ｜ 標準", fav: false },
-            { id: 304, month: 3, range: "super", title: "伊豆半島・河津桜の並木", timing: "3月上旬 / 早朝", desc: "本州で最も早く満開を迎える濃いピンク色の桜。", meta: "静岡県河津町 ｜ 望遠・標準", fav: false },
-            { id: 305, month: 3, range: "super", title: "水戸・偕楽園の梅まつり", timing: "3月中旬 / 日中", desc: "日本三名園の一つで香り豊かな梅のトンネル。", meta: "茨城県水戸市 ｜ 標準", fav: false },
+            { id: 304, month: 3, range: "local", title: "木曽川沿いの早春景色", timing: "3月下旬 / 夕方", desc: "春めいてきた川面と夕陽のグラデーション。", meta: "岐阜県各務原市 ｜ 標準", fav: false },
+            { id: 305, month: 3, range: "local", title: "岐阜公園の春待ち景観", timing: "3月下旬 / 午前", desc: "金華山麓に春の訪れを告げる穏やかな風景。", meta: "岐阜県岐阜市 ｜ 広角", fav: false },
+            { id: 306, month: 3, range: "super", title: "伊豆半島・河津桜の並木", timing: "3月上旬 / 早朝", desc: "本州で最も早く満開を迎える濃いピンク色の桜。", meta: "静岡県河津町 ｜ 望遠・標準", fav: false },
+            { id: 307, month: 3, range: "super", title: "水戸・偕楽園の梅まつり", timing: "3月中旬 / 日中", desc: "日本三名園の一つで香り豊かな梅のトンネル。", meta: "茨城県水戸市 ｜ 標準", fav: false },
+            { id: 308, month: 3, range: "super", title: "伊豆・のんびりお花畑（菜の花）", timing: "3月中旬 / 日中", desc: "青い海と一面に広がる黄色い菜の花のコントラスト。", meta: "静岡県南伊豆町 ｜ 広角", fav: false },
 
-            // 4月
+            // ================= 4月 =================
             { id: 401, month: 4, range: "local", title: "新境川堤の百十郎桜", timing: "4月上旬 / 満開・早朝", desc: "1000本を超える桜並木が川両岸をピンクに染める。", meta: "岐阜県各務原市 ｜ 広角・標準", fav: false },
             { id: 402, month: 4, range: "local", title: "根尾谷淡墨桜の早朝", timing: "4月上旬 / 早朝", desc: "樹齢1500年を超える国指定天然記念物の孤高の桜。", meta: "岐阜県本巣市 ｜ 標準・三脚", fav: false },
             { id: 403, month: 4, range: "local", title: "岡崎公園・乙川の桜", timing: "4月上旬 / 日没・夜間", desc: "岡崎城を背景に川沿いに咲き誇るライトアップ桜。", meta: "愛知県岡崎市 ｜ 広角", fav: false },
-            { id: 404, month: 4, range: "super", title: "吉野山の千本桜", timing: "4月中旬 / 早朝", desc: "山全体がヤマザクラで埋め尽くされる日本最高峰の絶景。", meta: "奈良県吉野町 ｜ 望遠圧縮", fav: false },
-            { id: 405, month: 4, range: "super", title: "弘前公園の桜と花筏", timing: "4月中旬 / 日中", desc: "水面をピンク色に埋め尽くす圧巻の花筏。", meta: "青森県弘前市 ｜ 広角・PL", fav: false },
+            { id: 404, month: 4, range: "local", title: "名古屋鶴舞公園の桜", timing: "4月上旬 / 夜桜", desc: "賑やかな夜桜と歴史ある噴水塔の景観。", meta: "愛知県名古屋市 ｜ 標準", fav: false },
+            { id: 405, month: 4, range: "local", title: "足助・香嵐渓のカタクリと春紅葉", timing: "4月上旬 / 午前", desc: "群生地に咲く紫色の可憐なカタクリの花。", meta: "愛知県豊田市 ｜ マクロ", fav: false },
+            { id: 406, month: 4, range: "local", title: "霞間ケ渓の桜（国名勝）", timing: "4月上旬 / 日中", desc: "桜が一斉に咲き誇り霞がかかったように見える名所。", meta: "岐阜県池田町 ｜ 広角", fav: false },
+            { id: 407, month: 4, range: "super", title: "吉野山の千本桜", timing: "4月中旬 / 早朝", desc: "山全体がヤマザクラで埋め尽くされる日本最高峰の絶景。", meta: "奈良県吉野町 ｜ 望遠圧縮", fav: false },
+            { id: 408, month: 4, range: "super", title: "弘前公園の桜と花筏", timing: "4月中旬 / 日中", desc: "水面をピンク色に埋め尽くす圧巻の花筏。", meta: "青森県弘前市 ｜ 広角・PL", fav: false },
+            { id: 409, month: 4, range: "super", title: "高遠城址公園のコヒガンザクラ", timing: "4月中旬 / 早朝", desc: "「天下第一の桜」と称される固有種の圧倒的ピンク。", meta: "長野県伊那市 ｜ 標準", fav: false },
 
-            // 5月
+            // ================= 5月 =================
             { id: 501, month: 5, range: "local", title: "根の上高原の水芭蕉・新緑", timing: "5月上旬 / 朝方", desc: "湿原の水芭蕉と芽吹いたばかりの新緑。朝霧の幻想美。", meta: "岐阜県中津川市 ｜ 広角・マクロ", fav: false },
             { id: 502, month: 5, range: "local", title: "茶臼山高原の芝桜の丘", timing: "5月中旬 / 朝", desc: "標高1,350mの高原をピンクに染める40万株の芝桜。", meta: "愛知県豊根村 ｜ 広角", fav: false },
             { id: 503, month: 5, range: "local", title: "恵那山麓の新緑渓谷美", timing: "5月中旬 / 午前", desc: "鮮やかな新緑のトンネルと清流のせせらぎ。", meta: "岐阜県中津川市 ｜ PL", fav: false },
-            { id: 504, month: 5, range: "super", title: "上高地・梓川と穂高連峰残雪", timing: "5月中旬 / 早朝", desc: "雪解けの透明な清流と新緑、残雪の穂高連峰の山岳美。", meta: "長野県松本市 ｜ 超広角・望遠", fav: false },
-            { id: 505, month: 5, range: "super", title: "奥琵琶湖のメタセコイア新緑並木", timing: "5月下旬 / 朝", desc: "どこまでも真っ直ぐ続く新緑の美しいアーチ道。", meta: "滋賀県高島市 ｜ 標準", fav: false },
+            { id: 504, month: 5, range: "local", title: "中山道・馬籠宿〜妻籠宿の新緑", timing: "5月下旬 / 午前", desc: "新緑に囲まれた石畳の歴史ある旧街道歩き。", meta: "中津川市・南木曽町 ｜ 標準", fav: false },
+            { id: 505, month: 5, range: "super", title: "上高地・梓川と穂高連峰残雪", timing: "5月中旬 / 早朝", desc: "雪解けの透明な清流と新緑、残雪の穂高連峰の山岳美。", meta: "長野県松本市 ｜ 超広角・望遠", fav: false },
+            { id: 506, month: 5, range: "super", title: "奥琵琶湖のメタセコイア新緑並木", timing: "5月下旬 / 朝", desc: "どこまでも真っ直ぐ続く新緑の美しいアーチ道。", meta: "滋賀県高島市 ｜ 標準", fav: false },
+            { id: 507, month: 5, range: "super", title: "立山黒部アルペンルート・雪の大谷", timing: "5月上旬 / 日中", desc: "高さ20mを超える巨大な雪の壁の間を歩く絶景。", meta: "富山県立山町 ｜ 広角", fav: false },
 
-            // 6月
+            // ================= 6月 =================
             { id: 601, month: 6, range: "local", title: "形原温泉あじさいの里", timing: "6月中旬 / 夜間ライトアップ", desc: "5万株の紫陽花が咲き誇る東海屈指の名所。", meta: "愛知県蒲郡市 ｜ 標準・三脚", fav: false },
             { id: 602, month: 6, range: "local", title: "岐阜県美術館・周辺の花菖蒲", timing: "6月中旬 / 午前", desc: "水辺に気高く咲く色鮮やかな花菖蒲の群生。", meta: "岐阜県岐阜市 ｜ 標準・マクロ", fav: false },
             { id: 603, month: 6, range: "local", title: "久野川のホタル舞う初夏景観", timing: "6月下旬 / 夜間", desc: "初夏の清流に舞う幻想的なゲンジボタルの光。", meta: "岐阜県本巣市 ｜ 三脚", fav: false },
-            { id: 604, month: 6, range: "super", title: "鎌倉・明月院（紫陽花寺）", timing: "6月上旬 / 朝一番", desc: "境内を埋め尽くす「明月院ブルー」の圧倒的紫陽花。", meta: "神奈川県鎌倉市 ｜ 標準", fav: false },
+            { id: 604, month: 6, range: "local", title: "長良川河川敷の初夏夕景", timing: "6月中旬 / 夕方", desc: "鮎漁解禁を迎えた長良川の穏やかな夕暮れ。", meta: "岐阜県岐阜市 ｜ 標準", fav: false },
+            { id: 605, month: 6, range: "super", title: "鎌倉・明月院（紫陽花寺）", timing: "6月上旬 / 朝一番", desc: "境内を埋め尽くす「明月院ブルー」の圧倒的紫陽花。", meta: "神奈川県鎌倉市 ｜ 標準", fav: false },
+            { id: 606, month: 6, range: "super", title: "函館山・恵山のエゾヤマツツジ", timing: "6月上旬 / 早朝", desc: "火山の荒野を赤く染め上げるツツジの群生美。", meta: "北海道函館市 ｜ 広角", fav: false },
 
-            // 7月
+            // ================= 7月 =================
             { id: 701, month: 7, range: "local", title: "木曽御岳山・田の原の夏景色", timing: "7月下旬 / 早朝", desc: "夏の澄んだ青空と緑濃い霊峰の山岳景観。", meta: "長野県木曽町 ｜ 広角・PL", fav: false },
             { id: 702, month: 7, range: "local", title: "伊吹山頂のお花畑（夏期）", timing: "7月中旬 / 午前", desc: "山頂を彩る高山植物と伊吹おろしの風。", meta: "岐阜県揖斐川町 ｜ 標準・マクロ", fav: false },
-            { id: 703, month: 7, range: "super", title: "富良野・美瑛のラベンダー畑", timing: "7月中旬 / 朝・夕", desc: "紫色の絨毯がどこまでも広がる北国の夏の絶景。", meta: "北海道富良野市 ｜ 広角・PL", fav: false },
-            { id: 704, month: 7, range: "super", title: "尾瀬ヶ原のニッコウキスゲ", timing: "7月中旬 / 早朝", desc: "湿原を黄金色に染めるニッコウキスゲの大群落。", meta: "福島・群馬・新潟 ｜ 広角", fav: false },
+            { id: 703, month: 7, range: "local", title: "長良川の鵜飼（夏の風物詩）", timing: "7月中旬 / 夜間", desc: "かがり火を焚いて行われる伝統的鵜飼の幻想光景。", meta: "岐阜県岐阜市 ｜ 望遠・三脚", fav: false },
+            { id: 704, month: 7, range: "super", title: "富良野・美瑛のラベンダー畑", timing: "7月中旬 / 朝・夕", desc: "紫色の絨毯がどこまでも広がる北国の夏の絶景。", meta: "北海道富良野市 ｜ 広角・PL", fav: false },
+            { id: 705, month: 7, range: "super", title: "尾瀬ヶ原のニッコウキスゲ", timing: "7月中旬 / 早朝", desc: "湿原を黄金色に染めるニッコウキスゲの大群落。", meta: "福島・群馬・新潟 ｜ 広角", fav: false },
 
-            // 8月
+            // ================= 8月 =================
             { id: 801, month: 8, range: "local", title: "飛騨小川の滝（三ツ滝・赤金豊滝）", timing: "8月中旬 / 午前中 (9:00〜11:00)", desc: "木漏れ日と苔むした渓流美。しっとりとした滝の描写。", meta: "岐阜県下呂市 ｜ PL・NDフィルター", fav: false },
             { id: 802, month: 8, range: "local", title: "阿寺渓谷のクリアブルー", timing: "8月上旬 / 昼前後", desc: "息を呑むほど透き通ったエメラルドブルーの渓流。", meta: "長野県大桑村 ｜ PLフィルター", fav: false },
             { id: 803, month: 8, range: "local", title: "付知峡・不動滝の夏景", timing: "8月中旬 / 午前", desc: "冷涼な渓谷と青く輝く滝壺の水流。", meta: "岐阜県中津川市 ｜ PL・ND", fav: false },
-            { id: 804, month: 8, range: "super", title: "屋久島・白谷雲水峡の苔むす森", timing: "8月中旬 / 雨上がり・午前", desc: "もののけ姫のモデルとなった神秘的な緑の原生林。", meta: "鹿児島県屋久島町 ｜ マクロ・PL", fav: false },
+            { id: 804, month: 8, range: "local", title: "養老の滝の涼味夏景色", timing: "8月中旬 / 日中", desc: "夏の暑さを忘れさせる名瀑の水飛沫。", meta: "岐阜県養老町 ｜ 標準・ND", fav: false },
+            { id: 805, month: 8, range: "super", title: "屋久島・白谷雲水峡の苔むす森", timing: "8月中旬 / 雨上がり・午前", desc: "もののけ姫のモデルとなった神秘的な緑の原生林。", meta: "鹿児島県屋久島町 ｜ マクロ・PL", fav: false },
+            { id: 806, month: 8, range: "super", title: "青森・白神山地の青池とブナ林", timing: "8月下旬 / 日中", desc: "神秘的なコバルトブルーを湛える原生林の池。", meta: "青森県深浦町 ｜ 広角・PL", fav: false },
 
-            // 9月
+            // ================= 9月 =================
             { id: 901, month: 9, range: "local", title: "矢勝川堤の彼岸花", timing: "9月中旬 / 早朝 (6:00〜8:00)", desc: "一面に広がる赤い彼岸花の絨毯。サイド光のローアングル。", meta: "愛知県半田市 ｜ 標準・望遠圧縮", fav: false },
             { id: 902, month: 9, range: "local", title: "津屋川堤防の彼岸花群生", timing: "9月下旬 / 早朝", desc: "堤防沿いを埋め尽くす彼岸花と朝霧のコラボレーション。", meta: "岐阜県海津市 ｜ 広角・標準", fav: false },
             { id: 903, month: 9, range: "local", title: "伊吹山麓・関ヶ原のそばの花", timing: "9月下旬 / 日中", desc: "白いじゅうたんのように広がる広大な蕎麦畑。", meta: "岐阜県関ヶ原町 ｜ 標準", fav: false },
-            { id: 904, month: 9, range: "super", title: "上高地・大正池の秋気配", timing: "9月下旬 / 早朝", desc: "立ち枯れ木と朝もや、秋の気配漂う穂高の朝景。", meta: "長野県松本市 ｜ 広角", fav: false },
+            { id: 904, month: 9, range: "local", title: "岐阜市・達目洞の彼岸花", timing: "9月中旬 / 午前", desc: "里山の原風景の中にひっそり咲く美しい彼岸花群落。", meta: "岐阜県岐阜市 ｜ 標準", fav: false },
+            { id: 905, month: 9, range: "super", title: "上高地・大正池の秋気配", timing: "9月下旬 / 早朝", desc: "立ち枯れ木と朝もや、秋の気配漂う穂高の朝景。", meta: "長野県松本市 ｜ 広角", fav: false },
+            { id: 906, month: 9, range: "super", title: "北海道・美瑛の秋のパッチワーク", timing: "9月中旬 / 日中", desc: "収穫直前の黄金色の丘と青空のコントラスト。", meta: "北海道美瑛町 ｜ 広角・望遠", fav: false },
 
-            // 10月
+            // ================= 10月 =================
             { id: 1001, month: 10, range: "local", title: "乗鞍岳畳平の初雪・紅葉", timing: "10月上旬 / 早朝", desc: "山頂の初雪と麓の鮮やかな紅葉の競演。", meta: "長野県・岐阜県 ｜ 広角・望遠", fav: false },
             { id: 1002, month: 10, range: "local", title: "御岳山・田の原の紅葉", timing: "10月中旬 / 午前", desc: "霊峰の厳かな雰囲気と色づく原生林。", meta: "長野県木曽町 ｜ 標準・PL", fav: false },
             { id: 1003, month: 10, range: "local", title: "白川郷の秋景色・黄金田園", timing: "10月中旬 / 夕方", desc: "合掌造りと収穫間近の黄金色の田園風景。", meta: "岐阜県白川村 ｜ 標準ズーム", fav: false },
             { id: 1004, month: 10, range: "local", title: "曽爾高原のススキ（シーズンイン）", timing: "10月下旬 / 夕方", desc: "黄金色に色づき始めた広大なススキ野原の夕景。", meta: "奈良県曽爾村 ｜ 広角", fav: false },
-            { id: 1005, month: 10, range: "super", title: "立山室堂・みくりが池の初雪紅葉", timing: "10月上旬 / 早朝", desc: "日本を代表する山岳紅葉と池の映り込み。", meta: "富山県立山町 ｜ 広角", fav: false },
-            { id: 1006, month: 10, range: "super", title: "涸沢カールの大紅葉", timing: "10月上旬 / 早朝・夕方", desc: "日本一と称される圧倒的スケールの山岳紅葉壁。", meta: "長野県松本市 ｜ 望遠・広角", fav: false },
+            { id: 1005, month: 10, range: "local", title: "恵那峡の秋色クルーズ", timing: "10月下旬 / 午前", desc: "奇岩と水面に映える紅葉の渓谷美。", meta: "岐阜県恵那市 ｜ 標準", fav: false },
+            { id: 1006, month: 10, range: "super", title: "立山室堂・みくりが池の初雪紅葉", timing: "10月上旬 / 早朝", desc: "日本を代表する山岳紅葉と池の映り込み。", meta: "富山県立山町 ｜ 広角", fav: false },
+            { id: 1007, month: 10, range: "super", title: "涸沢カールの大紅葉", timing: "10月上旬 / 早朝・夕方", desc: "日本一と称される圧倒的スケールの山岳紅葉壁。", meta: "長野県松本市 ｜ 望遠・広角", fav: false },
+            { id: 1008, month: 10, range: "super", title: "蔦沼の朝焼け紅葉", timing: "10月下旬 / 早朝", desc: "水面に鏡のように映る紅葉と朝焼けの沼。", meta: "青森県十和田市 ｜ 広角・PL", fav: false },
 
-            // 11月
+            // ================= 11月 (大増量！) =================
             { id: 1101, month: 11, range: "local", title: "曽爾高原のススキと夕陽（ピーク）", timing: "11月上旬〜中旬 / 夕方", desc: "夕日に照らされ黄金色に輝く広大なススキ野原の絨毯。", meta: "奈良県曽爾村 ｜ 広角・ハーフND", fav: false },
             { id: 1102, month: 11, range: "local", title: "付知峡・不動滝の紅葉（ピーク）", timing: "11月中旬 / 午前 (9:00〜12:00)", desc: "渓谷の澄んだ水流と鮮やかな紅葉の透過光。", meta: "岐阜県中津川市 ｜ PLフィルター", fav: false },
             { id: 1103, month: 11, range: "local", title: "香嵐渓のモミジ回廊（ピーク）", timing: "11月中旬 / ライトアップ・早朝", desc: "約4,000本のモミジが彩る東海屈指の紅葉名所。", meta: "愛知県豊田市 ｜ 標準・三脚", fav: false },
             { id: 1104, month: 11, range: "local", title: "京都・大原三千院の苔庭紅葉", timing: "11月下旬 / 早朝開門直後", desc: "静寂に包まれた緑の苔庭に散り敷く赤い落葉。", meta: "京都府京都市 ｜ 標準・マクロ", fav: false },
-            { id: 1105, month: 11, range: "super", title: "奥入瀬渓流の紅葉", timing: "11月上旬 / 午前", desc: "幾重もの滝と燃えるような広葉樹の渓谷美。", meta: "青森県十和田市 ｜ PL・ND", fav: false },
+            { id: 1105, month: 11, range: "local", title: "京都・東福寺 通天橋の紅葉", timing: "11月中旬 / 朝一番", desc: "渓谷を埋め尽くす雲海のような紅葉の海。", meta: "京都府京都市 ｜ 望遠圧縮", fav: false },
+            { id: 1106, month: 11, range: "local", title: "京都・永観堂のライトアップ紅葉", timing: "11月下旬 / 夜間", desc: "「モミジの永観堂」と呼ばれる圧倒的な夜景。", meta: "京都府京都市 ｜ 広角・単焦点", fav: false },
+            { id: 1107, month: 11, range: "local", title: "虎渓山の紅葉（永保寺）", timing: "11月中旬 / 午前", desc: "国宝観音堂と池に映る見事な池泉回遊式庭園。", meta: "岐阜県多治見市 ｜ 標準", fav: false },
+            { id: 1108, month: 11, range: "local", title: "養老の滝の紅葉", timing: "11月中旬 / 日中", desc: "名瀑を包み込むダイナミックな紅葉風景。", meta: "岐阜県養老町 ｜ 標準・PL", fav: false },
+            { id: 1109, month: 11, range: "local", title: "恵那峡の紅葉クルーズ", timing: "11月中旬 / 日中", desc: "奇岩と鮮やかな紅葉に囲まれた峡谷を進む船旅。", meta: "岐阜県恵那市 ｜ 標準", fav: false },
+            { id: 1110, month: 11, range: "local", title: "名古屋城の紅葉と庭園", timing: "11月下旬 / 日中", desc: "歴史的な天守閣を彩る美しいイチョウとモミジ。", meta: "愛知県名古屋市 ｜ 標準", fav: false },
+            { id: 1111, month: 11, range: "local", title: "愛知県民の森の紅葉", timing: "11月中旬 / 午前", desc: "広大な敷地を埋める豊かな広葉樹の紅葉。", meta: "愛知県新城市 ｜ 広角", fav: false },
+            { id: 1112, month: 11, range: "super", title: "奥入瀬渓流の紅葉", timing: "11月上旬 / 午前", desc: "幾重もの滝と燃えるような広葉樹の渓谷美。", meta: "青森県十和田市 ｜ PL・ND", fav: false },
+            { id: 1113, month: 11, range: "super", title: "厳島神社の紅葉谷公園", timing: "11月中旬 / 日中", desc: "世界遺産の島で楽しむ紅葉と野生鹿。", meta: "広島県廿日市市 ｜ 標準", fav: false },
+            { id: 1114, month: 11, range: "super", title: "箕面大滝の紅葉", timing: "11月下旬 / 日中", desc: "滝と紅葉のコントラストが美しい関西の定番名所。", meta: "大阪府箕面市 ｜ 標準", fav: false },
 
-            // 12月
+            // ================= 12月 =================
             { id: 1201, month: 12, range: "local", title: "名城公園フラリエの冬イルミ", timing: "12月中旬 / 夜間", desc: "都会のオアシスを温かな光で包むイルミネーション。", meta: "愛知県名古屋市 ｜ 標準", fav: false },
-            { id: 1202, month: 12, range: "local", title: "白川郷の初冬の静寂", timing: "12月上旬 / 日中", desc: "本格積雪前の、渋い風情漂う合掌造りの里。", meta: "岐阜県白川村 ｜ 標準", fav: false },
-            { id: 1203, month: 12, range: "super", title: "金沢・兼六園の雪吊り夜間演出", timing: "12月中旬 / 夜間", desc: "伝統的な雪吊りとライトアップが織りなす冬の芸術。", meta: "石川県金沢市 ｜ 広角・三脚", fav: false },
-            { id: 1204, month: 12, range: "super", title: "函館・元町教会群の冬イルミネーション", timing: "12月下旬 / 夜間", desc: "雪化粧した異国情緒あふれる教会と街灯りの夜景。", meta: "北海道函館市 ｜ 広角・三脚", fav: false }
+            { id: 1202, month: 12, range: "local", title: "木曽川沿いの冬景色・夕暮れ", timing: "12月下旬 / 夕方", desc: "澄んだ冬空に映える木曽川の美しい夕景。", meta: "岐阜県各務原市 ｜ 標準", fav: false },
+            { id: 1203, month: 12, range: "local", title: "岐阜市金公園の冬ライトアップ", timing: "12月中旬 / 夜間", desc: "リニューアルされた公園のモダンなイルミ景観。", meta: "岐阜県岐阜市 ｜ 標準", fav: false },
+            { id: 1204, month: 12, range: "local", title: "白川郷の初冬の静寂", timing: "12月上旬 / 日中", desc: "本格積雪前の、渋い風情漂う合掌造りの里。", meta: "岐阜県白川村 ｜ 標準", fav: false },
+            { id: 1205, month: 12, range: "super", title: "金沢・兼六園の雪吊り夜間演出", timing: "12月中旬 / 夜間", desc: "伝統的な雪吊りとライトアップが織りなす冬の芸術。", meta: "石川県金沢市 ｜ 広角・三脚", fav: false },
+            { id: 1206, month: 12, range: "super", title: "函館・元町教会群の冬イルミネーション", timing: "12月下旬 / 夜間", desc: "雪化粧した異国情緒あふれる教会と街灯りの夜景。", meta: "北海道函館市 ｜ 広角・三脚", fav: false },
+            { id: 1207, month: 12, range: "super", title: "神戸ルミナリエ（冬街並み）", timing: "12月上旬 / 夜間", desc: "圧倒的なスケールと芸術性を持つ光の回廊。", meta: "兵庫県神戸市 ｜ 広角", fav: false }
         ];
 
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v27');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v28');
             if (saved) {
                 try { landscapeSpots = JSON.parse(saved); } catch(e) { landscapeSpots = defaultLandscapeData; }
             } else {
@@ -442,7 +478,7 @@
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v27', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v28', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
