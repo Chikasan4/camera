@@ -1,10 +1,10 @@
-<!-- SkyPulse_V32.html (月形状・コンパスレイアウト完全修復版) -->
+<!-- SkyPulse_V33.html (タイトル・レイアウト完全修復版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V32</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V33</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -60,7 +60,7 @@
         .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
         .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
-        /* 天体シミュレーター用スタイル（レイアウト修正版） */
+        /* 天体シミュレーター用スタイル */
         .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; align-items: center; }
         @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 220px 1fr; } }
         .compass-box { background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
@@ -79,7 +79,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V32 形状・レイアウト修復版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V33 レイアウト安定版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -108,8 +108,8 @@
 
         <!-- 太陽・月 インタラクティブ方位＆ビジュアルビュー -->
         <div class="card">
-            <div class="card-header">
-                <div class="card-title"><span>🧭</span> 太陽・月の位置とコンパス方位ビュー</div>
+            <div class="card-header" style="flex-wrap: wrap; gap: 4px;">
+                <div class="card-title"><span>🧭</span> 太陽・月のコンパス方位ビュー</div>
                 <div style="font-size: 13px; color: var(--accent-gold); width:auto;" id="selected-time-display">時刻: 18:00</div>
             </div>
             <div class="interactive-slider-row">
@@ -121,14 +121,13 @@
                 <!-- コンパス方位レーダービュー -->
                 <div class="compass-box">
                     <div style="font-size: 11px; font-weight:bold; color:var(--text-sub); margin-bottom:6px; text-align:center; width:100%;">方位レーダー (北・東・南・西)</div>
-                    <canvas id="compassCanvas" width="160" height="160" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
+                    <canvas id="compassCanvas" width="150" height="150" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
                 </div>
                 <!-- 選択時刻の詳細ステータス＆正確な月相アイコン -->
-                <div style="background: #1e293b; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color); min-height: 175px;">
+                <div style="background: #1e293b; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color); min-height: 170px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; width:100%;">
                         <span style="font-size: 14px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の詳細位置</span>
                         <div style="display:flex; align-items:center; gap:8px; width:auto;">
-                            <!-- 正確な月齢シルエットを描画するキャンバス -->
                             <canvas id="moonCanvas" width="32" height="32" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
                             <span id="info-moon-phase-text" style="font-size: 12px; color: var(--accent-gold); font-weight: bold;">月齢 --</span>
                         </div>
@@ -401,7 +400,6 @@
             document.getElementById('info-sun-status').innerText = astronomical.sunAlt > 0 ? "日中（昼間）" : "夜間（夜空）";
             document.getElementById('info-moon-phase-text').innerText = `月齢 ${astronomical.moonAge}`;
 
-            // 正確な方角描画と正確な三日月・満ち欠け形状描画の実行
             drawCompass(astronomical.moonAz, astronomical.sunAz);
             drawMoonIcon(parseFloat(astronomical.moonAge));
         }
@@ -410,18 +408,16 @@
             updateStarDashboard();
         }
 
-        // コンパス方位ビュー描画（文字重なり防止パディング調整済）
         function drawCompass(moonAz, sunAz) {
             const canvas = document.getElementById('compassCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
-            const r = 55; // 領域内にしっかり収まる半径
+            const r = 50;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 外枠と十字線
             ctx.strokeStyle = '#2a3447';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -430,39 +426,30 @@
             ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy);
             ctx.stroke();
 
-            // 方位ラベル（重ならないよう適度な余白配置）
             ctx.fillStyle = '#9ca3af';
-            ctx.font = '11px sans-serif';
+            ctx.font = '10px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('北', cx, cy - r + 8);
-            ctx.fillText('南', cx, cy + r - 8);
-            ctx.fillText('東', cx + r - 8, cy);
-            ctx.fillText('西', cx - r + 8, cy);
+            ctx.fillText('北', cx, cy - r + 7);
+            ctx.fillText('南', cx, cy + r - 7);
+            ctx.fillText('東', cx + r - 7, cy);
+            ctx.fillText('西', cx - r + 7, cy);
 
-            // 太陽プロット
             let sunRad = (sunAz - 90) * (Math.PI / 180);
-            let sunX = cx + (r * 0.65) * Math.cos(sunRad);
-            let sunY = cy + (r * 0.65) * Math.sin(sunRad);
+            let sunX = cx + (r * 0.6) * Math.cos(sunRad);
+            let sunY = cy + (r * 0.6) * Math.sin(sunRad);
             ctx.fillStyle = '#f59e0b';
-            ctx.beginPath();
-            ctx.arc(sunX, sunY, 5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.font = '10px sans-serif';
-            ctx.fillText('☀️', sunX, sunY - 10);
+            ctx.beginPath(); ctx.arc(sunX, sunY, 4, 0, 2 * Math.PI); ctx.fill();
+            ctx.font = '9px sans-serif'; ctx.fillText('☀️', sunX, sunY - 9);
 
-            // 月プロット
             let moonRad = (moonAz - 90) * (Math.PI / 180);
-            let moonX = cx + (r * 0.65) * Math.cos(moonRad);
-            let moonY = cy + (r * 0.65) * Math.sin(moonRad);
+            let moonX = cx + (r * 0.6) * Math.cos(moonRad);
+            let moonY = cy + (r * 0.6) * Math.sin(moonRad);
             ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(moonX, moonY, 5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.fillText('🌙', moonX, moonY - 10);
+            ctx.beginPath(); ctx.arc(moonX, moonY, 4, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillText('🌙', moonX, moonY - 9);
         }
 
-        // 正確な月齢シルエット描画（半月ではなく、三日月等の正しい形状を表現）
         function drawMoonIcon(moonAge) {
             const canvas = document.getElementById('moonCanvas');
             if (!canvas.getContext) return;
@@ -471,30 +458,23 @@
             const r = size / 2;
 
             ctx.clearRect(0, 0, size, size);
-            
-            // 背景（暗い部分）
             ctx.fillStyle = '#0f172a';
             ctx.beginPath(); ctx.arc(r, r, r - 2, 0, 2 * Math.PI); ctx.fill();
 
-            // 輝面計算（月齢0〜29.5を正確に反映した楕円クリッピング描画）
-            const phase = moonAge / 29.53058867; // 0.0 (新月) 〜 0.25 (上弦) 〜 0.5 (満月) 〜 0.75 (下弦) 〜 1.0
-            
+            const phase = moonAge / 29.53058867;
             ctx.save();
             ctx.beginPath();
             ctx.arc(r, r, r - 2, 0, 2 * Math.PI);
             ctx.clip();
 
-            ctx.fillStyle = '#fbbf24'; // 月の光る部分（ゴールド）
+            ctx.fillStyle = '#fbbf24';
             ctx.beginPath();
 
             if (phase <= 0.5) {
-                // 新月〜満月 (右側が光る)
-                const co = Math.cos(phase * 2 * Math.PI); // 1 から -1 へ
+                const co = Math.cos(phase * 2 * Math.PI);
                 ctx.arc(r, r, r - 2, -Math.PI / 2, Math.PI / 2, false);
-                // 満ち欠けのカーブ（楕円の幅を月齢に応じて変化）
                 ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, Math.PI / 2, -Math.PI / 2, co > 0);
             } else {
-                // 満月〜新月 (左側が光る)
                 const co = Math.cos((phase - 0.5) * 2 * Math.PI);
                 ctx.arc(r, r, r - 2, Math.PI / 2, -Math.PI / 2, false);
                 ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, -Math.PI / 2, Math.PI / 2, co > 0);
@@ -515,13 +495,13 @@
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v32');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v33');
             landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
             updateLandscapeDatabase();
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v32', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v33', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
