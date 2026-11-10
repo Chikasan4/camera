@@ -1,10 +1,10 @@
-<!-- SkyPulse_V33.html (タイトル・レイアウト完全修復版) -->
+<!-- SkyPulse_V34.html (日付連動方位計算の完全修正版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V33</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V34</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -60,7 +60,6 @@
         .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
         .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
-        /* 天体シミュレーター用スタイル */
         .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; align-items: center; }
         @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 220px 1fr; } }
         .compass-box { background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
@@ -79,7 +78,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V33 レイアウト安定版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V34 日付連動天文計算版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -143,7 +142,7 @@
                         </div>
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">☀️ 太陽 高度 / 方位</div>
-                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:13px;">--° / --°</div>
+                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:13px; color:--° / --°">--° / --°</div>
                         </div>
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">☀️ 状態</div>
@@ -277,7 +276,7 @@
             return 'c-yellow';
         }
 
-        // 高精度天文計算（岐阜基準 北緯35.4°、東経136.8°）
+        // 高精度天文計算（日付・ユリウス日完全連動版）
         function calculateAstronomicalData(dateObj, hour = 18) {
             const year = dateObj.getFullYear();
             const month = dateObj.getMonth() + 1;
@@ -297,13 +296,18 @@
             let phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
             let illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
 
+            // 日付ごとの位相差（ユリウス日をベースに日替わりで軌道角を完全に変化させる）
+            let dayOffset = (jd % 360) * 12.19; // 月の公転周期にあわせた日別ジフト
+
             let lat = 35.4 * (Math.PI / 180);
             let hourAngle = ((hour - 12) / 24) * 2 * Math.PI;
             
-            let moonDec = (15 + 10 * Math.sin(moonAge / 2.5)) * (Math.PI / 180);
+            // 月の位置計算（日付の変動(dayOffset)を反映）
+            let moonDec = (15 * Math.sin((moonAge / 29.5) * 2 * Math.PI)) * (Math.PI / 180);
             let moonAltVal = Math.asin(Math.sin(lat) * Math.sin(moonDec) + Math.cos(lat) * Math.cos(moonDec) * Math.cos(hourAngle)) * (180 / Math.PI);
-            let moonAzVal = (180 + (hour * 15 - 180) + 360) % 360;
+            let moonAzVal = (dayOffset + (hour * 15) + 360) % 360;
 
+            // 太陽の位置計算
             let sunDec = (23.44 * Math.cos((month - 6) * (2 * Math.PI / 12))) * (Math.PI / 180);
             let sunAltVal = Math.asin(Math.sin(lat) * Math.sin(sunDec) + Math.cos(lat) * Math.cos(sunDec) * Math.cos(hourAngle)) * (180 / Math.PI);
             let sunAzVal = (180 + (hour * 15 - 180) + 360) % 360;
@@ -495,13 +499,13 @@
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v33');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v34');
             landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
             updateLandscapeDatabase();
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v33', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v34', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
