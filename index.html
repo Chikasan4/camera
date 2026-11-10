@@ -1,10 +1,10 @@
-<!-- SkyPulse_V31.html -->
+<!-- SkyPulse_V32.html (月形状・コンパスレイアウト完全修復版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V31</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V32</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -27,10 +27,10 @@
         .tab-content { display: none; width: 100%; }
         .tab-content.active { display: block; width: 100%; }
 
-        .control-bar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; width: 100%; }
+        .control-bar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; width: 100%; flex-wrap: wrap; gap: 8px; }
         .control-bar label { font-size: 14px; color: var(--text-sub); font-weight: bold; width: auto; }
         .input-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: auto; }
-        input[type="date"], select, input[type="text"] { background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 14px; }
+        input[type="date"], select, input[type="text"] { background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 14px; width: auto; }
         .btn { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; width: auto; }
         .btn-secondary { background: #374151; width: auto; }
         .btn-danger { background: #dc2626; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; }
@@ -60,10 +60,10 @@
         .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
         .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
-        /* 天体シミュレーター用スタイル */
-        .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
-        @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 1fr 1fr; } }
-        .orbit-chart-box { background: #1e293b; border-radius: 10px; padding: 10px; position: relative; height: 240px; width: 100%; }
+        /* 天体シミュレーター用スタイル（レイアウト修正版） */
+        .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; align-items: center; }
+        @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 220px 1fr; } }
+        .compass-box { background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
         .interactive-slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; width: 100%; }
         .interactive-slider-row input[type="range"] { flex-grow: 1; accent-color: var(--accent-gold); }
 
@@ -79,7 +79,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V31 方角＆月齢ビジュアル版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V32 形状・レイアウト修復版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -106,11 +106,11 @@
             <div class="sub-text" id="verdict-sub-text">――</div>
         </div>
 
-        <!-- 太陽・月 インタラクティブ軌道＆コンパス方位ビュー -->
+        <!-- 太陽・月 インタラクティブ方位＆ビジュアルビュー -->
         <div class="card">
             <div class="card-header">
                 <div class="card-title"><span>🧭</span> 太陽・月の位置とコンパス方位ビュー</div>
-                <div style="font-size: 13px; color: var(--accent-gold);" id="selected-time-display">時刻: 18:00</div>
+                <div style="font-size: 13px; color: var(--accent-gold); width:auto;" id="selected-time-display">時刻: 18:00</div>
             </div>
             <div class="interactive-slider-row">
                 <span style="font-size:12px; color:var(--text-sub); width:35px;">00時</span>
@@ -118,37 +118,37 @@
                 <span style="font-size:12px; color:var(--text-sub); width:35px;">24時</span>
             </div>
             <div class="sky-view-grid">
-                <!-- 円形コンパス方位ビュー（レーダーチャート風） -->
-                <div class="orbit-chart-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                    <div style="font-size: 12px; font-weight:bold; color:var(--text-sub); margin-bottom:2px; width:100%; text-align:left;">方位レーダー (上=北, 右=東, 下=南, 左=西)</div>
-                    <canvas id="compassCanvas" width="180" height="180" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
+                <!-- コンパス方位レーダービュー -->
+                <div class="compass-box">
+                    <div style="font-size: 11px; font-weight:bold; color:var(--text-sub); margin-bottom:6px; text-align:center; width:100%;">方位レーダー (北・東・南・西)</div>
+                    <canvas id="compassCanvas" width="160" height="160" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
                 </div>
-                <!-- 選択時刻の方位・高度・月齢ビジュアルステータス -->
-                <div style="background: #1e293b; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-around;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
-                        <span style="font-size: 13px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の詳細位置</span>
-                        <div id="moon-icon-container" style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--accent-gold);">
-                            <!-- 月の満ち欠けビジュアルアイコン -->
-                            <canvas id="moonCanvas" width="24" height="24" style="border-radius:50%; background:#000;"></canvas>
-                            <span id="info-moon-phase-text">月齢 --</span>
+                <!-- 選択時刻の詳細ステータス＆正確な月相アイコン -->
+                <div style="background: #1e293b; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color); min-height: 175px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; width:100%;">
+                        <span style="font-size: 14px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の詳細位置</span>
+                        <div style="display:flex; align-items:center; gap:8px; width:auto;">
+                            <!-- 正確な月齢シルエットを描画するキャンバス -->
+                            <canvas id="moonCanvas" width="32" height="32" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
+                            <span id="info-moon-phase-text" style="font-size: 12px; color: var(--accent-gold); font-weight: bold;">月齢 --</span>
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; width:100%; margin-top: 6px;">
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">🌙 月 高度 / 方位</div>
-                            <div id="info-moon-alt-az" style="font-weight:bold; font-size:14px;">--° / --°</div>
+                            <div id="info-moon-alt-az" style="font-weight:bold; font-size:13px;">--° / --°</div>
                         </div>
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">🌙 輝度・状態</div>
-                            <div id="info-moon-illum" style="font-weight:bold; font-size:14px; color:#60a5fa;">--%</div>
+                            <div id="info-moon-illum" style="font-weight:bold; font-size:13px; color:#60a5fa;">--%</div>
                         </div>
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">☀️ 太陽 高度 / 方位</div>
-                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:14px;">--° / --°</div>
+                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:13px;">--° / --°</div>
                         </div>
                         <div>
                             <div style="color:var(--text-sub); font-size:11px;">☀️ 状態</div>
-                            <div id="info-sun-status" style="font-weight:bold; font-size:14px; color:var(--accent-gold);">--</div>
+                            <div id="info-sun-status" style="font-weight:bold; font-size:13px; color:var(--accent-gold);">--</div>
                         </div>
                     </div>
                 </div>
@@ -298,7 +298,6 @@
             let phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
             let illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
 
-            // 簡易高度・方位計算（岐阜基準の日周運動シミュレーション）
             let lat = 35.4 * (Math.PI / 180);
             let hourAngle = ((hour - 12) / 24) * 2 * Math.PI;
             
@@ -402,7 +401,7 @@
             document.getElementById('info-sun-status').innerText = astronomical.sunAlt > 0 ? "日中（昼間）" : "夜間（夜空）";
             document.getElementById('info-moon-phase-text').innerText = `月齢 ${astronomical.moonAge}`;
 
-            // ビジュアル描画実行
+            // 正確な方角描画と正確な三日月・満ち欠け形状描画の実行
             drawCompass(astronomical.moonAz, astronomical.sunAz);
             drawMoonIcon(parseFloat(astronomical.moonAge));
         }
@@ -411,14 +410,14 @@
             updateStarDashboard();
         }
 
-        // 円形コンパス方位ビュー描画
+        // コンパス方位ビュー描画（文字重なり防止パディング調整済）
         function drawCompass(moonAz, sunAz) {
             const canvas = document.getElementById('compassCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
-            const r = 70;
+            const r = 55; // 領域内にしっかり収まる半径
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -431,63 +430,77 @@
             ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy);
             ctx.stroke();
 
-            // 方位ラベル
+            // 方位ラベル（重ならないよう適度な余白配置）
             ctx.fillStyle = '#9ca3af';
-            ctx.font = '10px sans-serif';
+            ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('北', cx, cy - r + 10);
-            ctx.fillText('南', cx, cy + r - 10);
-            ctx.fillText('東', cx + r - 10, cy);
-            ctx.fillText('西', cx - r + 10, cy);
+            ctx.fillText('北', cx, cy - r + 8);
+            ctx.fillText('南', cx, cy + r - 8);
+            ctx.fillText('東', cx + r - 8, cy);
+            ctx.fillText('西', cx - r + 8, cy);
 
-            // 太陽プロット (黄橙色)
+            // 太陽プロット
             let sunRad = (sunAz - 90) * (Math.PI / 180);
-            let sunX = cx + (r * 0.75) * Math.cos(sunRad);
-            let sunY = cy + (r * 0.75) * Math.sin(sunRad);
+            let sunX = cx + (r * 0.65) * Math.cos(sunRad);
+            let sunY = cy + (r * 0.65) * Math.sin(sunRad);
             ctx.fillStyle = '#f59e0b';
             ctx.beginPath();
-            ctx.arc(sunX, sunY, 6, 0, 2 * Math.PI);
+            ctx.arc(sunX, sunY, 5, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '9px sans-serif';
-            ctx.fillText('☀️', sunX, sunY - 12);
+            ctx.font = '10px sans-serif';
+            ctx.fillText('☀️', sunX, sunY - 10);
 
-            // 月プロット (金色)
+            // 月プロット
             let moonRad = (moonAz - 90) * (Math.PI / 180);
-            let moonX = cx + (r * 0.75) * Math.cos(moonRad);
-            let moonY = cy + (r * 0.75) * Math.sin(moonRad);
+            let moonX = cx + (r * 0.65) * Math.cos(moonRad);
+            let moonY = cy + (r * 0.65) * Math.sin(moonRad);
             ctx.fillStyle = '#fbbf24';
             ctx.beginPath();
-            ctx.arc(moonX, moonY, 6, 0, 2 * Math.PI);
+            ctx.arc(moonX, moonY, 5, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.fillText('🌙', moonX, moonY - 12);
+            ctx.fillText('🌙', moonX, moonY - 10);
         }
 
-        // 月齢アイコン描画
+        // 正確な月齢シルエット描画（半月ではなく、三日月等の正しい形状を表現）
         function drawMoonIcon(moonAge) {
             const canvas = document.getElementById('moonCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
-            const size = 24;
+            const size = 32;
             const r = size / 2;
 
             ctx.clearRect(0, 0, size, size);
-            ctx.fillStyle = '#1e293b';
-            ctx.beginPath(); ctx.arc(r, r, r - 1, 0, 2 * Math.PI); ctx.fill();
+            
+            // 背景（暗い部分）
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.arc(r, r, r - 2, 0, 2 * Math.PI); ctx.fill();
 
-            // 簡易満ち欠けシルエット表現
-            ctx.fillStyle = '#fbbf24';
+            // 輝面計算（月齢0〜29.5を正確に反映した楕円クリッピング描画）
+            const phase = moonAge / 29.53058867; // 0.0 (新月) 〜 0.25 (上弦) 〜 0.5 (満月) 〜 0.75 (下弦) 〜 1.0
+            
+            ctx.save();
             ctx.beginPath();
-            let phaseRatio = moonAge / 29.53;
-            if (phaseRatio <= 0.5) {
-                let arcRadius = r * Math.abs(1 - (phaseRatio * 4));
-                ctx.arc(r, r, r - 1, -Math.PI/2, Math.PI/2, phaseRatio > 0.25);
+            ctx.arc(r, r, r - 2, 0, 2 * Math.PI);
+            ctx.clip();
+
+            ctx.fillStyle = '#fbbf24'; // 月の光る部分（ゴールド）
+            ctx.beginPath();
+
+            if (phase <= 0.5) {
+                // 新月〜満月 (右側が光る)
+                const co = Math.cos(phase * 2 * Math.PI); // 1 から -1 へ
+                ctx.arc(r, r, r - 2, -Math.PI / 2, Math.PI / 2, false);
+                // 満ち欠けのカーブ（楕円の幅を月齢に応じて変化）
+                ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, Math.PI / 2, -Math.PI / 2, co > 0);
             } else {
-                let arcRadius = r * Math.abs(1 - ((phaseRatio - 0.5) * 4));
-                ctx.arc(r, r, r - 1, Math.PI/2, -Math.PI/2, phaseRatio > 0.75);
+                // 満月〜新月 (左側が光る)
+                const co = Math.cos((phase - 0.5) * 2 * Math.PI);
+                ctx.arc(r, r, r - 2, Math.PI / 2, -Math.PI / 2, false);
+                ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, -Math.PI / 2, Math.PI / 2, co > 0);
             }
             ctx.fill();
+            ctx.restore();
         }
 
         // --- 年間365選 風景撮影データベース ---
@@ -502,13 +515,13 @@
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v31');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v32');
             landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
             updateLandscapeDatabase();
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v31', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v32', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
