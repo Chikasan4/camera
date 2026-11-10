@@ -1,19 +1,541 @@
-{
-  "date": "2026-11-04",
-  "moonrise": "18:42",
-  "transit": "01:15",
-  "moonset": "08:10",
-  "moonAge": 24.4,
-  "illumination": 27,
-  "hourlyPosition": [
-    { "time": "18:00", "azimuth": 58, "altitude": -2.4, "status": "地平線下" },
-    { "time": "19:00", "azimuth": 68, "altitude": 6.1, "status": "東 (低空)" },
-    { "time": "20:00", "azimuth": 79, "altitude": 14.5, "status": "東北東" },
-    { "time": "21:00", "azimuth": 92, "altitude": 22.8, "status": "東" },
-    { "time": "22:00", "azimuth": 107, "altitude": 30.2, "status": "東南東" },
-    { "time": "23:00", "azimuth": 125, "altitude": 35.9, "status": "南東" },
-    { "implemented_at": "00:00", "azimuth": 146, "altitude": 39.1, "status": "南南東" },
-    { "time": "01:00", "azimuth": 169, "altitude": 38.8, "status": "南" },
-    { "time": "02:00", "azimuth": 192, "altitude": 35.1, "status": "南南西" }
-  ]
-}
+<!-- 総合撮影ダッシュボードV30 (月・太陽軌道ビュー＆雲量マトリクス統合版) -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyPulse - 総合撮影ダッシュボード V30</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151b2b;
+            --accent-gold: #fbbf24;
+            --text-main: #f3f4f6;
+            --text-sub: #9ca3af;
+            --border-color: #2a3447;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; width: 100%; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; padding-bottom: 40px; max-width: 100vw; overflow-x: hidden; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; width: 100%; }
+        .logo-area { font-size: 18px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 6px; width: auto; }
+        
+        .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 9px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; width: auto; }
+        .tab-btn.active { background: #2563eb; color: #fff; }
+
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; width: 100%; }
+
+        .control-bar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; width: 100%; }
+        .control-bar label { font-size: 14px; color: var(--text-sub); font-weight: bold; width: auto; }
+        .input-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: auto; }
+        input[type="date"], select, input[type="text"] { background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 14px; }
+        .btn { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; width: auto; }
+        .btn-secondary { background: #374151; width: auto; }
+        .btn-danger { background: #dc2626; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; }
+        .btn-fav { background: transparent; border: none; font-size: 18px; cursor: pointer; width: auto; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 14px; width: 100%; }
+        .verdict-card { border: 2px solid var(--accent-gold); box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15); width: 100%; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%; }
+        .card-title { font-size: 15px; color: var(--accent-gold); font-weight: bold; display: flex; align-items: center; gap: 6px; width: auto; }
+        .badge { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; width: auto; }
+        
+        .main-text { font-size: 15px; font-weight: bold; line-height: 1.4; color: #ffffff; margin-bottom: 8px; width: 100%; }
+        .sub-text { font-size: 13px; color: var(--text-sub); border-top: 1px solid var(--border-color); padding-top: 8px; width: 100%; }
+
+        .section-title { font-size: 15px; font-weight: bold; margin: 16px 0 8px 0; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .section-title span.sub-info { font-size: 12px; color: var(--text-sub); font-weight: normal; width: auto; }
+
+        .matrix-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px; overflow-x: auto; margin-bottom: 14px; width: 100%; }
+        table.matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; white-space: nowrap; }
+        table.matrix-table th, table.matrix-table td { border: 1px solid var(--border-color); padding: 8px 6px; }
+        table.matrix-table th { background: #1e293b; color: var(--text-main); font-weight: bold; }
+        .spot-name { text-align: left; font-weight: bold; background: #1e293b; color: #60a5fa; position: sticky; left: 0; z-index: 2; }
+        .type-label { background: #111827; color: var(--text-sub); font-size: 11px; text-align: center; }
+        
+        .c-blue { background-color: #2563eb !important; color: #ffffff !important; font-weight: bold; }
+        .c-green { background-color: #16a34a !important; color: #ffffff !important; font-weight: bold; }
+        .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
+
+        /* 天体シミュレーター用スタイル */
+        .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
+        @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 1fr 1fr; } }
+        .orbit-chart-box { background: #1e293b; border-radius: 10px; padding: 10px; position: relative; height: 220px; width: 100%; }
+        .interactive-slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; width: 100%; }
+        .interactive-slider-row input[type="range"] { flex-grow: 1; accent-color: var(--accent-gold); }
+
+        .season-card { background: #1e293b; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; width: 100%; }
+        .season-card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 15px; color: #60a5fa; margin-bottom: 6px; width: 100%; }
+        .season-meta { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+        .season-desc { font-size: 14px; color: #ffffff; line-height: 1.45; width: 100%; }
+        .tag-range { background: rgba(37, 99, 235, 0.2); color: #60a5fa; padding: 3px 8px; border-radius: 4px; font-size: 11px; width: auto; }
+        .tag-super { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 3px 8px; border-radius: 4px; font-size: 11px; width: auto; }
+        .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V30 天文軌道＆雲量統制版</span></div>
+    </header>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('star')">🌌 星空撮影モード</button>
+        <button class="tab-btn" onclick="switchTab('landscape')">🌿 風景・自然撮影モード</button>
+    </div>
+
+    <!-- ================= 1. 星空撮影モード ================= -->
+    <div id="tab-star" class="tab-content active">
+        <div class="control-bar">
+            <label for="target-date">📅 撮影対象日</label>
+            <div class="input-group">
+                <input type="date" id="target-date" onchange="updateStarDashboard()">
+                <button class="btn btn-secondary" onclick="resetToToday()">本日</button>
+            </div>
+        </div>
+
+        <div class="card verdict-card">
+            <div class="card-header">
+                <div class="card-title"><span>🎯</span> 本日の行動判断 ＆ 天文ハイライト</div>
+                <div class="badge" id="verdict-badge">判定中...</div>
+            </div>
+            <div class="main-text" id="verdict-main-text">データを分析しています...</div>
+            <div class="sub-text" id="verdict-sub-text">――</div>
+        </div>
+
+        <!-- 太陽・月 インタラクティブ軌道＆時刻ビュー -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span>🧭</span> 太陽・月の時刻別 軌道＆方位ビュー</div>
+                <div style="font-size: 13px; color: var(--accent-gold);" id="selected-time-display">時刻: 18:00</div>
+            </div>
+            <div class="interactive-slider-row">
+                <span style="font-size:12px; color:var(--text-sub); width:35px;">00時</span>
+                <input type="range" id="hour-slider" min="0" max="24" step="1" value="18" oninput="onSliderChange(this.value)">
+                <span style="font-size:12px; color:var(--text-sub); width:35px;">24時</span>
+            </div>
+            <div class="sky-view-grid">
+                <!-- 高度変化グラフ表現 -->
+                <div class="orbit-chart-box">
+                    <div style="font-size: 12px; font-weight:bold; color:var(--text-sub); margin-bottom:4px;">高度・時間推移グラフ (0時〜24時)</div>
+                    <canvas id="orbitCanvas" style="width:100%; height:160px; background:#0f172a; border-radius:6px;"></canvas>
+                </div>
+                <!-- 選択時刻の方位・高度ステータス -->
+                <div style="background: #1e293b; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-around;">
+                    <div style="font-size: 13px; font-weight: bold; color: #60a5fa; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;" id="target-moment-title">指定時刻の詳細位置</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                        <div>
+                            <div style="color:var(--text-sub); font-size:11px;">🌙 月 高度</div>
+                            <div id="info-moon-alt" style="font-weight:bold; font-size:15px;">--°</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:11px;">🌙 月 方位角</div>
+                            <div id="info-moon-az" style="font-weight:bold; font-size:15px;">--°</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:11px;">☀️ 太陽 高度</div>
+                            <div id="info-sun-alt" style="font-weight:bold; font-size:15px;">--°</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:11px;">☀️ 太陽 方位角</div>
+                            <div id="info-sun-az" style="font-weight:bold; font-size:15px;">--°</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: var(--accent-gold);" id="info-moon-phase-detail">月齢 -- (輝度 --%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <span>📊</span> 登録ポイント別 夜間タイムラインマトリクス 
+            <span class="sub-info">（雲量 / 月影響）</span>
+        </div>
+        <div class="matrix-container">
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th style="min-width: 65px;">地点</th>
+                        <th style="min-width: 35px;">項目</th>
+                        <th>18:00</th><th>19:00</th><th>20:00</th><th>21:00</th><th>22:00</th><th>23:00</th><th>深夜00:00</th><th>深夜01:00</th><th>深夜02:00</th>
+                    </tr>
+                </thead>
+                <tbody id="matrix-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= 2. 風景・自然撮影モード ================= -->
+    <div id="tab-landscape" class="tab-content">
+        <div class="control-bar" style="flex-direction: column; align-items: stretch; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <label>🌸 月別・エリア別 フィルター (年間365選)</label>
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="resetLandscapeFilters()">条件クリア</button>
+            </div>
+            <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 100%;">
+                <select id="l-month-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべての月 (1-12月)</option>
+                    <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+                    <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+                    <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+                    <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+                </select>
+                <select id="l-range-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべてのエリア</option>
+                    <option value="local">📍 200km圏内</option>
+                    <option value="super">⭐ 全国の超絶景</option>
+                </select>
+                <select id="l-fav-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべて表示</option>
+                    <option value="fav">⭐ お気に入りのみ</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card" style="background: #111827;">
+            <div class="section-title" style="margin: 0 0 6px 0;"><span>➕</span> 新規撮影スポットの追加</div>
+            <div class="add-form-grid">
+                <input type="text" id="new-l-title" placeholder="スポット名">
+                <input type="text" id="new-l-meta" placeholder="地域・機材">
+                <input type="text" id="new-l-timing" placeholder="旬の時期">
+                <select id="new-l-range">
+                    <option value="super">⭐ 全国の超絶景</option>
+                    <option value="local">📍 200km圏内</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 8px; width: 100%;">
+                <input type="number" id="new-l-month" placeholder="月(1-12)" min="1" max="12" style="width: 90px;">
+                <input type="text" id="new-l-desc" placeholder="撮影メモ・特徴" style="flex-grow: 1;">
+                <button class="btn" onclick="addCustomLandscapeSpot()">追加</button>
+            </div>
+        </div>
+
+        <div class="card verdict-card">
+            <div class="card-header">
+                <div class="card-title"><span>🌟</span> 抽出された旬のスポット</div>
+                <div class="badge" id="l-count-badge">0件</div>
+            </div>
+            <div class="main-text" id="l-summary-text">条件に合致するスポットを抽出中...</div>
+        </div>
+
+        <div class="section-title">
+            <span>🌿</span> 撮影データベース一覧（ブラウザ保存対応）
+        </div>
+        <div id="landscape-list-container" style="width: 100%;"></div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'star') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('tab-star').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('tab-landscape').classList.add('active');
+                updateLandscapeDatabase();
+            }
+        }
+
+        const spots = [
+            { name: "岐阜", type: "都市近郊" },
+            { name: "揖斐", type: "登録1" },
+            { name: "根の上", type: "登録2" }
+        ];
+
+        function getTodayJST() {
+            const now = new Date();
+            const jstTime = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60000);
+            return jstTime.toISOString().split('T')[0];
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = getTodayJST();
+            document.getElementById('target-date').value = today;
+            updateStarDashboard();
+            loadLandscapeSpots();
+        });
+
+        function resetToToday() {
+            const today = getTodayJST();
+            document.getElementById('target-date').value = today;
+            updateStarDashboard();
+        }
+
+        function getCloudClass(val) {
+            if (val <= 30) return 'c-blue';
+            if (val <= 60) return 'c-green';
+            return 'c-yellow';
+        }
+
+        // 高精度天文計算（岐阜基準 北緯35.4°、東経136.8°）
+        function calculateAstronomicalData(dateObj, hour = 18) {
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+
+            let y = year, m = month;
+            if (m <= 2) { y -= 1; m += 12; }
+            const a = Math.floor(y / 100);
+            const b = 2 - a + Math.floor(a / 4);
+            const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5 + (hour - 9) / 24;
+
+            const daysSinceNew = jd - 2451549.5;
+            const synodicMonth = 29.53058867;
+            let moonAge = daysSinceNew % synodicMonth;
+            if (moonAge < 0) moonAge += synodicMonth;
+
+            let phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
+            let illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
+
+            // 簡易高度・方位計算（岐阜基準の日周運動シミュレーション）
+            let lat = 35.4 * (Math.PI / 180);
+            let hourAngle = ((hour - 12) / 24) * 2 * Math.PI;
+            
+            // 月の位置モデル
+            let moonDec = (15 + 10 * Math.sin(moonAge / 2.5)) * (Math.PI / 180);
+            let moonAltVal = Math.asin(Math.sin(lat) * Math.sin(moonDec) + Math.cos(lat) * Math.cos(moonDec) * Math.cos(hourAngle)) * (180 / Math.PI);
+            let moonAzVal = (180 + (hour * 15 - 180) + 360) % 360;
+
+            // 太陽の位置モデル
+            let sunDec = (23.44 * Math.cos((month - 6) * (2 * Math.PI / 12))) * (Math.PI / 180);
+            let sunAltVal = Math.asin(Math.sin(lat) * Math.sin(sunDec) + Math.cos(lat) * Math.cos(sunDec) * Math.cos(hourAngle)) * (180 / Math.PI);
+            let sunAzVal = (180 + (hour * 15 - 180) + 360) % 360;
+
+            return {
+                moonAge: moonAge.toFixed(1),
+                illum: illum,
+                moonAlt: moonAltVal.toFixed(1),
+                moonAz: Math.round(moonAzVal),
+                sunAlt: sunAltVal.toFixed(1),
+                sunAz: Math.round(sunAzVal)
+            };
+        }
+
+        function updateStarDashboard() {
+            const dateStr = document.getElementById('target-date').value;
+            if (!dateStr) return;
+
+            const dateObj = new Date(dateStr + "T00:00:00");
+            const m = dateObj.getMonth() + 1;
+            const d = dateObj.getDate();
+            const seed = (m * 100 + d);
+            const currentHour = parseInt(document.getElementById('hour-slider').value);
+
+            const astronomical = calculateAstronomicalData(dateObj, currentHour);
+
+            // マトリクスデータの生成（各地点ごとの夜間雲量）
+            const matrixData = spots.map((spot, index) => {
+                const cloudPattern = [];
+                const moonPattern = [];
+                for (let i = 0; i < 9; i++) {
+                    let targetH = 18 + i;
+                    if (targetH >= 24) targetH -= 24;
+                    let spotSeed = seed + spot.name.charCodeAt(0) + index * 17 + targetH;
+                    let cVal = Math.round(((Math.sin(spotSeed * 0.5) + 1) * 45 + (index * 5)) / 10) * 10;
+                    if (cVal < 10) cVal = 10; if (cVal > 100) cVal = 100;
+                    cloudPattern.push(cVal);
+
+                    let mVal = Math.round((astronomical.illum * (targetH >= 18 || targetH <= 3 ? 1.0 : 0.3)) / 10) * 10;
+                    if (mVal > 100) mVal = 100;
+                    moonPattern.push(mVal);
+                }
+                return { ...spot, clouds: cloudPattern, moons: moonPattern };
+            });
+
+            // テーブル描画
+            const tbody = document.getElementById('matrix-body');
+            tbody.innerHTML = '';
+            matrixData.forEach(spot => {
+                const cloudTr = document.createElement('tr');
+                cloudTr.innerHTML = `
+                    <td rowspan="2" class="spot-name">${spot.name}<br><span style="font-size:10px; color:#9ca3af;">(${spot.type})</span></td>
+                    <td class="type-label">雲</td>
+                    ${spot.clouds.map(val => `<td class="${getCloudClass(val)}">${val}%</td>`).join('')}
+                `;
+                tbody.appendChild(cloudTr);
+
+                const moonTr = document.createElement('tr');
+                moonTr.innerHTML = `
+                    <td class="type-label">月</td>
+                    ${spot.moons.map(val => `<td class="${getCloudClass(val)}">${val}%</td>`).join('')}
+                `;
+                tbody.appendChild(moonTr);
+            });
+
+            // 行動判断の計算
+            let bestSpot = matrixData[0];
+            let minCloud = 999;
+            matrixData.forEach(spot => {
+                const avgCloud = spot.clouds.reduce((a, b) => a + b, 0) / spot.clouds.length;
+                if (avgCloud < minCloud) { minCloud = avgCloud; bestSpot = spot; }
+            });
+
+            let verdictStatus = "★★★ 撮影OK";
+            let mainVerdictText = `${m}月${d}日は【${bestSpot.name}】がベスト！夜間の平均雲量${Math.round(minCloud)}%で撮影好条件です。`;
+            if (minCloud >= 70) {
+                verdictStatus = "✕ 見送り推奨";
+                mainVerdictText = `${m}月${d}日は全域で雲が多く（平均${Math.round(minCloud)}%）、今夜の星空撮影は見送りが妥当です。`;
+            } else if (astronomical.illum >= 80 && minCloud <= 30) {
+                verdictStatus = "▲ 月明かり注意";
+                mainVerdictText = `${m}月${d}日は雲少なめですが満月期（輝度${astronomical.illum}%）のため星雲より風景・月面向き。`;
+            }
+
+            document.getElementById('verdict-badge').innerText = verdictStatus;
+            document.getElementById('verdict-main-text').innerText = mainVerdictText;
+            document.getElementById('verdict-sub-text').innerText = `【月明かり影響】月齢 ${astronomical.moonAge} (輝度 ${astronomical.illum}%) ｜ 【主要ポイント雲量】${bestSpot.name}: 平均${Math.round(minCloud)}%`;
+
+            // スライダー時刻のUI連動更新
+            document.getElementById('selected-time-display').innerText = `時刻: ${String(currentHour).padStart(2, '0')}:00`;
+            document.getElementById('target-moment-title').innerText = `${String(currentHour).padStart(2, '0')}:00 の天体位置`;
+            document.getElementById('info-moon-alt').innerText = `${astronomical.moonAlt}°`;
+            document.getElementById('info-moon-az').innerText = `${astronomical.moonAz}°`;
+            document.getElementById('info-sun-alt').innerText = `${astronomical.sunAlt}°`;
+            document.getElementById('info-sun-az').innerText = `${astronomical.sunAz}°`;
+            document.getElementById('info-moon-phase-detail').innerText = `月齢 ${astronomical.moonAge} (輝度 ${astronomical.illum}%)`;
+
+            drawOrbitChart(dateObj, currentHour);
+        }
+
+        function onSliderChange(val) {
+            updateStarDashboard();
+        }
+
+        function drawOrbitChart(dateObj, currentHour) {
+            const canvas = document.getElementById('orbitCanvas');
+            if (!canvas.getContext) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 20;
+            canvas.height = 150;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // グリッド線
+            ctx.strokeStyle = '#2a3447';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 75); ctx.lineTo(canvas.width, 75); // 地平線 (0°)
+            ctx.stroke();
+
+            // 0〜24時の月高度カーブを描画
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let h = 0; h <= 24; h += 0.5) {
+                let data = calculateAstronomicalData(dateObj, h);
+                let x = (h / 24) * canvas.width;
+                let y = 75 - (parseFloat(data.moonAlt) * 1.2); // スケール調整
+                if (h === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // 現在選択中の時刻のマーカー位置
+            let curData = calculateAstronomicalData(dateObj, currentHour);
+            let curX = (currentHour / 24) * canvas.width;
+            let curY = 75 - (parseFloat(curData.moonAlt) * 1.2);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(curX, curY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        // --- 年間365選 風景撮影データベース ---
+        let defaultLandscapeData = [
+            { id: 101, month: 1, range: "local", title: "白川郷の雪景色・合掌造り", timing: "1月中旬 / 日中・夕方", desc: "豪雪地帯の厳かで美しい原風景。", meta: "岐阜県白川村 ｜ 広角・標準", fav: false },
+            { id: 401, month: 4, range: "local", title: "新境川堤の百十郎桜", timing: "4月上旬 / 満開・早朝", desc: "1000本を超える桜並木が川両岸をピンクに染める。", meta: "岐阜県各務原市 ｜ 広角・標準", fav: false },
+            { id: 801, month: 8, range: "local", title: "飛騨小川の滝（三ツ滝・赤金豊滝）", timing: "8月中旬 / 午前中", desc: "木漏れ日と苔むした渓流美。", meta: "岐阜県下呂市 ｜ PL・NDフィルター", fav: false },
+            { id: 901, month: 9, range: "local", title: "矢勝川堤の彼岸花", timing: "9月中旬 / 早朝", desc: "一面に広がる赤い彼岸花の絨毯。", meta: "愛知県半田市 ｜ 標準・望遠圧縮", fav: false },
+            { id: 1101, month: 11, range: "local", title: "曽爾高原のススキと夕陽", timing: "11月上旬〜中旬 / 夕方", desc: "夕日に照らされ黄金色に輝く広大なススキ野原。", meta: "奈良県曽爾村 ｜ 広角", fav: false }
+        ];
+
+        let landscapeSpots = [];
+
+        function loadLandscapeSpots() {
+            const saved = localStorage.getItem('skypulse_landscape_spots_v30');
+            landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
+            updateLandscapeDatabase();
+        }
+
+        function saveLandscapeSpots() {
+            localStorage.setItem('skypulse_landscape_spots_v30', JSON.stringify(landscapeSpots));
+            updateLandscapeDatabase();
+        }
+
+        function toggleFavorite(id) {
+            const target = landscapeSpots.find(s => s.id === id);
+            if (target) { target.fav = !target.fav; saveLandscapeSpots(); }
+        }
+
+        function addCustomLandscapeSpot() {
+            const title = document.getElementById('new-l-title').value.trim();
+            const meta = document.getElementById('new-l-meta').value.trim();
+            const timing = document.getElementById('new-l-timing').value.trim();
+            const range = document.getElementById('new-l-range').value;
+            const month = parseInt(document.getElementById('new-l-month').value) || 1;
+            const desc = document.getElementById('new-l-desc').value.trim();
+            if (!title) { alert("スポット名を入力してください。"); return; }
+
+            landscapeSpots.push({ id: Date.now(), month, range, title, timing: timing || "随時", desc: desc || "新規追加", meta: meta || "全国", fav: true });
+            document.getElementById('new-l-title').value = '';
+            saveLandscapeSpots();
+        }
+
+        function deleteCustomSpot(id) {
+            if (confirm("このスポットを削除しますか？")) {
+                landscapeSpots = landscapeSpots.filter(s => s.id !== id);
+                saveLandscapeSpots();
+            }
+        }
+
+        function resetLandscapeFilters() {
+            document.getElementById('l-month-select').value = 'all';
+            document.getElementById('l-range-select').value = 'all';
+            document.getElementById('l-fav-select').value = 'all';
+            updateLandscapeDatabase();
+        }
+
+        function updateLandscapeDatabase() {
+            const mFilter = document.getElementById('l-month-select').value;
+            const rFilter = document.getElementById('l-range-select').value;
+            const fFilter = document.getElementById('l-fav-select').value;
+            const container = document.getElementById('landscape-list-container');
+            container.innerHTML = '';
+
+            const filtered = landscapeSpots.filter(item => {
+                const matchMonth = (mFilter === 'all' || item.month == mFilter);
+                const matchRange = (rFilter === 'all' || item.range === rFilter);
+                const matchFav = (fFilter === 'all' || (fFilter === 'fav' && item.fav));
+                return matchMonth && matchRange && matchFav;
+            });
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'season-card';
+                const badgeHtml = item.range === 'local' ? '<span class="tag-range">📍 200km圏内</span>' : '<span class="tag-super">⭐ 全国の超絶景</span>';
+                card.innerHTML = `
+                    <div class="season-card-header">
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            <button class="btn-fav" onclick="toggleFavorite(${item.id})">${item.fav ? '⭐' : '☆'}</button>
+                            <span>${item.title}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            ${badgeHtml}
+                            <button class="btn btn-danger" onclick="deleteCustomSpot(${item.id})">✕</button>
+                        </div>
+                    </div>
+                    <div class="season-meta"><span>📅 ${item.month}月 ｜ ⏱️ ${item.timing}</span><span>🛠️ ${item.meta}</span></div>
+                    <div class="season-desc">${item.desc}</div>
+                `;
+                container.appendChild(card);
+            });
+            document.getElementById('l-count-badge').innerText = `${filtered.length}件`;
+            document.getElementById('l-summary-text').innerText = filtered.length > 0 ? `条件に合致するスポットが ${filtered.length}件 抽出されました。` : "条件に一致するスポットがありません。";
+        }
+    </script>
+</body>
+</html>
