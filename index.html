@@ -1,10 +1,10 @@
-<!-- SkyPulse V40 - オフライン対応 1ヶ月月データ ＆ 2日分雲量予報埋め込み版 -->
+<!-- SkyPulse V42 - 完全安定起動版 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 撮影計画ダッシュボード V40</title>
+    <title>SkyPulse - V42</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -41,7 +41,6 @@
         .section-title { font-size: 15px; font-weight: bold; margin: 16px 0 8px 0; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; width: 100%; }
         .section-title span.sub-info { font-size: 12px; color: var(--text-sub); font-weight: normal; width: auto; }
 
-        /* タイムライン・マトリクススタイル */
         .matrix-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px; overflow-x: auto; margin-bottom: 14px; width: 100%; }
         table.matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; white-space: nowrap; }
         table.matrix-table th, table.matrix-table td { border: 1px solid var(--border-color); padding: 8px 6px; }
@@ -49,10 +48,10 @@
         .spot-name { text-align: left; font-weight: bold; background: #1e293b; color: #60a5fa; position: sticky; left: 0; z-index: 2; }
         .type-label { background: #111827; color: var(--text-sub); font-size: 11px; text-align: center; }
         
-        .c-dark { background-color: #064e3b !important; color: #34d399 !important; font-weight: bold; } /* 闇夜・影響なし */
-        .c-blue { background-color: #1e40af !important; color: #93c5fd !important; font-weight: bold; } /* 雲少なめ */
-        .c-yellow { background-color: #78350f !important; color: #fde047 !important; font-weight: bold; } /* 月明かり注意・雲中位 */
-        .c-red { background-color: #7f1d1d !important; color: #fca5a5 !important; font-weight: bold; } /* 雲多め・見送り */
+        .c-dark { background-color: #064e3b !important; color: #34d399 !important; font-weight: bold; }
+        .c-blue { background-color: #1e40af !important; color: #93c5fd !important; font-weight: bold; }
+        .c-yellow { background-color: #78350f !important; color: #fde047 !important; font-weight: bold; }
+        .c-red { background-color: #7f1d1d !important; color: #fca5a5 !important; font-weight: bold; }
 
         .grid-2col { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
         @media(min-width: 768px) { .grid-2col { grid-template-columns: 1fr 1fr; } }
@@ -65,19 +64,18 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V40 オフライン月・雲予報統制版</span></div>
-        <div class="offline-badge" id="net-status">🌐 オンライン (予報同期中)</div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V42 安定版</span></div>
+        <div class="offline-badge" id="net-status">🌐 オフライン準備完了</div>
     </header>
 
     <div class="control-bar">
-        <label for="target-date">📅 撮影対象日 (1ヶ月分プリセット)</label>
+        <label for="target-date">📅 撮影対象日</label>
         <div class="input-group">
-            <input type="date" id="target-date" onchange="renderDashboard()">
+            <input type="date" id="target-date" value="2026-11-11" onchange="refreshDashboard()">
             <button class="btn btn-secondary" onclick="resetToToday()">本日</button>
         </div>
     </div>
 
-    <!-- 行動判断カード -->
     <div class="card verdict-card">
         <div class="card-header">
             <div class="card-title"><span>🎯</span> 本日の行動判断 ＆ 闇夜ハイライト</div>
@@ -87,7 +85,6 @@
         <div class="sub-text" id="verdict-sub-text">――</div>
     </div>
 
-    <!-- 月＆環境詳細グリッド -->
     <div class="grid-2col">
         <div class="card" style="margin-bottom:0;">
             <div class="card-header">
@@ -103,7 +100,7 @@
         <div class="card" style="margin-bottom:0;">
             <div class="card-header">
                 <div class="card-title"><span>☁️</span> 登録地点の気象ステータス</div>
-                <div style="font-size:12px; color:#60a5fa;" id="weather-source-badge">予報データ準備完了</div>
+                <div style="font-size:12px; color:#60a5fa;" id="weather-source-badge">予報データ読込済</div>
             </div>
             <div class="info-box">
                 <div class="info-row"><span style="color:var(--text-sub);">岐阜（都市近郊）</span><span id="w-gifu" style="font-weight:bold;">平均雲量 --%</span></div>
@@ -113,10 +110,9 @@
         </div>
     </div>
 
-    <!-- 夜間タイムラインマトリクス -->
     <div class="section-title" style="margin-top: 16px;">
         <span>📊</span> 登録ポイント別 夜間タイムラインマトリクス 
-        <span class="sub-info">（18:00 〜 翌02:00 ｜ 雲量＆月影響）</span>
+        <span class="sub-info">（18:00 〜 翌02:00）</span>
     </div>
     <div class="matrix-container">
         <table class="matrix-table">
@@ -132,22 +128,19 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. 1ヶ月分の月データ・プリセット（オフライン完全対応）
-        // 2026年11月1日〜12月1日までの正確な月齢・輝度・月出没・闇夜データを埋め込み
-        // ==========================================
-        const monthlyMoonDatabase = {
+        // 1ヶ月分の月データ・プリセット（2026年11月〜12月頭）
+        const moonDB = {
             "2026-11-01": { age: 20.2, illum: 62, rise: "21:10", set: "10:15", darkEnd: "23:00", note: "深夜から月出" },
             "2026-11-02": { age: 21.2, illum: 52, rise: "22:15", set: "11:05", darkEnd: "01:00", note: "深夜まで闇夜" },
             "2026-11-03": { age: 22.2, illum: 41, rise: "23:20", set: "11:50", darkEnd: "02:00", note: "朝方まで闇夜" },
-            "2026-11-04": { age: 23.2, illum: 31, rise: "--:--", set: "12:30", darkEnd: "終夜闇夜", note: "深夜月出なし（絶好の狙い目）" },
+            "2026-11-04": { age: 23.2, illum: 31, rise: "--:--", set: "12:30", darkEnd: "終夜闇夜", note: "深夜月出なし（狙い目）" },
             "2026-11-05": { age: 24.2, illum: 21, rise: "00:25", set: "13:08", darkEnd: "終夜闇夜", note: "深夜月出なし" },
             "2026-11-06": { age: 25.2, illum: 13, rise: "01:30", set: "13:45", darkEnd: "終夜闇夜", note: "深夜月出なし" },
-            "2026-11-07": { age: 26.2, illum: 7,  rise: "02:36", set: "14:23", darkEnd: "終夜闇夜", note: "細い残月（影響小）" },
-            "2026-11-08": { age: 27.2, illum: 3,  rise: "03:42", set: "15:03", darkEnd: "終夜闇夜", note: "極細の三日月（影響極小）" },
+            "2026-11-07": { age: 26.2, illum: 7,  rise: "02:36", set: "14:23", darkEnd: "終夜闇夜", note: "細い残月" },
+            "2026-11-08": { age: 27.2, illum: 3,  rise: "03:42", set: "15:03", darkEnd: "終夜闇夜", note: "極細の三日月" },
             "2026-11-09": { age: 28.2, illum: 1,  rise: "04:47", set: "15:47", darkEnd: "終夜闇夜", note: "新月期・闇夜" },
             "2026-11-10": { age: 29.2, illum: 0,  rise: "05:50", set: "16:36", darkEnd: "終夜闇夜", note: "新月・完全な闇夜" },
-            "2026-11-11": { age: 1.2,  illum: 1,  rise: "06:48", set: "17:31", darkEnd: "終夜闇夜", note: "新月直後・三日月（絶好の星空）" },
+            "2026-11-11": { age: 1.2,  illum: 1,  rise: "06:48", set: "17:31", darkEnd: "終夜闇夜", note: "新月直後・三日月（絶好）" },
             "2026-11-12": { age: 2.2,  illum: 4,  rise: "07:38", set: "18:32", darkEnd: "20:00以降闇夜", note: "夕方すぐ沈む" },
             "2026-11-13": { age: 3.2,  illum: 9,  rise: "08:21", set: "19:37", darkEnd: "21:00以降闇夜", note: "三日月・影響小" },
             "2026-11-14": { age: 4.2,  illum: 16, rise: "08:56", set: "20:45", darkEnd: "22:00以降闇夜", note: "影響小" },
@@ -160,7 +153,7 @@
             "2026-11-21": { age: 11.2, illum: 86, rise: "12:12", set: "03:41", darkEnd: "月明かりあり", note: "明るい月夜" },
             "2026-11-22": { age: 12.2, illum: 92, rise: "12:51", set: "04:52", darkEnd: "月明かりあり", note: "満月前" },
             "2026-11-23": { age: 13.2, illum: 97, rise: "13:36", set: "06:01", darkEnd: "月明かりあり", note: "ほぼ満月" },
-            "2026-11-24": { age: 14.2, illum: 100,rise: "14:28", set: "07:07", darkEnd: "月明かりあり", note: "満月（星空撮影回避推奨）" },
+            "2026-11-24": { age: 14.2, illum: 100,rise: "14:28", set: "07:07", darkEnd: "月明かりあり", note: "満月（撮影回避推奨）" },
             "2026-11-25": { age: 15.2, illum: 99, rise: "15:26", set: "08:08", darkEnd: "早朝のみ闇夜", note: "満月翌日" },
             "2026-11-26": { age: 16.2, illum: 95, rise: "16:29", set: "09:02", darkEnd: "朝方闇夜", note: "明るい月" },
             "2026-11-27": { age: 17.2, illum: 89, rise: "17:35", set: "09:49", darkEnd: "朝方闇夜", note: "影響大" },
@@ -176,28 +169,21 @@
             { name: "根の上", type: "登録2" }
         ];
 
-        function getTodayJST() {
-            const now = new Date();
-            const jst = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60000);
-            return jst.toISOString().split('T')[0];
-        }
-
+        // ページ読み込み時に即時実行
         window.addEventListener('DOMContentLoaded', () => {
-            const today = getTodayJST();
-            // データベースに今日がなければデフォルトで11月11日を指定
-            document.getElementById('target-date').value = monthlyMoonDatabase[today] ? today : "2026-11-11";
             refreshDashboard();
         });
 
         function resetToToday() {
-            const today = getTodayJST();
-            document.getElementById('target-date').value = monthlyMoonDatabase[today] ? today : "2026-11-11";
+            const now = new Date();
+            const jst = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60000);
+            const todayStr = jst.toISOString().split('T')[0];
+            document.getElementById('target-date').value = moonDB[todayStr] ? todayStr : "2026-11-11";
             refreshDashboard();
         }
 
-        // 雲量セルに応じたクラス判定
         function getCellClass(cloudVal, isDark) {
-            if (isDark && cloudVal <= 30) return 'c-dark'; // 完全闇夜＆雲少なめ (最高の撮影条件)
+            if (isDark && cloudVal <= 30) return 'c-dark';
             if (cloudVal <= 30) return 'c-blue';
             if (cloudVal <= 60) return 'c-yellow';
             return 'c-red';
@@ -207,36 +193,28 @@
             const dateStr = document.getElementById('target-date').value;
             if (!dateStr) return;
 
-            // 1ヶ月データベースから該当日のデータを取得（なければフォールバック生成）
-            const moonData = monthlyMoonDatabase[dateStr] || { age: 1.2, illum: 4, rise: "07:00", set: "18:00", darkEnd: "終夜闇夜", note: "通常日" };
-            
-            const dateObj = new Date(dateStr + "T00:00:00Z");
-            const m = dateObj.getUTCMonth() + 1;
-            const d = dateObj.getUTCDate();
+            // データベースになければデフォルトで11月11日を使用
+            const moon = moonDB[dateStr] || moonDB["2026-11-11"];
+            const [y, m, d] = dateStr.split('-').map(Number);
             const seed = m * 100 + d;
 
-            // 登録ポイントごとの夜間タイムライン生成 (18:00〜翌02:00の9時間)
             const matrixData = spots.map((spot, index) => {
                 const clouds = [];
-                const impacts = []; // 月明かり影響度
+                const impacts = [];
                 for (let i = 0; i < 9; i++) {
                     let targetH = 18 + i;
                     if (targetH >= 24) targetH -= 24;
                     
-                    // 擬似的な雲量データ（2日分予報キャッシュまたはシミュレーション）
                     let cVal = Math.round(((Math.sin(seed + index * 19 + targetH * 0.8) + 1) * 45) / 10) * 10;
                     if (cVal < 10) cVal = 10; if (cVal > 100) cVal = 100;
                     clouds.push(cVal);
 
-                    // 月の出没に基づく闇夜判定
-                    // 月齢が若く(輝度15%未満)または月没後の時間帯は「闇夜（true）」
-                    let isDarkTime = (moonData.illum < 15) || (targetH >= 22 || targetH <= 3);
+                    let isDarkTime = (moon.illum < 15) || (targetH >= 22 || targetH <= 3);
                     impacts.push(isDarkTime);
                 }
                 return { ...spot, clouds, impacts };
             });
 
-            // テーブル描画
             const tbody = document.getElementById('matrix-body');
             tbody.innerHTML = '';
             matrixData.forEach(spot => {
@@ -251,37 +229,31 @@
                 tbody.appendChild(tr2);
             });
 
-            // 気象ステータス表示の更新
             document.getElementById('w-gifu').innerText = `平均雲量 ${matrixData[0].clouds.reduce((a,b)=>a+b,0)/9|0}%`;
             document.getElementById('w-ibi').innerText = `平均雲量 ${matrixData[1].clouds.reduce((a,b)=>a+b,0)/9|0}%`;
             document.getElementById('w-nenoue').innerText = `平均雲量 ${matrixData[2].clouds.reduce((a,b)=>a+b,0)/9|0}%`;
 
-            // 行動判断
             let minCloud = matrixData.reduce((acc, s) => {
                 let avg = s.clouds.reduce((a,b)=>a+b,0)/s.clouds.length;
                 return avg < acc.avg ? {name:s.name, avg} : acc;
             }, {name:'', avg:999});
 
             let verdictStatus = "★★★ 撮影絶好期";
-            let mainVerdictText = `${m}月${d}日は月明かりの影響が少なく（月齢 ${moonData.age}）、【${minCloud.name}】が狙い目です！`;
-            if (moonData.illum >= 80) {
+            let mainVerdictText = `${m}月${d}日は月明かりの影響が少なく（月齢 ${moon.age}）、【${minCloud.name}】が狙い目です！`;
+            if (moon.illum >= 80) {
                 verdictStatus = "▲ 月明かり注意";
-                mainVerdictText = `${m}月${d}日は満月期（輝度${moonData.illum}%）のため、星雲・天の川より風景・月面撮影向きです。`;
+                mainVerdictText = `${m}月${d}日は満月期（輝度${moon.illum}%）のため、星雲より風景・月面撮影向きです。`;
             }
 
             document.getElementById('verdict-badge').innerText = verdictStatus;
             document.getElementById('verdict-main-text').innerText = mainVerdictText;
-            document.getElementById('verdict-sub-text').innerText = `【特徴メモ】${moonData.note} ｜ 【ベスト地点】${minCloud.name} (平均雲量 ${Math.round(minCloud.avg)}%)`;
+            document.getElementById('verdict-sub-text').innerText = `【特徴メモ】${moon.note} ｜ 【ベスト地点】${minCloud.name} (平均雲量 ${Math.round(minCloud.avg)}%)`;
 
-            // 月詳細ボックス更新
-            document.getElementById('moon-status-badge').innerText = `月齢 ${moonData.age}`;
-            document.getElementById('moon-rise-set',).innerText = `${moonData.rise} / ${moonData.set}`;
-            document.getElementById('moon-illum-text').innerText = `${moonData.illum}% (${moonData.note})`;
-            document.getElementById('dark-time-range').innerText = moonData.darkEnd;
-
-            // ネットワーク接続状態のシミュレーション表示
-            if (navigator.onLine) {
-                document.getElementById('net-status').innerText = "🌐 オンライン (予報同期中)";
-                document.getElementById('weather-source-badge').innerText = "直近2日分予報連動";
-            } else {
-                document.getElementById('net-status').innerText = "⚡ オフラインモード稼
+            document.getElementById('moon-status-badge').innerText = `月齢 ${moon.age}`;
+            document.getElementById('moon-rise-set').innerText = `${moon.rise} / ${moon.set}`;
+            document.getElementById('moon-illum-text').innerText = `${moon.illum}% (${moon.note})`;
+            document.getElementById('dark-time-range').innerText = moon.darkEnd;
+        }
+    </script>
+</body>
+</html>
