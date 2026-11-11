@@ -1,10 +1,10 @@
-<!-- SkyPulse_V37.html (月・太陽の独立軌道および日付連動完全修復版) -->
+<!-- SkyPulse_V38.html (初期化エラー修復版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V37</title>
+    <title>SkyPulse - 総合撮影ダッシュボード V38</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -78,7 +78,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V37 独立軌道連動版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V38 安定稼働版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -252,7 +252,6 @@
         ];
 
         function getTodayJST() {
-            const now.now = new Date();
             const nowObj = new Date();
             const jstTime = new Date(nowObj.getTime() + (9 * 60 - nowObj.getTimezoneOffset()) * 60000);
             return jstTime.toISOString().split('T')[0];
@@ -277,21 +276,19 @@
             return 'c-yellow';
         }
 
-        // 高精度天文計算（月と太陽を完全に独立した黄経・赤経で計算）
+        // 高精度天文計算（日付・時刻独立連動版）
         function calculateAstronomicalData(dateObj, hour = 18) {
             const year = dateObj.getFullYear();
             const month = dateObj.getMonth() + 1;
             const day = dateObj.getDate();
 
-            // ユリウス日ベースの経過日数
             let y = year, m = month;
             if (m <= 2) { y -= 1; m += 12; }
             const a = Math.floor(y / 100);
             const b = 2 - a + Math.floor(a / 4);
             const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
-            const d = jd - 2451545.0; // J2000.0からの経過日数
+            const d = jd - 2451545.0;
 
-            // 太陽の黄経・赤経・赤緯
             const L = (280.460 + 0.9856474 * d) % 360;
             const g = (357.528 + 0.9856003 * d) % 360;
             const lambdaSun = L + 1.915 * Math.sin(g * Math.PI / 180);
@@ -300,10 +297,8 @@
             const sunDec = Math.asin(Math.sin(eps * Math.PI / 180) * Math.sin(lambdaSun * Math.PI / 180)) * 180 / Math.PI;
             const sunRA = Math.atan2(Math.cos(eps * Math.PI / 180) * Math.sin(lambdaSun * Math.PI / 180), Math.cos(lambdaSun * Math.PI / 180)) * 180 / Math.PI;
 
-            // 月齢と月の独立した黄経計算
             const synodicMonth = 29.53058867;
-            // 基準日からの月齢計算を厳密化
-            const baseJdRef = 2451549.5; // 2000年1月6日（新月基準）
+            const baseJdRef = 2451549.5;
             const daysSinceNewRef = jd - baseJdRef;
             let moonAge = daysSinceNewRef % synodicMonth;
             if (moonAge < 0) moonAge += synodicMonth;
@@ -311,24 +306,19 @@
             const phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
             const illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
 
-            // 月の黄経は太陽の黄経 + (月齢に応じた離角: 1日あたり約13.18度)
             const moonLambda = (lambdaSun + (moonAge / synodicMonth) * 360) % 360;
             const moonDec = Math.asin(Math.sin(eps * Math.PI / 180) * Math.sin(moonLambda * Math.PI / 180)) * 180 / Math.PI;
             const moonRA = Math.atan2(Math.cos(eps * Math.PI / 180) * Math.sin(moonLambda * Math.PI / 180), Math.cos(moonLambda * Math.PI / 180)) * 180 / Math.PI;
 
-            // 観測地：岐阜 (北緯35.4°, 東経136.8°)
             const lat = 35.4;
             const lon = 136.8;
 
-            // 地方恒星時 (LST) に時刻（hour）を反映
             const GMST = (280.46061837 + 360.98564736629 * d) % 360;
             const LST = (GMST + lon + (hour * 15) + 360) % 360;
 
-            // 時角 (Hour Angle)
             const sunHA = (LST - sunRA + 360) % 360;
             const moonHA = (LST - moonRA + 360) % 360;
 
-            // 太陽の高度・方位角
             const sunAlt = Math.asin(
                 Math.sin(lat * Math.PI / 180) * Math.sin(sunDec * Math.PI / 180) +
                 Math.cos(lat * Math.PI / 180) * Math.cos(sunDec * Math.PI / 180) * Math.cos(sunHA * Math.PI / 180)
@@ -338,7 +328,6 @@
                 Math.cos(lat * Math.PI / 180) * Math.tan(sunDec * Math.PI / 180) - Math.sin(lat * Math.PI / 180) * Math.cos(sunHA * Math.PI / 180)
             ) * 180 / Math.PI + 540) % 360;
 
-            // 月の高度・方位角
             const moonAlt = Math.asin(
                 Math.sin(lat * Math.PI / 180) * Math.sin(moonDec * Math.PI / 180) +
                 Math.cos(lat * Math.PI / 180) * Math.cos(moonDec * Math.PI / 180) * Math.cos(moonHA * Math.PI / 180)
@@ -370,7 +359,6 @@
 
             const astronomical = calculateAstronomicalData(dateObj, currentHour);
 
-            // マトリクスデータ生成
             const matrixData = spots.map((spot, index) => {
                 const cloudPattern = [];
                 const moonPattern = [];
@@ -389,7 +377,6 @@
                 return { ...spot, clouds: cloudPattern, moons: moonPattern };
             });
 
-            // テーブル描画
             const tbody = document.getElementById('matrix-body');
             tbody.innerHTML = '';
             matrixData.forEach(spot => {
@@ -409,7 +396,6 @@
                 tbody.appendChild(moonTr);
             });
 
-            // 行動判断
             let bestSpot = matrixData[0];
             let minCloud = 999;
             matrixData.forEach(spot => {
@@ -431,9 +417,8 @@
             document.getElementById('verdict-main-text').innerText = mainVerdictText;
             document.getElementById('verdict-sub-text').innerText = `【月明かり影響】月齢 ${astronomical.moonAge} (輝度 ${astronomical.illum}%) ｜ 【主要ポイント雲量】${bestSpot.name}: 平均${Math.round(minCloud)}%`;
 
-            // スライダー・ステータス連動
             document.getElementById('selected-time-display').innerText = `時刻: ${String(currentHour).padStart(2, '0')}:00`;
-            document.getElementById('target-moment-title').innerText = `${String(currentHour).padStart(2, '0')}:00 の位置（独立軌道連動）`;
+            document.getElementById('target-moment-title').innerText = `${String(currentHour).padStart(2, '0')}:00 の位置`;
             document.getElementById('info-moon-alt-az').innerText = `${astronomical.moonAlt}° / ${astronomical.moonAz}°`;
             document.getElementById('info-moon-illum').innerText = `${astronomical.illum}% (月齢 ${astronomical.moonAge})`;
             document.getElementById('info-sun-alt-az').innerText = `${astronomical.sunAlt}° / ${astronomical.sunAz}°`;
@@ -458,7 +443,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 外枠と十字線
             ctx.strokeStyle = '#2a3447';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -467,7 +451,6 @@
             ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy);
             ctx.stroke();
 
-            // 方位ラベル
             ctx.fillStyle = '#9ca3af';
             ctx.font = '10px sans-serif';
             ctx.textAlign = 'center';
@@ -487,7 +470,6 @@
                 };
             }
 
-            // 太陽のプロット
             let sunCoord = getCoords(sunAz, sunAlt);
             if (sunCoord.isUp) {
                 ctx.fillStyle = '#f59e0b';
@@ -495,7 +477,6 @@
                 ctx.font = '9px sans-serif'; ctx.fillText('☀️', sunCoord.x, sunCoord.y - 9);
             }
 
-            // 月のプロット
             let moonCoord = getCoords(moonAz, moonAlt);
             if (moonCoord.isUp) {
                 ctx.fillStyle = '#fbbf24';
@@ -549,13 +530,13 @@
         let landscapeSpots = [];
 
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v37');
+            const saved = localStorage.getItem('skypulse_landscape_spots_v38');
             landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
             updateLandscapeDatabase();
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v37', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_landscape_spots_v38', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
@@ -579,7 +560,7 @@
         }
 
         function deleteCustomSpot(id) {
-            if (confirm("This spot delete?")) {
+            if (confirm("このスポットを削除しますか？")) {
                 landscapeSpots = landscapeSpots.filter(s => s.id !== id);
                 saveLandscapeSpots();
             }
@@ -600,7 +581,6 @@
             container.innerHTML = '';
 
             const filtered = landscapeSpots.filter(item => {
-                const baseList = landscapeSpots;
                 const matchMonth = (mFilter === 'all' || item.month == mFilter);
                 const matchRange = (rFilter === 'all' || item.range === rFilter);
                 const matchFav = (fFilter === 'all' || (fFilter === 'fav' && item.fav));
