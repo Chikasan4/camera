@@ -1,10 +1,10 @@
-<!-- SkyPulse_V38.html (初期化エラー修復版) -->
+<!-- SkyPulse - 総合撮影ダッシュボード V39 (ゼロベース完全リセット版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V38</title>
+    <title>SkyPulse - V39 リセット版</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -21,7 +21,7 @@
         .logo-area { font-size: 18px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 6px; width: auto; }
         
         .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; }
-        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 9px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; width: auto; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 9px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; width: auto; }
         .tab-btn.active { background: #2563eb; color: #fff; }
 
         .tab-content { display: none; width: 100%; }
@@ -61,8 +61,8 @@
         .c-yellow { background-color: #eab308 !important; color: #000000 !important; font-weight: bold; }
 
         .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; align-items: center; }
-        @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 220px 1fr; } }
-        .compass-box { background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
+        @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 200px 1fr; } }
+        .compass-box { background: #1e293b; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
         .interactive-slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; width: 100%; }
         .interactive-slider-row input[type="range"] { flex-grow: 1; accent-color: var(--accent-gold); }
 
@@ -78,7 +78,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V38 安定稼働版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V39 完全リセット版</span></div>
     </header>
 
     <div class="tab-bar">
@@ -91,7 +91,7 @@
         <div class="control-bar">
             <label for="target-date">📅 撮影対象日</label>
             <div class="input-group">
-                <input type="date" id="target-date" onchange="updateStarDashboard()">
+                <input type="date" id="target-date" onchange="refreshDashboard()">
                 <button class="btn btn-secondary" onclick="resetToToday()">本日</button>
             </div>
         </div>
@@ -105,48 +105,48 @@
             <div class="sub-text" id="verdict-sub-text">――</div>
         </div>
 
-        <!-- 太陽・月 インタラクティブ方位＆ビジュアルビュー -->
+        <!-- 太陽・月 インタラクティブ方位ビュー -->
         <div class="card">
             <div class="card-header" style="flex-wrap: wrap; gap: 4px;">
-                <div class="card-title"><span>🧭</span> 太陽・月のコンパス方位ビュー</div>
+                <div class="card-title"><span>🧭</span> 太陽・月の位置シミュレーター</div>
                 <div style="font-size: 13px; color: var(--accent-gold); width:auto;" id="selected-time-display">時刻: 18:00</div>
             </div>
             <div class="interactive-slider-row">
                 <span style="font-size:12px; color:var(--text-sub); width:35px;">00時</span>
-                <input type="range" id="hour-slider" min="0" max="24" step="1" value="18" oninput="onSliderChange(this.value)">
-                <span style="font-size:12px; color:var(--text-sub); width:35px;">24時</span>
+                <input type="range" id="hour-slider" min="0" max="23" step="1" value="18" oninput="refreshDashboard()">
+                <span style="font-size:12px; color:var(--text-sub); width:35px;">23時</span>
             </div>
             <div class="sky-view-grid">
                 <!-- コンパス方位レーダービュー -->
                 <div class="compass-box">
-                    <div style="font-size: 11px; font-weight:bold; color:var(--text-sub); margin-bottom:6px; text-align:center; width:100%;">方位レーダー (中心=頭上90°, 縁=地平線0°)</div>
-                    <canvas id="compassCanvas" width="150" height="150" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
+                    <div style="font-size: 10px; font-weight:bold; color:var(--text-sub); margin-bottom:4px; text-align:center; width:100%;">方位レーダー (中心=頭上, 縁=地平線)</div>
+                    <canvas id="compassCanvas" width="140" height="140" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
                 </div>
-                <!-- 選択時刻の詳細ステータス＆正確な月相アイコン -->
-                <div style="background: #1e293b; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color); min-height: 170px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; width:100%;">
-                        <span style="font-size: 14px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の詳細位置</span>
-                        <div style="display:flex; align-items:center; gap:8px; width:auto;">
-                            <canvas id="moonCanvas" width="32" height="32" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
+                <!-- ステータス ＆ 月相ビジュアル -->
+                <div style="background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; width:100%;">
+                        <span style="font-size: 13px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の位置</span>
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            <canvas id="moonCanvas" width="28" height="28" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
                             <span id="info-moon-phase-text" style="font-size: 12px; color: var(--accent-gold); font-weight: bold;">月齢 --</span>
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; width:100%; margin-top: 6px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; width:100%; margin-top: 4px;">
                         <div>
-                            <div style="color:var(--text-sub); font-size:11px;">🌙 月 高度 / 方位</div>
-                            <div id="info-moon-alt-az" style="font-weight:bold; font-size:13px;">--° / --°</div>
+                            <div style="color:var(--text-sub); font-size:10px;">🌙 月 高度 / 方位</div>
+                            <div id="info-moon-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
                         </div>
                         <div>
-                            <div style="color:var(--text-sub); font-size:11px;">🌙 輝度・状態</div>
-                            <div id="info-moon-illum" style="font-weight:bold; font-size:13px; color:#60a5fa;">--%</div>
+                            <div style="color:var(--text-sub); font-size:10px;">🌙 輝度</div>
+                            <div id="info-moon-illum" style="font-weight:bold; font-size:12px; color:#60a5fa;">--%</div>
                         </div>
                         <div>
-                            <div style="color:var(--text-sub); font-size:11px;">☀️ 太陽 高度 / 方位</div>
-                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:13px;">--° / --°</div>
+                            <div style="color:var(--text-sub); font-size:10px;">☀️ 太陽 高度 / 方位</div>
+                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
                         </div>
                         <div>
-                            <div style="color:var(--text-sub); font-size:11px;">☀️ 状態</div>
-                            <div id="info-sun-status" style="font-weight:bold; font-size:13px; color:var(--accent-gold);">--</div>
+                            <div style="color:var(--text-sub); font-size:10px;">☀️ 状態</div>
+                            <div id="info-sun-status" style="font-weight:bold; font-size:12px; color:var(--accent-gold);">--</div>
                         </div>
                     </div>
                 </div>
@@ -231,10 +231,10 @@
     </div>
 
     <script>
+        // タブ切り替え
         function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             if (tabName === 'star') {
                 document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
                 document.getElementById('tab-star').classList.add('active');
@@ -251,23 +251,22 @@
             { name: "根の上", type: "登録2" }
         ];
 
+        // 本日のJST日付文字列取得
         function getTodayJST() {
-            const nowObj = new Date();
-            const jstTime = new Date(nowObj.getTime() + (9 * 60 - nowObj.getTimezoneOffset()) * 60000);
-            return jstTime.toISOString().split('T')[0];
+            const now = new Date();
+            const jst = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60000);
+            return jst.toISOString().split('T')[0];
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const today = getTodayJST();
-            document.getElementById('target-date').value = today;
-            updateStarDashboard();
+            document.getElementById('target-date').value = getTodayJST();
+            refreshDashboard();
             loadLandscapeSpots();
         });
 
         function resetToToday() {
-            const today = getTodayJST();
-            document.getElementById('target-date').value = today;
-            updateStarDashboard();
+            document.getElementById('target-date').value = getTodayJST();
+            refreshDashboard();
         }
 
         function getCloudClass(val) {
@@ -276,19 +275,17 @@
             return 'c-yellow';
         }
 
-        // 高精度天文計算（日付・時刻独立連動版）
-        function calculateAstronomicalData(dateObj, hour = 18) {
-            const year = dateObj.getFullYear();
-            const month = dateObj.getMonth() + 1;
-            const day = dateObj.getDate();
+        // ==========================================
+        // V39 ゼロベース完全天文計算エンジン
+        // ==========================================
+        function computeAstronomy(dateStr, hour) {
+            const dateObj = new Date(dateStr + "T00:00:00Z");
+            // ユリウス日 (JD) の算出
+            const time = dateObj.getTime();
+            const jd = time / 86400000 + 2440587.5;
+            const d = jd - 2451545.0; // J2000.0からの経過日数
 
-            let y = year, m = month;
-            if (m <= 2) { y -= 1; m += 12; }
-            const a = Math.floor(y / 100);
-            const b = 2 - a + Math.floor(a / 4);
-            const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
-            const d = jd - 2451545.0;
-
+            // 1. 太陽の位置（黄経ベースの近似計算）
             const L = (280.460 + 0.9856474 * d) % 360;
             const g = (357.528 + 0.9856003 * d) % 360;
             const lambdaSun = L + 1.915 * Math.sin(g * Math.PI / 180);
@@ -297,28 +294,32 @@
             const sunDec = Math.asin(Math.sin(eps * Math.PI / 180) * Math.sin(lambdaSun * Math.PI / 180)) * 180 / Math.PI;
             const sunRA = Math.atan2(Math.cos(eps * Math.PI / 180) * Math.sin(lambdaSun * Math.PI / 180), Math.cos(lambdaSun * Math.PI / 180)) * 180 / Math.PI;
 
-            const synodicMonth = 29.53058867;
-            const baseJdRef = 2451549.5;
-            const daysSinceNewRef = jd - baseJdRef;
-            let moonAge = daysSinceNewRef % synodicMonth;
-            if (moonAge < 0) moonAge += synodicMonth;
+            // 2. 月の月齢・黄経計算 (新月基準: JD 2451549.5)
+            const synodic = 29.53058867;
+            const moonAge = (jd - 2451549.5) % synodic;
+            const positiveMoonAge = moonAge < 0 ? moonAge + synodic : moonAge;
 
-            const phaseAngle = (moonAge / synodicMonth) * 2 * Math.PI;
+            const phaseAngle = (positiveMoonAge / synodic) * 2 * Math.PI;
             const illum = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
 
-            const moonLambda = (lambdaSun + (moonAge / synodicMonth) * 360) % 360;
+            // 月の黄経 = 太陽の黄経 + 月齢に応じた角度差 (1日あたり約13.176度)
+            const moonLambda = (lambdaSun + (positiveMoonAge / synodic) * 360) % 360;
             const moonDec = Math.asin(Math.sin(eps * Math.PI / 180) * Math.sin(moonLambda * Math.PI / 180)) * 180 / Math.PI;
             const moonRA = Math.atan2(Math.cos(eps * Math.PI / 180) * Math.sin(moonLambda * Math.PI / 180), Math.cos(moonLambda * Math.PI / 180)) * 180 / Math.PI;
 
+            // 3. 観測地設定 (岐阜: 北緯35.4°, 東経136.8°)
             const lat = 35.4;
             const lon = 136.8;
 
+            // 4. 地方恒星時 (LST) と時刻（hour: 0〜23）の直結連動
             const GMST = (280.46061837 + 360.98564736629 * d) % 360;
             const LST = (GMST + lon + (hour * 15) + 360) % 360;
 
+            // 5. 時角 (Hour Angle)
             const sunHA = (LST - sunRA + 360) % 360;
             const moonHA = (LST - moonRA + 360) % 360;
 
+            // 6. 高度 (Altitude) と 方位角 (Azimuth) の厳密算出
             const sunAlt = Math.asin(
                 Math.sin(lat * Math.PI / 180) * Math.sin(sunDec * Math.PI / 180) +
                 Math.cos(lat * Math.PI / 180) * Math.cos(sunDec * Math.PI / 180) * Math.cos(sunHA * Math.PI / 180)
@@ -338,7 +339,7 @@
             ) * 180 / Math.PI + 540) % 360;
 
             return {
-                moonAge: moonAge.toFixed(1),
+                moonAge: positiveMoonAge.toFixed(1),
                 illum,
                 moonAlt: moonAlt.toFixed(1),
                 moonAz: Math.round(moonAz),
@@ -347,102 +348,93 @@
             };
         }
 
-        function updateStarDashboard() {
+        // ダッシュボード全体の更新
+        function refreshDashboard() {
             const dateStr = document.getElementById('target-date').value;
             if (!dateStr) return;
 
-            const dateObj = new Date(dateStr + "T00:00:00");
-            const m = dateObj.getMonth() + 1;
-            const d = dateObj.getDate();
-            const seed = (m * 100 + d);
             const currentHour = parseInt(document.getElementById('hour-slider').value);
+            const astro = computeAstronomy(dateStr, currentHour);
+            const dateObj = new Date(dateStr + "T00:00:00Z");
+            const m = dateObj.getUTCMonth() + 1;
+            const d = dateObj.getUTCDate();
+            const seed = m * 100 + d;
 
-            const astronomical = calculateAstronomicalData(dateObj, currentHour);
-
+            // マトリクスデータ生成
             const matrixData = spots.map((spot, index) => {
-                const cloudPattern = [];
-                const moonPattern = [];
+                const clouds = [];
+                const moons = [];
                 for (let i = 0; i < 9; i++) {
                     let targetH = 18 + i;
                     if (targetH >= 24) targetH -= 24;
-                    let spotSeed = seed + spot.name.charCodeAt(0) + index * 17 + targetH;
-                    let cVal = Math.round(((Math.sin(spotSeed * 0.5) + 1) * 45 + (index * 5)) / 10) * 10;
-                    if (cVal < 10) cVal = 10; if (cVal > 100) cVal = 100;
-                    cloudPattern.push(cVal);
-
-                    let mVal = Math.round((astronomical.illum * (targetH >= 18 || targetH <= 3 ? 1.0 : 0.3)) / 10) * 10;
-                    if (mVal > 100) mVal = 100;
-                    moonPattern.push(mVal);
+                    let val = Math.round(((Math.sin(seed + index * 13 + targetH * 0.7) + 1) * 45) / 10) * 10;
+                    if (val < 10) val = 10; if (val > 100) val = 100;
+                    clouds.push(val);
+                    moons.push(Math.round((astro.illum * (targetH >= 18 || targetH <= 3 ? 1.0 : 0.3)) / 10) * 10);
                 }
-                return { ...spot, clouds: cloudPattern, moons: moonPattern };
+                return { ...spot, clouds, moons };
             });
 
+            // マトリクス描画
             const tbody = document.getElementById('matrix-body');
             tbody.innerHTML = '';
             matrixData.forEach(spot => {
-                const cloudTr = document.createElement('tr');
-                cloudTr.innerHTML = `
-                    <td rowspan="2" class="spot-name">${spot.name}<br><span style="font-size:10px; color:#9ca3af;">(${spot.type})</span></td>
-                    <td class="type-label">雲</td>
-                    ${spot.clouds.map(val => `<td class="${getCloudClass(val)}">${val}%</td>`).join('')}
-                `;
-                tbody.appendChild(cloudTr);
+                const tr1 = document.createElement('tr');
+                tr1.innerHTML = `<td rowspan="2" class="spot-name">${spot.name}<br><span style="font-size:10px; color:#9ca3af;">(${spot.type})</span></td><td class="type-label">雲</td>` +
+                    spot.clouds.map(v => `<td class="${getCloudClass(v)}">${v}%</td>`).join('');
+                tbody.appendChild(tr1);
 
-                const moonTr = document.createElement('tr');
-                moonTr.innerHTML = `
-                    <td class="type-label">月</td>
-                    ${spot.moons.map(val => `<td class="${getCloudClass(val)}">${val}%</td>`).join('')}
-                `;
-                tbody.appendChild(moonTr);
+                const tr2 = document.createElement('tr');
+                tr2.innerHTML = `<td class="type-label">月</td>` +
+                    spot.moons.map(v => `<td class="${getCloudClass(v)}">${v}%</td>`).join('');
+                tbody.appendChild(tr2);
             });
 
+            // 行動判断
             let bestSpot = matrixData[0];
-            let minCloud = 999;
-            matrixData.forEach(spot => {
-                const avgCloud = spot.clouds.reduce((a, b) => a + b, 0) / spot.clouds.length;
-                if (avgCloud < minCloud) { minCloud = avgCloud; bestSpot = spot; }
-            });
+            let minCloud = matrixData.reduce((acc, s) => {
+                let avg = s.clouds.reduce((a,b)=>a+b,0)/s.clouds.length;
+                return avg < acc.avg ? {name:s.name, avg} : acc;
+            }, {name:'', avg:999});
 
             let verdictStatus = "★★★ 撮影OK";
-            let mainVerdictText = `${m}月${d}日は【${bestSpot.name}】がベスト！夜間の平均雲量${Math.round(minCloud)}%で撮影好条件です。`;
-            if (minCloud >= 70) {
+            let mainVerdictText = `${m}月${d}日は【${minCloud.name}】がベスト！夜間平均雲量${Math.round(minCloud.avg)}%で好条件です。`;
+            if (minCloud.avg >= 70) {
                 verdictStatus = "✕ 見送り推奨";
-                mainVerdictText = `${m}月${d}日は全域で雲が多く（平均${Math.round(minCloud)}%）、今夜の星空撮影は見送りが妥当です。`;
-            } else if (astronomical.illum >= 80 && minCloud <= 30) {
+                mainVerdictText = `${m}月${d}日は全域で雲が多く（平均${Math.round(minCloud.avg)}%）、撮影は見送りが妥当です。`;
+            } else if (astro.illum >= 80 && minCloud.avg <= 30) {
                 verdictStatus = "▲ 月明かり注意";
-                mainVerdictText = `${m}月${d}日は雲少なめですが満月期（輝度${astronomical.illum}%）のため星雲より風景・月面向き。`;
+                mainVerdictText = `${m}月${d}日は雲少なめですが満月期（輝度${astro.illum}%）のため月面・風景向き。`;
             }
 
             document.getElementById('verdict-badge').innerText = verdictStatus;
             document.getElementById('verdict-main-text').innerText = mainVerdictText;
-            document.getElementById('verdict-sub-text').innerText = `【月明かり影響】月齢 ${astronomical.moonAge} (輝度 ${astronomical.illum}%) ｜ 【主要ポイント雲量】${bestSpot.name}: 平均${Math.round(minCloud)}%`;
+            document.getElementById('verdict-sub-text').innerText = `【月明かり影響】月齢 ${astro.moonAge} (輝度 ${astro.illum}%) ｜ 【ベスト地点雲量】${minCloud.name}: 平均${Math.round(minCloud.avg)}%`;
 
+            // タイムーステータス連動
             document.getElementById('selected-time-display').innerText = `時刻: ${String(currentHour).padStart(2, '0')}:00`;
-            document.getElementById('target-moment-title').innerText = `${String(currentHour).padStart(2, '0')}:00 の位置`;
-            document.getElementById('info-moon-alt-az').innerText = `${astronomical.moonAlt}° / ${astronomical.moonAz}°`;
-            document.getElementById('info-moon-illum').innerText = `${astronomical.illum}% (月齢 ${astronomical.moonAge})`;
-            document.getElementById('info-sun-alt-az').innerText = `${astronomical.sunAlt}° / ${astronomical.sunAz}°`;
-            document.getElementById('info-sun-status').innerText = astronomical.sunAlt > 0 ? "日中（昼間）" : "夜間（夜空）";
-            document.getElementById('info-moon-phase-text').innerText = `月齢 ${astronomical.moonAge}`;
+            document.getElementById('target-moment-title').innerText = `${String(currentHour).padStart(2, '0')}:00 の天体位置`;
+            document.getElementById('info-moon-alt-az').innerText = `${astro.moonAlt}° / ${astro.moonAz}°`;
+            document.getElementById('info-moon-illum').innerText = `${astro.illum}%`;
+            document.getElementById('info-sun-alt-az').innerText = `${astro.sunAlt}° / ${astro.sunAz}°`;
+            document.getElementById('info-sun-status').innerText = parseFloat(astro.sunAlt) > 0 ? "日中（昼間）" : "夜間（夜空）";
+            document.getElementById('info-moon-phase-text').innerText = `月齢 ${astro.moonAge}`;
 
-            drawCompass(astronomical.moonAz, parseFloat(astronomical.moonAlt), astronomical.sunAz, parseFloat(astronomical.sunAlt));
-            drawMoonIcon(parseFloat(astronomical.moonAge));
+            // 描画実行
+            drawCompass(parseFloat(astro.moonAz), parseFloat(astro.moonAlt), parseFloat(astro.sunAz), parseFloat(astro.sunAlt));
+            drawMoonIcon(parseFloat(astro.moonAge));
         }
 
-        function onSliderChange(val) {
-            updateStarDashboard();
-        }
-
+        // コンパス方位レーダー描画
         function drawCompass(moonAz, moonAlt, sunAz, sunAlt) {
             const canvas = document.getElementById('compassCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
-            const maxR = 55;
+            const maxR = 50;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             ctx.strokeStyle = '#2a3447';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -452,91 +444,84 @@
             ctx.stroke();
 
             ctx.fillStyle = '#9ca3af';
-            ctx.font = '10px sans-serif';
+            ctx.font = '9px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('北', cx, cy - maxR + 7);
-            ctx.fillText('南', cx, cy + maxR - 7);
-            ctx.fillText('東', cx + maxR - 7, cy);
-            ctx.fillText('西', cx - maxR + 7, cy);
+            ctx.fillText('北', cx, cy - maxR + 6);
+            ctx.fillText('南', cx, cy + maxR - 6);
+            ctx.fillText('東', cx + maxR - 6, cy);
+            ctx.fillText('西', cx - maxR + 6, cy);
 
             function getCoords(az, alt) {
                 let r = maxR * (1 - Math.max(0, Math.min(90, alt)) / 90);
                 let rad = (az - 90) * (Math.PI / 180);
-                return {
-                    x: cx + r * Math.cos(rad),
-                    y: cy + r * Math.sin(rad),
-                    isUp: alt >= 0
-                };
+                return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad), isUp: alt >= 0 };
             }
 
             let sunCoord = getCoords(sunAz, sunAlt);
             if (sunCoord.isUp) {
                 ctx.fillStyle = '#f59e0b';
                 ctx.beginPath(); ctx.arc(sunCoord.x, sunCoord.y, 4, 0, 2 * Math.PI); ctx.fill();
-                ctx.font = '9px sans-serif'; ctx.fillText('☀️', sunCoord.x, sunCoord.y - 9);
+                ctx.font = '9px sans-serif'; ctx.fillText('☀️', sunCoord.x, sunCoord.y - 8);
             }
 
             let moonCoord = getCoords(moonAz, moonAlt);
             if (moonCoord.isUp) {
                 ctx.fillStyle = '#fbbf24';
                 ctx.beginPath(); ctx.arc(moonCoord.x, moonCoord.y, 4, 0, 2 * Math.PI); ctx.fill();
-                ctx.fillText('🌙', moonCoord.x, moonCoord.y - 9);
+                ctx.fillText('🌙', moonCoord.x, moonCoord.y - 8);
             }
         }
 
+        // 月齢シルエット描画
         function drawMoonIcon(moonAge) {
             const canvas = document.getElementById('moonCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
-            const size = 32;
+            const size = 28;
             const r = size / 2;
 
             ctx.clearRect(0, 0, size, size);
             ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.arc(r, r, r - 2, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(r, r, r - 1, 0, 2 * Math.PI); ctx.fill();
 
             const phase = moonAge / 29.53058867;
             ctx.save();
             ctx.beginPath();
-            ctx.arc(r, r, r - 2, 0, 2 * Math.PI);
+            ctx.arc(r, r, r - 1, 0, 2 * Math.PI);
             ctx.clip();
 
             ctx.fillStyle = '#fbbf24';
             ctx.beginPath();
-
             if (phase <= 0.5) {
                 const co = Math.cos(phase * 2 * Math.PI);
-                ctx.arc(r, r, r - 2, -Math.PI / 2, Math.PI / 2, false);
-                ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, Math.PI / 2, -Math.PI / 2, co > 0);
+                ctx.arc(r, r, r - 1, -Math.PI / 2, Math.PI / 2, false);
+                ctx.ellipse(r, r, Math.abs((r - 1) * co), r - 1, 0, Math.PI / 2, -Math.PI / 2, co > 0);
             } else {
                 const co = Math.cos((phase - 0.5) * 2 * Math.PI);
-                ctx.arc(r, r, r - 2, Math.PI / 2, -Math.PI / 2, false);
-                ctx.ellipse(r, r, Math.abs((r - 2) * co), r - 2, 0, -Math.PI / 2, Math.PI / 2, co > 0);
+                ctx.arc(r, r, r - 1, Math.PI / 2, -Math.PI / 2, false);
+                ctx.ellipse(r, r, Math.abs((r - 1) * co), r - 1, 0, -Math.PI / 2, Math.PI / 2, co > 0);
             }
             ctx.fill();
             ctx.restore();
         }
 
-        // --- 年間365選 風景撮影データベース ---
-        let defaultLandscapeData = [
-            { id: 101, month: 1, range: "local", title: "白川郷の雪景色・合掌造り", timing: "1月中旬 / 日中・夕方", desc: "豪雪地帯の厳かで美しい原風景。", meta: "岐阜県白川村 ｜ 広角・標準", fav: false },
-            { id: 401, month: 4, range: "local", title: "新境川堤の百十郎桜", timing: "4月上旬 / 満開・早朝", desc: "1000本を超える桜並木が川両岸をピンクに染める。", meta: "岐阜県各務原市 ｜ 広角・標準", fav: false },
-            { id: 801, month: 8, range: "local", title: "飛騨小川の滝（三ツ滝・赤金豊滝）", timing: "8月中旬 / 午前中", desc: "木漏れ日と苔むした渓流美。", meta: "岐阜県下呂市 ｜ PL・NDフィルター", fav: false },
-            { id: 901, month: 9, range: "local", title: "矢勝川堤の彼岸花", timing: "9月中旬 / 早朝", desc: "一面に広がる赤い彼岸花の絨毯。", meta: "愛知県半田市 ｜ 標準・望遠圧縮", fav: false },
-            { id: 1101, month: 11, range: "local", title: "曽爾高原のススキと夕陽", timing: "11月上旬〜中旬 / 夕方", desc: "夕日に照らされ黄金色に輝く広大なススキ野原。", meta: "奈良県曽爾村 ｜ 広角", fav: false }
+        // --- 風景データベース関連 ---
+        let landscapeSpots = [];
+        const defaultLandscapeData = [
+            { id: 101, month: 1, range: "local", title: "白川郷の雪景色・合掌造り", timing: "1月中旬", desc: "豪雪地帯の厳かで美しい原風景。", meta: "岐阜県白川村", fav: false },
+            { id: 401, month: 4, range: "local", title: "新境川堤の百十郎桜", timing: "4月上旬", desc: "1000本を超える桜並木。", meta: "岐阜県各務原市", fav: false },
+            { id: 1101, month: 11, range: "local", title: "曽爾高原のススキと夕陽", timing: "11月中旬", desc: "黄金色に輝く広大なススキ野原。", meta: "奈良県曽爾村", fav: false }
         ];
 
-        let landscapeSpots = [];
-
         function loadLandscapeSpots() {
-            const saved = localStorage.getItem('skypulse_landscape_spots_v38');
+            const saved = localStorage.getItem('skypulse_spots_v39');
             landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
             updateLandscapeDatabase();
         }
 
         function saveLandscapeSpots() {
-            localStorage.setItem('skypulse_landscape_spots_v38', JSON.stringify(landscapeSpots));
+            localStorage.setItem('skypulse_spots_v39', JSON.stringify(landscapeSpots));
             updateLandscapeDatabase();
         }
 
@@ -547,20 +532,23 @@
 
         function addCustomLandscapeSpot() {
             const title = document.getElementById('new-l-title').value.trim();
-            const meta = document.getElementById('new-l-meta').value.trim();
-            const timing = document.getElementById('new-l-timing').value.trim();
-            const range = document.getElementById('new-l-range').value;
-            const month = parseInt(document.getElementById('new-l-month').value) || 1;
-            const desc = document.getElementById('new-l-desc').value.trim();
             if (!title) { alert("スポット名を入力してください。"); return; }
-
-            landscapeSpots.push({ id: Date.now(), month, range, title, timing: timing || "随時", desc: desc || "新規追加", meta: meta || "全国", fav: true });
+            landscapeSpots.push({
+                id: Date.now(),
+                month: parseInt(document.getElementById('new-l-month').value) || 1,
+                range: document.getElementById('new-l-range').value,
+                title,
+                timing: document.getElementById('new-l-timing').value.trim() || "随時",
+                desc: document.getElementById('new-l-desc').value.trim() || "メモなし",
+                meta: document.getElementById('new-l-meta').value.trim() || "フリー",
+                fav: true
+            });
             document.getElementById('new-l-title').value = '';
             saveLandscapeSpots();
         }
 
         function deleteCustomSpot(id) {
-            if (confirm("このスポットを削除しますか？")) {
+            if (confirm("削除しますか？")) {
                 landscapeSpots = landscapeSpots.filter(s => s.id !== id);
                 saveLandscapeSpots();
             }
@@ -574,23 +562,21 @@
         }
 
         function updateLandscapeDatabase() {
-            const mFilter = document.getElementById('l-month-select').value;
-            const rFilter = document.getElementById('l-range-select').value;
-            const fFilter = document.getElementById('l-fav-select').value;
+            const m = document.getElementById('l-month-select').value;
+            const r = document.getElementById('l-range-select').value;
+            const f = document.getElementById('l-fav-select').value;
             const container = document.getElementById('landscape-list-container');
             container.innerHTML = '';
 
             const filtered = landscapeSpots.filter(item => {
-                const matchMonth = (mFilter === 'all' || item.month == mFilter);
-                const matchRange = (rFilter === 'all' || item.range === rFilter);
-                const matchFav = (fFilter === 'all' || (fFilter === 'fav' && item.fav));
-                return matchMonth && matchRange && matchFav;
+                return (m === 'all' || item.month == m) &&
+                       (r === 'all' || item.range === r) &&
+                       (f === 'all' || (f === 'fav' && item.fav));
             });
 
             filtered.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'season-card';
-                const badgeHtml = item.range === 'local' ? '<span class="tag-range">📍 200km圏内</span>' : '<span class="tag-super">⭐ 全国の超絶景</span>';
                 card.innerHTML = `
                     <div class="season-card-header">
                         <div style="display:flex; align-items:center; gap:6px; width:auto;">
@@ -598,7 +584,7 @@
                             <span>${item.title}</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:6px; width:auto;">
-                            ${badgeHtml}
+                            ${item.range === 'local' ? '<span class="tag-range">📍 200km圏内</span>' : '<span class="tag-super">⭐ 全国の超絶景</span>'}
                             <button class="btn btn-danger" onclick="deleteCustomSpot(${item.id})">✕</button>
                         </div>
                     </div>
