@@ -1,11 +1,11 @@
-<!-- ファイル名: skypulse_v45.html -->
-<!-- SkyPulse V45 - 撮影ポイント完全復旧・月出没連動版 -->
+<!-- ファイル名: skypulse_v46.html -->
+<!-- SkyPulse V46 - 星空＆季節の撮影地 完壁統合版 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - V45</title>
+    <title>SkyPulse - V46 完全統合版</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -22,12 +22,21 @@
         .logo-area { font-size: 18px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 6px; width: auto; }
         .offline-badge { background: #1e293b; color: #38bdf8; border: 1px solid #0284c7; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; width: auto; }
 
+        .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 9px; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; width: auto; }
+        .tab-btn.active { background: #2563eb; color: #fff; }
+
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; width: 100%; }
+
         .control-bar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; width: 100%; gap: 8px; flex-wrap: wrap; }
         .control-bar label { font-size: 14px; color: var(--text-sub); font-weight: bold; width: auto; }
-        .input-group { display: flex; align-items: center; gap: 8px; width: auto; }
-        input[type="date"] { background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 14px; width: auto; }
+        .input-group { display: flex; align-items: center; gap: 8px; width: auto; flex-wrap: wrap; }
+        input[type="date"], select, input[type="text"] { background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 14px; width: auto; }
         .btn { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; width: auto; }
         .btn-secondary { background: #374151; width: auto; }
+        .btn-danger { background: #dc2626; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; }
+        .btn-fav { background: transparent; border: none; font-size: 18px; cursor: pointer; width: auto; }
 
         .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 14px; width: 100%; }
         .verdict-card { border: 2px solid var(--accent-gold); box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15); width: 100%; }
@@ -66,120 +75,208 @@
         .info-box { background: #1e293b; border-radius: 10px; padding: 12px; border: 1px solid var(--border-color); width: 100%; }
         .info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); width: 100%; }
         .info-row:last-child { border-bottom: none; }
+
+        .season-card { background: #1e293b; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; width: 100%; }
+        .season-card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 15px; color: #60a5fa; margin-bottom: 6px; width: 100%; }
+        .season-meta { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+        .season-desc { font-size: 14px; color: #ffffff; line-height: 1.45; width: 100%; }
+        .tag-range { background: rgba(37, 99, 235, 0.2); color: #60a5fa; padding: 3px 8px; border-radius: 4px; font-size: 11px; width: auto; }
+        .tag-super { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 3px 8px; border-radius: 4px; font-size: 11px; width: auto; }
+        .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; width: 100%; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V45 撮影ポイント復旧版</span></div>
-        <div class="offline-badge" id="net-status">🌐 オフライン準備完了</div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V46 完全統合版</span></div>
+        <div class="offline-badge" id="net-status">🌐 オフライン完全対応</div>
     </header>
 
-    <div class="control-bar">
-        <label for="target-date">📅 撮影対象日</label>
-        <div class="input-group">
-            <input type="date" id="target-date" value="2026-11-11" onchange="refreshDashboard()">
-            <button class="btn btn-secondary" onclick="resetToToday()">本日</button>
-        </div>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('star')">🌌 星空撮影モード</button>
+        <button class="tab-btn" onclick="switchTab('landscape')">🌿 風景・自然撮影モード</button>
     </div>
 
-    <div class="card verdict-card">
-        <div class="card-header">
-            <div class="card-title"><span>🎯</span> 本日の行動判断 ＆ 闇夜ハイライト</div>
-            <div class="badge" id="verdict-badge">判定中...</div>
-        </div>
-        <div class="main-text" id="verdict-main-text">データを読み込んでいます...</div>
-        <div class="sub-text" id="verdict-sub-text">――</div>
-    </div>
-
-    <div class="card">
-        <div class="card-header" style="flex-wrap: wrap; gap: 4px;">
-            <div class="card-title"><span>🧭</span> 太陽・月のコンパス方位と位置ビュー</div>
-            <div style="font-size: 13px; color: var(--accent-gold); width:auto;" id="selected-time-display">時刻: 18:00</div>
-        </div>
-        <div class="interactive-slider-row">
-            <span style="font-size:12px; color:var(--text-sub); width:35px;">18時</span>
-            <input type="range" id="hour-slider" min="18" max="26" step="1" value="18" oninput="refreshDashboard()">
-            <span style="font-size:12px; color:var(--text-sub); width:35px;">翌02時</span>
-        </div>
-        <div class="sky-view-grid">
-            <div class="compass-box">
-                <div style="font-size: 10px; font-weight:bold; color:var(--text-sub); margin-bottom:4px; text-align:center; width:100%;">方位レーダー (中心=頭上, 縁=地平線)</div>
-                <canvas id="compassCanvas" width="140" height="140" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
+    <!-- ================= 1. 星空撮影モード ================= -->
+    <div id="tab-star" class="tab-content active">
+        <div class="control-bar">
+            <label for="target-date">📅 撮影対象日</label>
+            <div class="input-group">
+                <input type="date" id="target-date" value="2026-11-11" onchange="refreshDashboard()">
+                <button class="btn btn-secondary" onclick="resetToToday()">本日</button>
             </div>
-            <div style="background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color);">
-                <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; width:100%;">
-                    <span style="font-size: 13px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の位置</span>
-                    <div style="display:flex; align-items:center; gap:6px; width:auto;">
-                        <canvas id="moonCanvas" width="28" height="28" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
-                        <span id="info-moon-phase-text" style="font-size: 12px; color: var(--accent-gold); font-weight: bold;">月齢 --</span>
+        </div>
+
+        <div class="card verdict-card">
+            <div class="card-header">
+                <div class="card-title"><span>🎯</span> 本日の行動判断 ＆ 闇夜ハイライト</div>
+                <div class="badge" id="verdict-badge">判定中...</div>
+            </div>
+            <div class="main-text" id="verdict-main-text">データを読み込んでいます...</div>
+            <div class="sub-text" id="verdict-sub-text">――</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="flex-wrap: wrap; gap: 4px;">
+                <div class="card-title"><span>🧭</span> 太陽・月のコンパス方位と位置ビュー</div>
+                <div style="font-size: 13px; color: var(--accent-gold); width:auto;" id="selected-time-display">時刻: 18:00</div>
+            </div>
+            <div class="interactive-slider-row">
+                <span style="font-size:12px; color:var(--text-sub); width:35px;">18時</span>
+                <input type="range" id="hour-slider" min="18" max="26" step="1" value="18" oninput="refreshDashboard()">
+                <span style="font-size:12px; color:var(--text-sub); width:35px;">翌02時</span>
+            </div>
+            <div class="sky-view-grid">
+                <div class="compass-box">
+                    <div style="font-size: 10px; font-weight:bold; color:var(--text-sub); margin-bottom:4px; text-align:center; width:100%;">方位レーダー (中心=頭上, 縁=地平線)</div>
+                    <canvas id="compassCanvas" width="140" height="140" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
+                </div>
+                <div style="background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; width:100%;">
+                        <span style="font-size: 13px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の位置</span>
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            <canvas id="moonCanvas" width="28" height="28" style="border-radius:50%; background:#000; border:1px solid #475569;"></canvas>
+                            <span id="info-moon-phase-text" style="font-size: 12px; color: var(--accent-gold); font-weight: bold;">月齢 --</span>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; width:100%; margin-top: 4px;">
+                        <div>
+                            <div style="color:var(--text-sub); font-size:10px;">🌙 月 高度 / 方位</div>
+                            <div id="info-moon-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:10px;">🌙 影響度</div>
+                            <div id="info-moon-impact" style="font-weight:bold; font-size:12px; color:#34d399;">--</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:10px;">☀️ 太陽 高度 / 方位</div>
+                            <div id="info-sun-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-sub); font-size:10px;">🌙 状態</div>
+                            <div id="info-moon-status" style="font-weight:bold; font-size:12px; color:var(--accent-gold);">--</div>
+                        </div>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; width:100%; margin-top: 4px;">
-                    <div>
-                        <div style="color:var(--text-sub); font-size:10px;">🌙 月 高度 / 方位</div>
-                        <div id="info-moon-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
-                    </div>
-                    <div>
-                        <div style="color:var(--text-sub); font-size:10px;">🌙 影響度</div>
-                        <div id="info-moon-impact" style="font-weight:bold; font-size:12px; color:#34d399;">--</div>
-                    </div>
-                    <div>
-                        <div style="color:var(--text-sub); font-size:10px;">☀️ 太陽 高度 / 方位</div>
-                        <div id="info-sun-alt-az" style="font-weight:bold; font-size:12px;">--° / --°</div>
-                    </div>
-                    <div>
-                        <div style="color:var(--text-sub); font-size:10px;">🌙 状態</div>
-                        <div id="info-moon-status" style="font-weight:bold; font-size:12px; color:var(--accent-gold);">--</div>
-                    </div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <div class="card-title"><span>🌙</span> 月明かり・闇夜スケジュール</div>
+                    <div style="font-size:12px; color:var(--accent-gold);" id="moon-status-badge">月齢 --</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-row"><span style="color:var(--text-sub);">月の出 / 月の入</span><span id="moon-rise-set" style="font-weight:bold;">-- / --</span></div>
+                    <div class="info-row"><span style="color:var(--text-sub);">月面輝度</span><span id="moon-illum-text" style="font-weight:bold; color:var(--accent-gold);">--%</span></div>
+                    <div class="info-row"><span style="color:var(--text-sub);">完全な闇夜タイム</span><span id="dark-time-range" style="font-weight:bold; color:#34d399;">--</span></div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <div class="card-title"><span>☁️</span> 登録地点の気象ステータス</div>
+                    <div style="font-size:12px; color:#60a5fa;" id="weather-source-badge">予報データ読込済</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-row"><span style="color:var(--text-sub);">岐阜（都市近郊）</span><span id="w-gifu" style="font-weight:bold;">平均雲量 --%</span></div>
+                    <div class="info-row"><span style="color:var(--text-sub);">揖斐（登録1）</span><span id="w-ibi" style="font-weight:bold;">平均雲量 --%</span></div>
+                    <div class="info-row"><span style="color:var(--text-sub);">根の上（登録2）</span><span id="w-nenoue" style="font-weight:bold;">平均雲量 --%</span></div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="grid-2col">
-        <div class="card" style="margin-bottom:0;">
-            <div class="card-header">
-                <div class="card-title"><span>🌙</span> 月明かり・闇夜スケジュール</div>
-                <div style="font-size:12px; color:var(--accent-gold);" id="moon-status-badge">月齢 --</div>
-            </div>
-            <div class="info-box">
-                <div class="info-row"><span style="color:var(--text-sub);">月の出 / 月の入</span><span id="moon-rise-set" style="font-weight:bold;">-- / --</span></div>
-                <div class="info-row"><span style="color:var(--text-sub);">月面輝度</span><span id="moon-illum-text" style="font-weight:bold; color:var(--accent-gold);">--%</span></div>
-                <div class="info-row"><span style="color:var(--text-sub);">完全な闇夜タイム</span><span id="dark-time-range" style="font-weight:bold; color:#34d399;">--</span></div>
-            </div>
+        <div class="section-title" style="margin-top: 16px;">
+            <span>📊</span> 登録ポイント別 夜間タイムラインマトリクス 
+            <span class="sub-info">（18:00 〜 翌02:00 ｜ 雲量＆月影響）</span>
         </div>
-        <div class="card" style="margin-bottom:0;">
-            <div class="card-header">
-                <div class="card-title"><span>☁️</span> 登録地点の気象ステータス</div>
-                <div style="font-size:12px; color:#60a5fa;" id="weather-source-badge">予報データ読込済</div>
-            </div>
-            <div class="info-box">
-                <div class="info-row"><span style="color:var(--text-sub);">岐阜（都市近郊）</span><span id="w-gifu" style="font-weight:bold;">平均雲量 --%</span></div>
-                <div class="info-row"><span style="color:var(--text-sub);">揖斐（登録1）</span><span id="w-ibi" style="font-weight:bold;">平均雲量 --%</span></div>
-                <div class="info-row"><span style="color:var(--text-sub);">根の上（登録2）</span><span id="w-nenoue" style="font-weight:bold;">平均雲量 --%</span></div>
-            </div>
+        <div class="matrix-container">
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th style="min-width: 65px;">地点</th>
+                        <th style="min-width: 35px;">項目</th>
+                        <th>18:00</th><th>19:00</th><th>20:00</th><th>21:00</th><th>22:00</th><th>23:00</th><th>深夜00:00</th><th>深夜01:00</th><th>深夜02:00</th>
+                    </tr>
+                </thead>
+                <tbody id="matrix-body"></tbody>
+            </table>
         </div>
     </div>
 
-    <div class="section-title" style="margin-top: 16px;">
-        <span>📊</span> 登録ポイント別 夜間タイムラインマトリクス 
-        <span class="sub-info">（18:00 〜 翌02:00 ｜ 雲量＆月影響）</span>
-    </div>
-    <div class="matrix-container">
-        <table class="matrix-table">
-            <thead>
-                <tr>
-                    <th style="min-width: 65px;">地点</th>
-                    <th style="min-width: 35px;">項目</th>
-                    <th>18:00</th><th>19:00</th><th>20:00</th><th>21:00</th><th>22:00</th><th>23:00</th><th>深夜00:00</th><th>深夜01:00</th><th>深夜02:00</th>
-                </tr>
-            </thead>
-            <tbody id="matrix-body"></tbody>
-        </table>
+    <!-- ================= 2. 風景・自然撮影モード ================= -->
+    <div id="tab-landscape" class="tab-content">
+        <div class="control-bar" style="flex-direction: column; align-items: stretch; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <label>🌿 月別・エリア別 フィルター (年間365選)</label>
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="resetLandscapeFilters()">条件クリア</button>
+            </div>
+            <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 100%;">
+                <select id="l-month-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべての月 (1-12月)</option>
+                    <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+                    <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+                    <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+                    <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+                </select>
+                <select id="l-range-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべてのエリア</option>
+                    <option value="local">📍 200km圏内</option>
+                    <option value="super">⭐ 全国の超絶景</option>
+                </select>
+                <select id="l-fav-select" onchange="updateLandscapeDatabase()">
+                    <option value="all">すべて表示</option>
+                    <option value="fav">⭐ お気に入りのみ</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card" style="background: #111827;">
+            <div class="section-title" style="margin: 0 0 6px 0;"><span>➕</span> 新規撮影スポットの追加</div>
+            <div class="add-form-grid">
+                <input type="text" id="new-l-title" placeholder="スポット名">
+                <input type="text" id="new-l-meta" placeholder="地域・機材">
+                <input type="text" id="new-l-timing" placeholder="旬の時期">
+                <select id="new-l-range">
+                    <option value="super">⭐ 全国の超絶景</option>
+                    <option value="local">📍 200km圏内</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 8px; width: 100%;">
+                <input type="number" id="new-l-month" placeholder="月(1-12)" min="1" max="12" style="width: 90px;">
+                <input type="text" id="new-l-desc" placeholder="撮影メモ・特徴" style="flex-grow: 1;">
+                <button class="btn" onclick="addCustomLandscapeSpot()">追加</button>
+            </div>
+        </div>
+
+        <div class="card verdict-card">
+            <div class="card-header">
+                <div class="card-title"><span>🌟</span> 抽出された旬のスポット</div>
+                <div class="badge" id="l-count-badge">0件</div>
+            </div>
+            <div class="main-text" id="l-summary-text">条件に合致するスポットを抽出中...</div>
+        </div>
+
+        <div class="section-title">
+            <span>🌿</span> 撮影データベース一覧（ブラウザ保存対応）
+        </div>
+        <div id="landscape-list-container" style="width: 100%;"></div>
     </div>
 
     <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if (tabName === 'star') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('tab-star').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('tab-landscape').classList.add('active');
+                updateLandscapeDatabase();
+            }
+        }
+
         const moonDB = {
             "2026-11-01": { age: 20.2, illum: 62, rise: "21:10", set: "10:15", riseH: 21.17, setH: 10.25, darkEnd: "23:00", note: "深夜から月出", azBase: 120 },
             "2026-11-02": { age: 21.2, illum: 52, rise: "22:15", set: "11:05", riseH: 22.25, setH: 11.08, darkEnd: "01:00", note: "深夜まで闇夜", azBase: 130 },
@@ -214,7 +311,6 @@
             "2026-12-01": { age: 21.2, illum: 49, rise: "22:04", set: "12:09", riseH: 22.07, setH: 12.15, darkEnd: "深夜2時以降闇夜", note: "深夜から月没", azBase: 70 }
         };
 
-        // 撮影ポイント（岐阜・揖斐・根の上）の復旧
         const spots = [
             { name: "岐阜", type: "都市近郊" },
             { name: "揖斐", type: "登録1" },
@@ -222,7 +318,8 @@
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
-            refreshDashboard();
+            resetToToday();
+            loadLandscapeSpots();
         });
 
         function resetToToday() {
@@ -255,8 +352,7 @@
             let currentFloatTime = hourSliderVal >= 24 ? hourSliderVal - 24 : hourSliderVal;
             if (hourSliderVal >= 24) currentFloatTime += 24;
 
-            let setCompare = moon.setH;
-            if (moon.setH !== 99 && currentFloatTime <= setCompare) {
+            if (moon.setH !== 99 && currentFloatTime <= moon.setH) {
                 isMoonUp = true;
             } else if (moon.riseH !== 99 && currentFloatTime >= moon.riseH) {
                 isMoonUp = true;
@@ -417,6 +513,98 @@
             }
             ctx.fill();
             ctx.restore();
+        }
+
+        // --- 風景データベース関連 ---
+        let landscapeSpots = [];
+        const defaultLandscapeData = [
+            { id: 101, month: 1, range: "local", title: "白川郷の雪景色・合掌造り", timing: "1月中旬", desc: "豪雪地帯の厳かで美しい原風景。", meta: "岐阜県白川村", fav: false },
+            { id: 401, month: 4, range: "local", title: "新境川堤の百十郎桜", timing: "4月上旬", desc: "1000本を超える桜並木。", meta: "岐阜県各務原市", fav: false },
+            { id: 1101, month: 11, range: "local", title: "大原三千院の秋の紅葉", timing: "11月中下旬", desc: "苔庭に散り敷く鮮やかな紅葉のじゅうたん。", meta: "京都府京都市", fav: true },
+            { id: 1102, month: 11, range: "local", title: "曽爾高原のススキと夕陽", timing: "11月中旬", desc: "黄金色に輝く広大なススキ野原。", meta: "奈良県曽爾村", fav: false }
+        ];
+
+        function loadLandscapeSpots() {
+            const saved = localStorage.getItem('skypulse_spots_v46');
+            landscapeSpots = saved ? JSON.parse(saved) : defaultLandscapeData;
+            updateLandscapeDatabase();
+        }
+
+        function saveLandscapeSpots() {
+            localStorage.setItem('skypulse_spots_v46', JSON.stringify(landscapeSpots));
+            updateLandscapeDatabase();
+        }
+
+        function toggleFavorite(id) {
+            const target = landscapeSpots.find(s => s.id === id);
+            if (target) { target.fav = !target.fav; saveLandscapeSpots(); }
+        }
+
+        function addCustomLandscapeSpot() {
+            const title = document.getElementById('new-l-title').value.trim();
+            if (!title) { alert("スポット名を入力してください。"); return; }
+            landscapeSpots.push({
+                id: Date.now(),
+                month: parseInt(document.getElementById('new-l-month').value) || 1,
+                range: document.getElementById('new-l-range').value,
+                title,
+                timing: document.getElementById('new-l-timing').value.trim() || "随時",
+                desc: document.getElementById('new-l-desc').value.trim() || "メモなし",
+                meta: document.getElementById('new-l-meta').value.trim() || "フリー",
+                fav: true
+            });
+            document.getElementById('new-l-title').value = '';
+            saveLandscapeSpots();
+        }
+
+        function deleteCustomSpot(id) {
+            if (confirm("削除しますか？")) {
+                landscapeSpots = landscapeSpots.filter(s => s.id !== id);
+                saveLandscapeSpots();
+            }
+        }
+
+        function resetLandscapeFilters() {
+            document.getElementById('l-month-select').value = 'all';
+            document.getElementById('l-range-select').value = 'all';
+            document.getElementById('l-fav-select').value = 'all';
+            updateLandscapeDatabase();
+        }
+
+        function updateLandscapeDatabase() {
+            const m = document.getElementById('l-month-select').value;
+            const r = document.getElementById('l-range-select').value;
+            const f = document.getElementById('l-fav-select').value;
+            const container = document.getElementById('landscape-list-container');
+            container.innerHTML = '';
+
+            const filtered = landscapeSpots.filter(item => {
+                return (m === 'all' || item.month == m) &&
+                       (r === 'all' || item.range === r) &&
+                       (f === 'all' || (f === 'fav' && item.fav));
+            });
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'season-card';
+                card.innerHTML = `
+                    <div class="season-card-header">
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            <button class="btn-fav" onclick="toggleFavorite(${item.id})">${item.fav ? '⭐' : '☆'}</button>
+                            <span>${item.title}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px; width:auto;">
+                            ${item.range === 'local' ? '<span class="tag-range">📍 200km圏内</span>' : '<span class="tag-super">⭐ 全国の超絶景</span>'}
+                            <button class="btn btn-danger" onclick="deleteCustomSpot(${item.id})">✕</button>
+                        </div>
+                    </div>
+                    <div class="season-meta"><span>📅 ${item.month}月 ｜ ⏱️ ${item.timing}</span><span>🛠️ ${item.meta}</span></div>
+                    <div class="season-desc">${item.desc}</div>
+                `;
+                container.appendChild(card);
+            });
+            document.getElementById('l-count-badge').innerText = `${filtered.length}件`;
+            document.getElementById('l-summary-text').innerText = filtered.length > 0 ? `条件に合致するスポットが ${filtered.length}件 抽出されました。` : "条件に一致するスポットがありません。";
         }
     </script>
 </body>
