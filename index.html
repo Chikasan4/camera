@@ -1,10 +1,11 @@
-<!-- SkyPulse V43 - 1ヶ月月データ埋め込み ＆ コンパス方位・高度完全連動版 -->
+<!-- ファイル名: skypulse_v45.html -->
+<!-- SkyPulse V45 - 撮影ポイント完全復旧・月出没連動版 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse - 総合撮影ダッシュボード V43</title>
+    <title>SkyPulse - V45</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -41,14 +42,12 @@
         .section-title { font-size: 15px; font-weight: bold; margin: 16px 0 8px 0; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; width: 100%; }
         .section-title span.sub-info { font-size: 12px; color: var(--text-sub); font-weight: normal; width: auto; }
 
-        /* コンパス＆ステータスグリッド */
         .sky-view-grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; align-items: center; }
         @media(min-width: 768px) { .sky-view-grid { grid-template-columns: 200px 1fr; } }
         .compass-box { background: #1e293b; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--border-color); }
         .interactive-slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; width: 100%; }
         .interactive-slider-row input[type="range"] { flex-grow: 1; accent-color: var(--accent-gold); }
 
-        /* マトリクススタイル */
         .matrix-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px; overflow-x: auto; margin-bottom: 14px; width: 100%; }
         table.matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; white-space: nowrap; }
         table.matrix-table th, table.matrix-table td { border: 1px solid var(--border-color); padding: 8px 6px; }
@@ -72,7 +71,7 @@
 <body>
 
     <header>
-        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V43 究極完全版</span></div>
+        <div class="logo-area"><span>🌌</span> SkyPulse <span style="font-size:11px; color:var(--text-sub);">V45 撮影ポイント復旧版</span></div>
         <div class="offline-badge" id="net-status">🌐 オフライン準備完了</div>
     </header>
 
@@ -84,7 +83,6 @@
         </div>
     </div>
 
-    <!-- 行動判断カード -->
     <div class="card verdict-card">
         <div class="card-header">
             <div class="card-title"><span>🎯</span> 本日の行動判断 ＆ 闇夜ハイライト</div>
@@ -94,7 +92,6 @@
         <div class="sub-text" id="verdict-sub-text">――</div>
     </div>
 
-    <!-- コンパス方位＆時間帯位置ビュー -->
     <div class="card">
         <div class="card-header" style="flex-wrap: wrap; gap: 4px;">
             <div class="card-title"><span>🧭</span> 太陽・月のコンパス方位と位置ビュー</div>
@@ -106,12 +103,10 @@
             <span style="font-size:12px; color:var(--text-sub); width:35px;">翌02時</span>
         </div>
         <div class="sky-view-grid">
-            <!-- コンパス方位レーダー -->
             <div class="compass-box">
                 <div style="font-size: 10px; font-weight:bold; color:var(--text-sub); margin-bottom:4px; text-align:center; width:100%;">方位レーダー (中心=頭上, 縁=地平線)</div>
                 <canvas id="compassCanvas" width="140" height="140" style="background:#0f172a; border-radius:50%; border:1px solid var(--border-color);"></canvas>
             </div>
-            <!-- ステータス ＆ 月相ビジュアル -->
             <div style="background: #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color);">
                 <div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; width:100%;">
                     <span style="font-size: 13px; font-weight: bold; color: #60a5fa;" id="target-moment-title">指定時刻の位置</span>
@@ -142,7 +137,6 @@
         </div>
     </div>
 
-    <!-- 月詳細＆気象グリッド -->
     <div class="grid-2col">
         <div class="card" style="margin-bottom:0;">
             <div class="card-header">
@@ -168,7 +162,6 @@
         </div>
     </div>
 
-    <!-- 夜間タイムラインマトリクス -->
     <div class="section-title" style="margin-top: 16px;">
         <span>📊</span> 登録ポイント別 夜間タイムラインマトリクス 
         <span class="sub-info">（18:00 〜 翌02:00 ｜ 雲量＆月影響）</span>
@@ -187,41 +180,41 @@
     </div>
 
     <script>
-        // 1ヶ月分の月データ・プリセット（オフライン完全対応）
         const moonDB = {
-            "2026-11-01": { age: 20.2, illum: 62, rise: "21:10", set: "10:15", darkEnd: "23:00", note: "深夜から月出", azBase: 120 },
-            "2026-11-02": { age: 21.2, illum: 52, rise: "22:15", set: "11:05", darkEnd: "01:00", note: "深夜まで闇夜", azBase: 130 },
-            "2026-11-03": { age: 22.2, illum: 41, rise: "23:20", set: "11:50", darkEnd: "02:00", note: "朝方まで闇夜", azBase: 140 },
-            "2026-11-04": { age: 23.2, illum: 31, rise: "--:--", set: "12:30", darkEnd: "終夜闇夜", note: "深夜月出なし（狙い目）", azBase: 150 },
-            "2026-11-05": { age: 24.2, illum: 21, rise: "00:25", set: "13:08", darkEnd: "終夜闇夜", note: "深夜月出なし", azBase: 160 },
-            "2026-11-06": { age: 25.2, illum: 13, rise: "01:30", set: "13:45", darkEnd: "終夜闇夜", note: "深夜月出なし", azBase: 170 },
-            "2026-11-07": { age: 26.2, illum: 7,  rise: "02:36", set: "14:23", darkEnd: "終夜闇夜", note: "細い残月", azBase: 180 },
-            "2026-11-08": { age: 27.2, illum: 3,  rise: "03:42", set: "15:03", darkEnd: "終夜闇夜", note: "極細の三日月", azBase: 190 },
-            "2026-11-09": { age: 28.2, illum: 1,  rise: "04:47", set: "15:47", darkEnd: "終夜闇夜", note: "新月期・闇夜", azBase: 200 },
-            "2026-11-10": { age: 29.2, illum: 0,  rise: "05:50", set: "16:36", darkEnd: "終夜闇夜", note: "新月・完全な闇夜", azBase: 210 },
-            "2026-11-11": { age: 1.2,  illum: 1,  rise: "06:48", set: "17:31", darkEnd: "終夜闇夜", note: "新月直後・三日月（絶好）", azBase: 220 },
-            "2026-11-12": { age: 2.2,  illum: 4,  rise: "07:38", set: "18:32", darkEnd: "20:00以降闇夜", note: "夕方すぐ沈む", azBase: 230 },
-            "2026-11-13": { age: 3.2,  illum: 9,  rise: "08:21", set: "19:37", darkEnd: "21:00以降闇夜", note: "三日月・影響小", azBase: 240 },
-            "2026-11-14": { age: 4.2,  illum: 16, rise: "08:56", set: "20:45", darkEnd: "22:00以降闇夜", note: "影響小", azBase: 250 },
-            "2026-11-15": { age: 5.2,  illum: 25, rise: "09:27", set: "21:54", darkEnd: "23:00以降闇夜", note: "影響小", azBase: 260 },
-            "2026-11-16": { age: 6.2,  illum: 35, rise: "09:54", set: "23:03", darkEnd: "深夜0時以降闇夜", note: "半月前", azBase: 270 },
-            "2026-11-17": { age: 7.2,  illum: 46, rise: "10:19", set: "--:--", darkEnd: "深夜1時以降闇夜", note: "上弦の月", azBase: 280 },
-            "2026-11-18": { age: 8.2,  illum: 57, rise: "10:44", set: "00:12", darkEnd: "深夜2時以降闇夜", note: "半月過ぎ", azBase: 290 },
-            "2026-11-19": { age: 9.2,  illum: 68, rise: "11:10", set: "01:21", darkEnd: "月明かりあり", note: "月明かり注意", azBase: 300 },
-            "2026-11-20": { age: 10.2, illum: 78, rise: "11:39", set: "02:31", darkEnd: "月明かりあり", note: "月明かり注意", azBase: 310 },
-            "2026-11-21": { age: 11.2, illum: 86, rise: "12:12", set: "03:41", darkEnd: "月明かりあり", note: "明るい月夜", azBase: 320 },
-            "2026-11-22": { age: 12.2, illum: 92, rise: "12:51", set: "04:52", darkEnd: "月明かりあり", note: "満月前", azBase: 330 },
-            "2026-11-23": { age: 13.2, illum: 97, rise: "13:36", set: "06:01", darkEnd: "月明かりあり", note: "ほぼ満月", azBase: 340 },
-            "2026-11-24": { age: 14.2, illum: 100,rise: "14:28", set: "07:07", darkEnd: "月明かりあり", note: "満月（撮影回避推奨）", azBase: 350 },
-            "2026-11-25": { age: 15.2, illum: 99, rise: "15:26", set: "08:08", darkEnd: "早朝のみ闇夜", note: "満月翌日", azBase: 10 },
-            "2026-11-26": { age: 16.2, illum: 95, rise: "16:29", set: "09:02", darkEnd: "朝方闇夜", note: "明るい月", azBase: 20 },
-            "2026-11-27": { age: 17.2, illum: 89, rise: "17:35", set: "09:49", darkEnd: "朝方闇夜", note: "影響大", azBase: 30 },
-            "2026-11-28": { age: 18.2, illum: 81, rise: "18:43", set: "10:30", darkEnd: "朝方闇夜", note: "影響大", azBase: 40 },
-            "2026-11-29": { age: 19.2, illum: 71, rise: "19:51", set: "11:06", darkEnd: "深夜0時以降闇夜", note: "深夜から月没", azBase: 50 },
-            "2026-11-30": { age: 20.2, illum: 60, rise: "20:58", set: "11:38", darkEnd: "深夜1時以降闇夜", note: "深夜から月没", azBase: 60 },
-            "2026-12-01": { age: 21.2, illum: 49, rise: "22:04", set: "12:09", darkEnd: "深夜2時以降闇夜", note: "深夜から月没", azBase: 70 }
+            "2026-11-01": { age: 20.2, illum: 62, rise: "21:10", set: "10:15", riseH: 21.17, setH: 10.25, darkEnd: "23:00", note: "深夜から月出", azBase: 120 },
+            "2026-11-02": { age: 21.2, illum: 52, rise: "22:15", set: "11:05", riseH: 22.25, setH: 11.08, darkEnd: "01:00", note: "深夜まで闇夜", azBase: 130 },
+            "2026-11-03": { age: 22.2, illum: 41, rise: "23:20", set: "11:50", riseH: 23.33, setH: 11.83, darkEnd: "02:00", note: "朝方まで闇夜", azBase: 140 },
+            "2026-11-04": { age: 23.2, illum: 31, rise: "--:--", set: "12:30", riseH: 99,   setH: 12.50, darkEnd: "終夜闇夜", note: "深夜月出なし（狙い目）", azBase: 150 },
+            "2026-11-05": { age: 24.2, illum: 21, rise: "00:25", set: "13:08", riseH: 0.41,  setH: 13.13, darkEnd: "終夜闇夜", note: "深夜月出なし", azBase: 160 },
+            "2026-11-06": { age: 25.2, illum: 13, rise: "01:30", set: "13:45", riseH: 1.50,  setH: 13.75, darkEnd: "終夜闇夜", note: "深夜月出なし", azBase: 170 },
+            "2026-11-07": { age: 26.2, illum: 7,  rise: "02:36", set: "14:23", riseH: 2.60,  setH: 14.38, darkEnd: "終夜闇夜", note: "細い残月", azBase: 180 },
+            "2026-11-08": { age: 27.2, illum: 3,  rise: "03:42", set: "15:03", riseH: 3.70,  setH: 15.05, darkEnd: "終夜闇夜", note: "極細の三日月", azBase: 190 },
+            "2026-11-09": { age: 28.2, illum: 1,  rise: "04:47", set: "15:47", riseH: 4.78,  setH: 15.78, darkEnd: "終夜闇夜", note: "新月期・闇夜", azBase: 200 },
+            "2026-11-10": { age: 29.2, illum: 0,  rise: "05:50", set: "16:36", riseH: 5.83,  setH: 16.60, darkEnd: "終夜闇夜", note: "新月・完全な闇夜", azBase: 210 },
+            "2026-11-11": { age: 1.2,  illum: 1,  rise: "06:48", set: "17:31", riseH: 6.80,  setH: 17.52, darkEnd: "終夜闇夜", note: "新月直後・三日月（絶好）", azBase: 220 },
+            "2026-11-12": { age: 2.2,  illum: 4,  rise: "07:38", set: "18:32", riseH: 7.63,  setH: 18.53, darkEnd: "20:00以降闇夜", note: "夕方すぐ沈む", azBase: 230 },
+            "2026-11-13": { age: 3.2,  illum: 9,  rise: "08:21", set: "19:37", riseH: 8.35,  setH: 19.62, darkEnd: "21:00以降闇夜", note: "三日月・影響小", azBase: 240 },
+            "2026-11-14": { age: 4.2,  illum: 16, rise: "08:56", set: "20:45", riseH: 8.93,  setH: 20.75, darkEnd: "22:00以降闇夜", note: "影響小", azBase: 250 },
+            "2026-11-15": { age: 5.2,  illum: 25, rise: "09:27", set: "21:54", riseH: 9.45,  setH: 21.90, darkEnd: "23:00以降闇夜", note: "影響小", azBase: 260 },
+            "2026-11-16": { age: 6.2,  illum: 35, rise: "09:54", set: "23:03", riseH: 9.90,  setH: 23.05, darkEnd: "深夜0時以降闇夜", note: "半月前", azBase: 270 },
+            "2026-11-17": { age: 7.2,  illum: 46, rise: "10:19", set: "--:--", riseH: 10.32, setH: 99,   darkEnd: "深夜1時以降闇夜", note: "上弦の月", azBase: 280 },
+            "2026-11-18": { age: 8.2,  illum: 57, rise: "10:44", set: "00:12", riseH: 10.73, setH: 0.20,  darkEnd: "深夜2時以降闇夜", note: "半月過ぎ", azBase: 290 },
+            "2026-11-19": { age: 9.2,  illum: 68, rise: "11:10", set: "01:21", riseH: 11.17, setH: 1.35,  darkEnd: "月明かりあり", note: "月明かり注意", azBase: 300 },
+            "2026-11-20": { age: 10.2, illum: 78, rise: "11:39", set: "02:31", riseH: 11.65, setH: 2.51,  darkEnd: "月明かりあり", note: "月明かり注意", azBase: 310 },
+            "2026-11-21": { age: 11.2, illum: 86, rise: "12:12", set: "03:41", riseH: 12.20, setH: 3.68,  darkEnd: "月明かりあり", note: "明るい月夜", azBase: 320 },
+            "2026-11-22": { age: 12.2, illum: 92, rise: "12:51", set: "04:52", riseH: 12.85, setH: 4.86,  darkEnd: "月明かりあり", note: "満月前", azBase: 330 },
+            "2026-11-23": { age: 13.2, illum: 97, rise: "13:36", set: "06:01", riseH: 13.60, setH: 6.01,  darkEnd: "月明かりあり", note: "ほぼ満月", azBase: 340 },
+            "2026-11-24": { age: 14.2, illum: 100,rise: "14:28", set: "07:07", riseH: 14.47, setH: 7.11,  darkEnd: "月明かりあり", note: "満月（撮影回避推奨）", azBase: 350 },
+            "2026-11-25": { age: 15.2, illum: 99, rise: "15:26", set: "08:08", riseH: 15.43, setH: 8.13,  darkEnd: "早朝のみ闇夜", note: "満月翌日", azBase: 10 },
+            "2026-11-26": { age: 16.2, illum: 95, rise: "16:29", set: "09:02", riseH: 16.48, setH: 9.03,  darkEnd: "朝方闇夜", note: "明るい月", azBase: 20 },
+            "2026-11-27": { age: 17.2, illum: 89, rise: "17:35", set: "09:49", riseH: 17.58, setH: 9.81,  darkEnd: "朝方闇夜", note: "影響大", azBase: 30 },
+            "2026-11-28": { age: 18.2, illum: 81, rise: "18:43", set: "10:30", riseH: 18.72, setH: 10.50, darkEnd: "朝方闇夜", note: "影響大", azBase: 40 },
+            "2026-11-29": { age: 19.2, illum: 71, rise: "19:51", set: "11:06", riseH: 19.85, setH: 11.10, darkEnd: "深夜0時以降闇夜", note: "深夜から月没", azBase: 50 },
+            "2026-11-30": { age: 20.2, illum: 60, rise: "20:58", set: "11:38", riseH: 20.97, setH: 11.63, darkEnd: "深夜1時以降闇夜", note: "深夜から月没", azBase: 60 },
+            "2026-12-01": { age: 21.2, illum: 49, rise: "22:04", set: "12:09", riseH: 22.07, setH: 12.15, darkEnd: "深夜2時以降闇夜", note: "深夜から月没", azBase: 70 }
         };
 
+        // 撮影ポイント（岐阜・揖斐・根の上）の復旧
         const spots = [
             { name: "岐阜", type: "都市近郊" },
             { name: "揖斐", type: "登録1" },
@@ -254,20 +247,33 @@
             const moon = moonDB[dateStr] || moonDB["2026-11-11"];
             const [y, m, d] = dateStr.split('-').map(Number);
             const seed = m * 100 + d;
-            const hourSliderVal = parseInt(document.getElementById('hour-slider').value); // 18〜26 (26=翌02)
-            const actualHour = hourSliderVal >= 24 ? hourSliderVal - 24 : hourSliderVal;
-            const hourLabel = String(actualHour).padStart(2, '0') + ":00" + (hourSliderVal >= 24 ? " (翌)" : "");
+            const hourSliderVal = parseInt(document.getElementById('hour-slider').value);
+            const checkHour = hourSliderVal >= 24 ? hourSliderVal - 24 : hourSliderVal;
+            const hourLabel = String(checkHour).padStart(2, '0') + ":00" + (hourSliderVal >= 24 ? " (翌)" : "");
 
-            // 時間帯ごとの方位・高度の算出（シミュレーション）
-            // 1時間ごとに約15度東から西へ移動
-            let moonAz = (moon.azBase + (hourSliderVal - 18) * 15) % 360;
-            // 高度：夜半に一番高くなるモデル (18時低め -> 0時ピーク -> 2時低下)
-            let hourOffsetFromMidnight = Math.abs(hourSliderVal - 24);
-            let moonAlt = Math.max(-15, Math.round(55 - hourOffsetFromMidnight * 8));
-            
-            // 太陽の位置（夜間は常に地平線下）
+            let isMoonUp = false;
+            let currentFloatTime = hourSliderVal >= 24 ? hourSliderVal - 24 : hourSliderVal;
+            if (hourSliderVal >= 24) currentFloatTime += 24;
+
+            let setCompare = moon.setH;
+            if (moon.setH !== 99 && currentFloatTime <= setCompare) {
+                isMoonUp = true;
+            } else if (moon.riseH !== 99 && currentFloatTime >= moon.riseH) {
+                isMoonUp = true;
+            } else if (moon.riseH === 99 && moon.setH === 99) {
+                isMoonUp = true;
+            } else {
+                isMoonUp = false;
+            }
+            if (moon.setH < 18 && currentFloatTime >= moon.setH && currentFloatTime < 24) {
+                isMoonUp = false;
+            }
+
+            let moonAz = isMoonUp ? (moon.azBase + (hourSliderVal - 18) * 15) % 360 : 0;
+            let moonAlt = isMoonUp ? Math.max(5, Math.round(40 - Math.abs(hourSliderVal - 20) * 10)) : -15;
+
             let sunAz = (180 + (hourSliderVal - 18) * 15) % 360;
-            let sunAlt = -20 - hourOffsetFromMidnight * 2;
+            let sunAlt = -25;
 
             const matrixData = spots.map((spot, index) => {
                 const clouds = [];
@@ -280,14 +286,17 @@
                     if (cVal < 10) cVal = 10; if (cVal > 100) cVal = 100;
                     clouds.push(cVal);
 
-                    // 闇夜判定：月が地平線下（高度<0）または月齢による影響
-                    let isDarkTime = (moon.illum < 15) || (moonAlt < 0);
+                    let timeFloat = targetH < 6 ? targetH + 24 : targetH;
+                    let moonVisibleAtHour = false;
+                    if (moon.setH !== 99 && timeFloat <= moon.setH) moonVisibleAtHour = true;
+                    if (moon.riseH !== 99 && timeFloat >= moon.riseH) moonVisibleAtHour = true;
+
+                    let isDarkTime = (moon.illum < 15) || !moonVisibleAtHour;
                     impacts.push(isDarkTime);
                 }
                 return { ...spot, clouds, impacts };
             });
 
-            // マトリクス描画
             const tbody = document.getElementById('matrix-body');
             tbody.innerHTML = '';
             matrixData.forEach(spot => {
@@ -322,26 +331,23 @@
             document.getElementById('verdict-main-text').innerText = mainVerdictText;
             document.getElementById('verdict-sub-text').innerText = `【特徴メモ】${moon.note} ｜ 【ベスト地点】${minCloud.name} (平均雲量 ${Math.round(minCloud.avg)}%)`;
 
-            // スライダー時刻連動ステータス更新
             document.getElementById('selected-time-display').innerText = `時刻: ${hourLabel}`;
             document.getElementById('target-moment-title').innerText = `${hourLabel} の天体位置`;
-            document.getElementById('info-moon-alt-az').innerText = `${moonAlt}° / ${moonAz}°`;
+            document.getElementById('info-moon-alt-az').innerText = isMoonUp ? `${moonAlt}° / ${moonAz}°` : "地平線下 (非表示)";
             document.getElementById('info-sun-alt-az').innerText = `${sunAlt}° / ${sunAz}°`;
-            document.getElementById('info-moon-impact',).innerText = moonAlt < 0 ? "影響なし（地平線下）" : (moon.illum < 15 ? "影響極小" : "影響あり");
-            document.getElementById('info-moon-status',).innerText = moonAlt < 0 ? "沈んでいる (闇夜)" : "出ている";
+            document.getElementById('info-moon-impact').innerText = isMoonUp ? "影響あり" : "影響なし（完全闇夜）";
+            document.getElementById('info-moon-status').innerText = isMoonUp ? "出ている" : "沈んでいる (闇夜)";
 
             document.getElementById('moon-status-badge').innerText = `月齢 ${moon.age}`;
             document.getElementById('moon-rise-set').innerText = `${moon.rise} / ${moon.set}`;
             document.getElementById('moon-illum-text').innerText = `${moon.illum}% (${moon.note})`;
             document.getElementById('dark-time-range').innerText = moon.darkEnd;
 
-            // コンパス描画
-            drawCompass(moonAz, moonAlt, sunAz, sunAlt);
-            drawMoonIcon(moon.age);
+            drawCompass(moonAz, moonAlt, sunAz, sunAlt, isMoonUp);
+            drawMoonIcon(moon.age, isMoonUp);
         }
 
-        // コンパスレーダー描画
-        function drawCompass(moonAz, moonAlt, sunAz, sunAlt) {
+        function drawCompass(moonAz, moonAlt, sunAz, sunAlt, isMoonUp) {
             const canvas = document.getElementById('compassCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
@@ -365,24 +371,21 @@
             ctx.fillText('北', cx, cy - maxR + 6);
             ctx.fillText('南', cx, cy + maxR - 6);
             ctx.fillText('東', cx + maxR - 6, cy);
-            ctx.fillText('西', cx - maxR + 6, cy);
+            ctx.fillText('西', cx - maxR + 7, cy);
 
-            function getCoords(az, alt) {
-                let r = alt < 0 ? maxR * 1.2 : maxR * (1 - Math.max(0, Math.min(90, alt)) / 90);
-                let rad = (az - 90) * (Math.PI / 180);
-                return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad), isUp: alt >= 0 };
-            }
+            if (isMoonUp) {
+                let r = maxR * (1 - Math.max(0, Math.min(90, moonAlt)) / 90);
+                let rad = (moonAz - 90) * (Math.PI / 180);
+                let mx = cx + r * Math.cos(rad);
+                let my = cy + r * Math.sin(rad);
 
-            let moonCoord = getCoords(moonAz, moonAlt);
-            if (moonCoord.isUp) {
                 ctx.fillStyle = '#fbbf24';
-                ctx.beginPath(); ctx.arc(moonCoord.x, moonCoord.y, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.font = '10px sans-serif'; ctx.fillText('🌙', moonCoord.x, moonCoord.y - 10);
+                ctx.beginPath(); ctx.arc(mx, my, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.font = '10px sans-serif'; ctx.fillText('🌙', mx, my - 10);
             }
         }
 
-        // 月相アイコン描画
-        function drawMoonIcon(moonAge) {
+        function drawMoonIcon(moonAge, isMoonUp) {
             const canvas = document.getElementById('moonCanvas');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
@@ -392,6 +395,8 @@
             ctx.clearRect(0, 0, size, size);
             ctx.fillStyle = '#0f172a';
             ctx.beginPath(); ctx.arc(r, r, r - 1, 0, 2 * Math.PI); ctx.fill();
+
+            if (!isMoonUp) return;
 
             const phase = moonAge / 29.53058867;
             ctx.save();
